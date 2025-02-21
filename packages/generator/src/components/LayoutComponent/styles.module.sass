@@ -1,0 +1,25 @@
+@use '../../styles/variables' as *
+
+@mixin responsiveFlexItem($breakpoint, $var-name)
+  @media (max-width: $breakpoint)
+    flex: 0 0 calc(var(--#{$var-name}) * (100% / 24))
+
+@mixin responsiveHorizontalGap($breakpoint, $var-name)
+  @media (max-width: $breakpoint)
+    padding: 0 calc(var(--#{$var-name}) / 2)
+
+.root
+  flex: 0 0 calc(var(--colDefault) * (100% / 24)),
+  padding: 0 calc(var(--schemaLayoutColsSpanDefault) / 2),
+
+  +responsiveFlexItem($breakpointXxl, 'colXxl')
+  +responsiveFlexItem($breakpointXl, 'colXl')
+  +responsiveFlexItem($breakpointLg, 'colLg')
+  +responsiveFlexItem($breakpointMd, 'colMd')
+  +responsiveFlexItem($breakpointSm, 'colSm')
+
+  +responsiveHorizontalGap($breakpointXxl, 'schemaLayoutColsSpanXxl')
+  +responsiveHorizontalGap($breakpointXl, 'schemaLayoutColsSpanXl')
+  +responsiveHorizontalGap($breakpointLg, 'schemaLayoutColsSpanLg')
+  +responsiveHorizontalGap($breakpointMd, 'schemaLayoutColsSpanMd')
+  +responsiveHorizontalGap($breakpointSm, 'schemaLayoutColsSpanSm')

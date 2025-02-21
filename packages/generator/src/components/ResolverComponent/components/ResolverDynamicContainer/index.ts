@@ -1,0 +1,1 @@
+export { ResolverDynamicContainer } from './ResolverDynamicContainer'
