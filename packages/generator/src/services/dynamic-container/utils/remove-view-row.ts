@@ -1,16 +1,9 @@
 import { EntityId, ViewDefinition, ViewsDefinitions } from '@form-crafter/core'
 import { isEmpty, isNotEmpty } from '@form-crafter/utils'
 
-// СРАВНИТЬ JSON ДО ИПОСЛЕ
-// !! проверить после сценариев уделиня добавления что остаётся в схему!!
-
-// реализовать isHide и проверить col: auto
-
-// добавить всем типам контейнера и динамк. контейнера callback на скрытие/показ компонента (для tabs/accordion)
-
-// добавить в options builder прототип callback на определённые действия multifiedl (и других полей если нужно) !! ДЛЯ УДАЛЕНИЯ МУСОРА ИЗ СХЕМЫ
-
-// СДЕЛАЙТЬ КОМОПНЕНТ TAB И ПРОВЕРИТЬ ЧТО РАБОТАЕТ ОК
+// реализовать isHide
+// добавить всем типам контейнера и динамк. контейнера callback на скрытие/показ компонента (для tabs/accordion) для isHide
+// СДЕЛАЙТЬ КОМОПНЕНТ TAB, TABLE, ACCORDION И ПРОВЕРИТЬ ЧТО РАБОТАЕТ ОК
 
 type CollectIds = {
     rows: EntityId[]

@@ -1,21 +1,22 @@
 import { ViewRowChild } from '@form-crafter/core'
 import { FC, memo } from 'react'
 
-import { useViewRow } from '../../hooks'
+import { useRootLayoutSpans, useViewRow } from '../../hooks'
 import { ResolverComponent } from '../ResolverComponent'
-import styles from './styles.module.sass'
+import { RowStyled } from './styles'
 
 type Props = ViewRowChild
 
 export const Row: FC<Props> = memo(({ id: rowId }) => {
     const viewRow = useViewRow(rowId)
+    const rootLayoutSpans = useRootLayoutSpans()
 
     return (
-        <div className={styles.root}>
+        <RowStyled rootLayoutSpans={rootLayoutSpans}>
             {viewRow.children.map(({ id: componentId }) => (
                 <ResolverComponent key={componentId} id={componentId} rowId={rowId} />
             ))}
-        </div>
+        </RowStyled>
     )
 })
 

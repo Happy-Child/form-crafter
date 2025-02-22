@@ -1,15 +1,18 @@
 import { ViewRowChild } from '@form-crafter/core'
 import { FC, memo, PropsWithChildren } from 'react'
 
+import { useRootLayoutSpans } from '../../hooks'
 import { Row } from '../Row'
-import styles from './styles.module.sass'
+import { RowsListStyled } from './styles'
 
 export type Props = PropsWithChildren<{
     rows?: ViewRowChild[]
 }>
 
 export const RowsList: FC<Props> = memo(({ rows, children }) => {
-    return <div className={styles.root}>{rows?.map(({ id }) => <Row key={id} id={id} />) || children}</div>
+    const rootLayoutSpans = useRootLayoutSpans()
+
+    return <RowsListStyled rootLayoutSpans={rootLayoutSpans}>{rows?.map(({ id }) => <Row key={id} id={id} />) || children}</RowsListStyled>
 })
 
 RowsList.displayName = 'RowsList'

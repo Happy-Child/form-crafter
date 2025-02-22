@@ -1,18 +1,15 @@
 import { isNotEmpty } from '@form-crafter/utils'
-import { FC, FormEvent, memo, useCallback } from 'react'
+import { FC, FormEvent, memo, ReactNode, useCallback } from 'react'
 
 import { useGeneratorContext } from '../../contexts'
 import { useRootViewComponent } from '../../hooks'
 import { RowsList } from '../RowsList'
-import { useGeneratorStylesVars } from './hooks'
-import styles from './styles.module.sass'
+import { Form } from './styles'
 
-export const Generator: FC = memo(() => {
+export const Generator: FC<{ renderBottom?: () => ReactNode }> = memo(({ renderBottom }) => {
     const { services } = useGeneratorContext()
 
     const { rows } = useRootViewComponent()
-
-    const stylesVars = useGeneratorStylesVars()
 
     const handleSubmit = useCallback(
         (e: FormEvent<HTMLFormElement>) => {
@@ -23,9 +20,10 @@ export const Generator: FC = memo(() => {
     )
 
     return (
-        <form onSubmit={handleSubmit} className={styles.root} style={stylesVars}>
+        <Form onSubmit={handleSubmit}>
             {isNotEmpty(rows) && <RowsList rows={rows} />}
-        </form>
+            {renderBottom?.()}
+        </Form>
     )
 })
 

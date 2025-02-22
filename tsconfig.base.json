@@ -1,0 +1,21 @@
+{
+    "compileOnSave": false,
+    "compilerOptions": {
+        "rootDir": ".",
+        "moduleResolution": "bundler",
+        "importHelpers": true,
+        "target": "ES2020",
+        "module": "esnext",
+        "lib": ["ES2020", "DOM", "DOM.Iterable"],
+        "skipLibCheck": true,
+        "skipDefaultLibCheck": true,
+        "baseUrl": ".",
+        "paths": {
+            "@form-crafter/core": ["packages/core/src/index.ts"],
+            "@form-crafter/generator": ["packages/generator/src/index.ts"],
+            "@form-crafter/options-builder": ["packages/options-builder/src/index.ts"],
+            "@form-crafter/themes": ["packages/themes/src/index.ts"],
+            "@form-crafter/utils": ["packages/utils/src/index.ts"]
+        }
+    }
+}

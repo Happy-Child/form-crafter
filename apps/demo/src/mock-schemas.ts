@@ -18,11 +18,11 @@ export const employeeFormSchema: Schema = {
                     },
                     row_id_2: {
                         id: 'row_id_2',
-                        children: [{ id: 'date-birth' }],
+                        children: [{ id: 'date-birth' }, { id: 'email' }],
                     },
                     row_id_3: {
                         id: 'row_id_3',
-                        children: [{ id: 'email' }, { id: 'input-salary' }],
+                        children: [{ id: 'input-salary' }],
                     },
                     row_id_4: {
                         id: 'row_id_4',
@@ -39,14 +39,6 @@ export const employeeFormSchema: Schema = {
                     'group-work_2': {
                         id: 'row_id_5',
                         children: [{ id: 'date-start' }],
-                    },
-                    'group-personal_1': {
-                        id: 'row_id_5',
-                        children: [{ id: 'date-birth' }, { id: 'email' }],
-                    },
-                    'group-personal_2': {
-                        id: 'row_id_5',
-                        children: [{ id: 'input-salary' }],
                     },
                 },
                 components: {
@@ -84,31 +76,23 @@ export const employeeFormSchema: Schema = {
                             layout: { col: { default: 12 } },
                         },
                     },
-                    'group-personal': {
-                        id: 'group-personal',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 24 } },
-                        },
-                        rows: [{ id: 'group-personal_1' }, { id: 'group-personal_2' }],
-                    },
                     'date-birth': {
                         id: 'date-birth',
-                        parentId: 'group-personal',
+                        parentId: rootComponentId,
                         params: {
-                            layout: { col: { default: 12 } },
+                            layout: { col: { default: 'auto' } },
                         },
                     },
                     email: {
                         id: 'email',
-                        parentId: 'group-personal',
+                        parentId: rootComponentId,
                         params: {
-                            layout: { col: { default: 12 } },
+                            layout: { col: { default: 19 } },
                         },
                     },
                     'input-salary': {
                         id: 'input-salary',
-                        parentId: 'group-personal',
+                        parentId: rootComponentId,
                         params: {
                             layout: { col: { default: 12 } },
                         },
@@ -154,10 +138,6 @@ export const employeeFormSchema: Schema = {
         },
     },
     componentsSchemas: {
-        'group-personal': {
-            meta: { id: 'group-personal', type: 'container', name: 'group' },
-            properties: { title: 'Личные данные' },
-        },
         'input-first-name': {
             meta: { id: 'input-first-name', type: 'base', name: 'input' },
             properties: { label: 'Имя', value: '' },

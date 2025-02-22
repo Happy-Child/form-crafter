@@ -1,6 +1,6 @@
 import { ViewComponentLayout } from '@form-crafter/core'
 
-export const getResponsiveLayoutSizes = (col: ViewComponentLayout['col']): Required<ViewComponentLayout['col']> => {
+export const getLayoutColSpan = (col: ViewComponentLayout['col']): Required<ViewComponentLayout['col']> => {
     const { default: def, xxl, xl, lg, md, sm } = col
     return {
         default: def,

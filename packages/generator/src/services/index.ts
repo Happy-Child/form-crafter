@@ -12,7 +12,7 @@ export const createRootServices = ({ schema, onSubmit }: RootServicesParams): Ro
     const componentsSchemasService = createComponentsSchemasService({ initial: schema.componentsSchemas })
     const viewsService = createViewsService({ initial: schema.views })
 
-    const formService = createFormService({ onSubmit })
+    const formService = createFormService({ onSubmit, viewsService, componentsSchemasService })
     const dynamicContainerService = createDynamicContainerService({ viewsService, componentsSchemasService })
 
     // const setTestComponentHidden = createEvent<any>()

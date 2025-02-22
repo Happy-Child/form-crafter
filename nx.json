@@ -6,7 +6,7 @@
         "production": [
             "default",
             "!{projectRoot}/.eslintrc.json",
-            "!{projectRoot}/eslint.config.js",
+            "!{projectRoot}/eslint.config.mjs",
             "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
             "!{projectRoot}/tsconfig.spec.json",
             "!{projectRoot}/jest.config.[jt]s",
@@ -16,22 +16,6 @@
         "sharedGlobals": []
     },
     "plugins": [
-        {
-            "plugin": "@nx/rspack/plugin",
-            "options": {
-                "buildTargetName": "build",
-                "serveTargetName": "serve",
-                "previewTargetName": "preview",
-                "buildDepsTargetName": "build-deps",
-                "watchDepsTargetName": "watch-deps"
-            }
-        },
-        {
-            "plugin": "@nx/eslint/plugin",
-            "options": {
-                "targetName": "lint"
-            }
-        },
         {
             "plugin": "@nx/jest/plugin",
             "options": {
@@ -45,6 +29,20 @@
                 "buildDepsTargetName": "build-deps",
                 "watchDepsTargetName": "watch-deps"
             }
+        },
+        {
+            "plugin": "@nx/vite/plugin",
+            "options": {
+                "buildTargetName": "build",
+                "testTargetName": "test",
+                "serveTargetName": "serve",
+                "devTargetName": "dev",
+                "previewTargetName": "preview",
+                "serveStaticTargetName": "serve-static",
+                "typecheckTargetName": "typecheck",
+                "buildDepsTargetName": "build-deps",
+                "watchDepsTargetName": "watch-deps"
+            }
         }
     ],
     "workspaceLayout": {
@@ -54,17 +52,20 @@
         "@nx/react": {
             "application": {
                 "babel": true,
-                "style": "scss",
+                "style": "@emotion/styled",
                 "linter": "eslint",
-                "bundler": "rspack"
-            },
-            "component": {
-                "style": "scss"
+                "bundler": "vite"
             },
             "library": {
-                "style": "scss",
+                "style": "@emotion/styled",
                 "linter": "eslint",
+                "publishable": true,
+                "bundler": "rollup",
+                "strict": true,
                 "unitTestRunner": "none"
+            },
+            "component": {
+                "style": "@emotion/styled"
             }
         }
     },

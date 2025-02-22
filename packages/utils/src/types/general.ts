@@ -39,3 +39,7 @@ export type Unwrap<T> = T extends SomeObject ? { [K in keyof T]: T[K] } : T
 export type MakeKeysOptional<T> = T extends SomeObject ? Unwrap<OptionalIfUndefined<T>> : T
 
 export type ChildType<T> = T extends Array<infer I> ? I : never
+
+export type RequiredDeepObject<T extends SomeObject> = {
+    [K in keyof T]-?: T[K] extends SomeObject ? RequiredDeepObject<T[K]> : T[K]
+}

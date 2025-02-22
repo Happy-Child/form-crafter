@@ -3,6 +3,7 @@ import pluginReactConfig from 'eslint-plugin-react/configs/recommended.js'
 import pluginReactHooks from 'eslint-plugin-react-hooks'
 import simpleImportSort from 'eslint-plugin-simple-import-sort'
 import eslintPluginUnicorn from 'eslint-plugin-unicorn'
+import onlyWarn from 'eslint-plugin-only-warn'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
@@ -74,9 +75,15 @@ export default [
             '@typescript-eslint/no-unsafe-function-type': 'off',
             'react/prop-types': 'off',
             '@typescript-eslint/no-empty-object-type': 'off',
+            'react/no-unknown-property': 'off'
         },
     },
     {
         ignores: ['**/*.mjs', '**/*.cjs', "**/*.js", 'node_modules/*', 'dist/*', 'public/*'],
+    },
+    {
+        plugins: {
+            'only-warn': onlyWarn,
+        },
     },
 ]
