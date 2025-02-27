@@ -1,10 +1,6 @@
 import { EntityId, ViewDefinition, ViewsDefinitions } from '@form-crafter/core'
 import { isEmpty, isNotEmpty } from '@form-crafter/utils'
 
-// реализовать isHide
-// добавить всем типам контейнера и динамк. контейнера callback на скрытие/показ компонента (для tabs/accordion) для isHide
-// СДЕЛАЙТЬ КОМОПНЕНТ TAB, TABLE, ACCORDION И ПРОВЕРИТЬ ЧТО РАБОТАЕТ ОК
-
 type CollectIds = {
     rows: EntityId[]
     components: EntityId[]

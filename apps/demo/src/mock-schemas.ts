@@ -152,7 +152,7 @@ export const employeeFormSchema: Schema = {
         },
         email: {
             meta: { id: 'email', type: 'base', name: 'email' },
-            properties: { label: 'Email' },
+            properties: { label: 'Email', value: undefined },
         },
         'group-work': {
             meta: { id: 'group-work', type: 'container', name: 'group' },
@@ -160,15 +160,16 @@ export const employeeFormSchema: Schema = {
         },
         'input-position': {
             meta: { id: 'input-position', type: 'base', name: 'input' },
-            properties: { label: 'Должность' },
+            properties: { label: 'Должность', value: undefined },
         },
         'input-salary': {
             meta: { id: 'input-salary', type: 'base', name: 'number-input' },
-            properties: { label: 'Зарплата' },
+            properties: { label: 'Зарплата', value: undefined },
         },
         'select-department': {
             meta: { id: 'select-department', type: 'base', name: 'select' },
             properties: {
+                value: undefined,
                 label: 'Отдел',
                 options: [
                     { label: 'Разработка', value: 'dev' },
@@ -281,7 +282,7 @@ export const employeeFormSchema: Schema = {
                     },
                     email: {
                         meta: { id: 'email', type: 'base', name: 'email' },
-                        properties: { label: 'Email' },
+                        properties: { label: 'Email', value: undefined },
                     },
                     education: {
                         meta: { id: 'education', type: 'dynamic-container', name: 'multifield' },

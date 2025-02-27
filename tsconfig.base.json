@@ -17,5 +17,6 @@
             "@form-crafter/themes": ["packages/themes/src/index.ts"],
             "@form-crafter/utils": ["packages/utils/src/index.ts"]
         }
-    }
+    },
+    "exclude": ["node_modules/**/*", "dist/**/*"]
 }
