@@ -1,8 +1,8 @@
 import {
     ComponentSchema,
     ComponentsSchemas,
-    DynamicContainerComponentSchema,
     EntityId,
+    RepeaterComponentSchema,
     rootComponentId,
     ViewComponent,
     ViewDefinition,
@@ -14,7 +14,7 @@ import { genComponentId, genRowId } from '../../../utils'
 
 type IdMap = Record<EntityId, EntityId>
 
-const createViewDefinition = (definitionTemplate: ViewDefinition, componentsIdMap: IdMap, dynamicContainerId: EntityId): ViewDefinition => {
+const createViewDefinition = (definitionTemplate: ViewDefinition, componentsIdMap: IdMap, repeaterId: EntityId): ViewDefinition => {
     const rowIdsMap: IdMap = {}
 
     const rows = Object.fromEntries(
@@ -40,7 +40,7 @@ const createViewDefinition = (definitionTemplate: ViewDefinition, componentsIdMa
     const components = Object.fromEntries(
         Object.entries(definitionTemplate.components).map(([templateComponentId, component]): [EntityId, ViewComponent] => {
             const isRootComponent = templateComponentId === rootComponentId
-            const parentId = isRootComponent ? dynamicContainerId : componentsIdMap[component.parentId!]
+            const parentId = isRootComponent ? repeaterId : componentsIdMap[component.parentId!]
 
             const finalId = componentsIdMap[templateComponentId]
             const rows = component.rows?.map(({ id: templateRowId }) => ({
@@ -70,7 +70,7 @@ type CreateNewComponentsSchemas = {
     templateIdMap: IdMap
 }
 
-const createNewComponentsSchemas = (componentsSchemas: DynamicContainerComponentSchema['template']['componentsSchemas']): CreateNewComponentsSchemas => {
+const createNewComponentsSchemas = (componentsSchemas: RepeaterComponentSchema['template']['componentsSchemas']): CreateNewComponentsSchemas => {
     const schemas: ComponentsSchemas = {}
     const templateIdMap: CreateNewComponentsSchemas['templateIdMap'] = {}
 
@@ -94,10 +94,7 @@ type CreateViewsDefinitions = {
     additionalRowId: EntityId
 }
 
-export const createViewsDefinitions = (
-    { views, componentsSchemas }: DynamicContainerComponentSchema['template'],
-    dynamicContainerId: EntityId,
-): CreateViewsDefinitions => {
+export const createViewsDefinitions = ({ views, componentsSchemas }: RepeaterComponentSchema['template'], repeaterId: EntityId): CreateViewsDefinitions => {
     const { schemas: newComponentsSchemas, templateIdMap: templateComponentIdMap } = createNewComponentsSchemas(componentsSchemas)
 
     const additionalViewRow: ViewRow = {
@@ -107,7 +104,7 @@ export const createViewsDefinitions = (
 
     const finalViews = Object.fromEntries(
         Object.entries(views).map(([viewId, definition]) => {
-            const def = createViewDefinition(definition, templateComponentIdMap, dynamicContainerId)
+            const def = createViewDefinition(definition, templateComponentIdMap, repeaterId)
             def.rows[additionalViewRow.id] = additionalViewRow
             return [viewId, def]
         }),

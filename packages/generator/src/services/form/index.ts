@@ -4,6 +4,8 @@ import { GeneratorProps } from '../../types'
 import { init } from './init'
 import { FormService, FormServiceParams, InvokeUserSubmitHandlerData } from './types'
 
+export type { FormService }
+
 export const createFormService = ({ onSubmit, componentsSchemasService, viewsService }: FormServiceParams): FormService => {
     const $userSubmitHandler = createStore<GeneratorProps['onSubmit']>(onSubmit)
 

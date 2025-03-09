@@ -1,5 +1,5 @@
 import { ContainerComponentProps } from '@form-crafter/core'
-import { useDynamicContainerContext, useRowListIndex } from '@form-crafter/generator'
+import { useRepeaterContext, useRowListIndex } from '@form-crafter/generator'
 import { isNotEmpty, Nullable } from '@form-crafter/utils'
 import { Box, Button } from '@mui/material'
 import { memo } from 'react'
@@ -13,7 +13,7 @@ type Props = Pick<ContainerComponentProps, 'id' | 'parentId' | 'rowId'> & {
 export const TopLevelContainerHeader = memo<Props>(({ title, id, parentId, rowId }) => {
     const index = useRowListIndex(parentId, rowId)
 
-    const { onRemoveRow } = useDynamicContainerContext()
+    const { onRemoveRow } = useRepeaterContext()
 
     return (
         <Box gap={2} display="flex" justifyContent="space-between">

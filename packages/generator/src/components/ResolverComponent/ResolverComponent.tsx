@@ -1,16 +1,19 @@
-import { ComponentType } from '@form-crafter/core'
+// import { ComponentType } from '@form-crafter/core'
 import { memo } from 'react'
 
 import { useComponentMeta, useHasDisplayComponent, useIsHiddenComponent } from '../../hooks'
-import { ResolverBase } from './components/ResolverBase'
 import { ResolverContainer } from './components/ResolverContainer'
-import { ResolverDynamicContainer } from './components/ResolverDynamicContainer'
+import { ResolverEditable } from './components/ResolverEditable'
+import { ResolverRepeater } from './components/ResolverRepeater'
 import { ResolverComponentType } from './types'
 
-const resolverByType: Record<ComponentType, ResolverComponentType> = {
-    base: ResolverBase,
+// Record<ComponentType, ResolverComponentType>
+const resolverByType: any = {
+    editable: ResolverEditable,
     container: ResolverContainer,
-    'dynamic-container': ResolverDynamicContainer,
+    repeater: ResolverRepeater,
+    // uploader: ,
+    // static: ,
 }
 
 export const ResolverComponent: ResolverComponentType = memo(({ id, rowId }) => {

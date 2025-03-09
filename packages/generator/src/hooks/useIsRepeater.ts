@@ -4,7 +4,7 @@ import { useStoreMap } from 'effector-react'
 
 import { useGeneratorContext } from '../contexts'
 
-export const useIsDynamicContainer = (id: EntityId): boolean => {
+export const useIsRepeater = (id: EntityId): boolean => {
     const { services } = useGeneratorContext()
 
     const type = useStoreMap({
@@ -13,5 +13,5 @@ export const useIsDynamicContainer = (id: EntityId): boolean => {
         fn: (data, [id]) => (isNotEmpty(data[id]) ? data[id].meta.type : null),
     })
 
-    return type === 'dynamic-container'
+    return type === 'repeater'
 }

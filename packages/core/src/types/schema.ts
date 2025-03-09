@@ -13,6 +13,10 @@ export type Schema = {
     layout?: SchemaLayout
     views: Views
     componentsSchemas: ComponentsSchemas
-    validationRules: any[]
+    validationsRules: any[]
+    // validations: {
+    //     validateOn?: 'onSubmit' | 'onChange' | 'onBlur'
+    //     rules: { conditions: ...3система описания логич. выражений }[]
+    // }
     relationsRules: any[]
 }

@@ -40,7 +40,7 @@ const optionsBuilder = builders.group({
         ]),
 })
 
-type ComponentProps = FormCrafterComponentProps<'base', OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = FormCrafterComponentProps<'editable', OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Checkbox = memo(
     forwardRef<HTMLDivElement, ComponentProps>(({ properties: { options, value, label, disabled }, onChangeProperties }, ref) => {
@@ -84,7 +84,7 @@ Checkbox.displayName = 'Checkbox'
 export const checkboxModule = createComponentModule({
     name: 'checkbox',
     label: 'Checkbox',
-    type: 'base',
+    type: 'editable',
     optionsBuilder,
     Component: Checkbox,
 })

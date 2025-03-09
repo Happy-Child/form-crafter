@@ -1,6 +1,6 @@
 import { createComponentModule, FormCrafterComponentProps, OptionsBuilderOutput } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
-import { Box, FormControl, FormControlLabel, FormLabel, Radio as RadioBase } from '@mui/material'
+import { Box, FormControl, FormControlLabel, FormLabel, Radio as Radioeditable } from '@mui/material'
 import { forwardRef, memo } from 'react'
 
 const optionsBuilder = builders.group({
@@ -39,7 +39,7 @@ const optionsBuilder = builders.group({
         ]),
 })
 
-type ComponentProps = FormCrafterComponentProps<'base', OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = FormCrafterComponentProps<'editable', OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Radio = memo(
     forwardRef<HTMLDivElement, ComponentProps>(({ meta, properties: { options, value, label, disabled }, onChangeProperties }, ref) => {
@@ -51,7 +51,7 @@ const Radio = memo(
                         <FormControlLabel
                             key={option.value}
                             control={
-                                <RadioBase
+                                <Radioeditable
                                     checked={value === option.value}
                                     name={meta.formKey}
                                     value={option.value}
@@ -73,7 +73,7 @@ Radio.displayName = 'Radio'
 export const radioModule = createComponentModule({
     name: 'radio',
     label: 'Radio',
-    type: 'base',
+    type: 'editable',
     optionsBuilder,
     Component: Radio,
 })

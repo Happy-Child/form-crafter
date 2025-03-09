@@ -1,4 +1,3 @@
-export * from './component-module'
 export * from './components'
 export * from './components-schemas'
 export * from './general'

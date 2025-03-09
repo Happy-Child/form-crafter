@@ -13,7 +13,7 @@ const optionsBuilder = builders.group({
     addButtonText: builders.input().label('Текст кнопки добавления').nullable(),
 })
 
-type ComponentProps = FormCrafterComponentProps<'dynamic-container', OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = FormCrafterComponentProps<'repeater', OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Multifield = memo(
     forwardRef<HTMLDivElement, ComponentProps>(({ id, rows, onAddRow, properties: { title, addButtonText } }, ref) => {
@@ -36,7 +36,7 @@ Multifield.displayName = 'Multifield'
 export const multifieldModule = createComponentModule({
     name: 'multifield',
     label: 'Multifield',
-    type: 'dynamic-container',
+    type: 'repeater',
     optionsBuilder,
     Component: Multifield,
 })

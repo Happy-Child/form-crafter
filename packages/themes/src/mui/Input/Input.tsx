@@ -10,7 +10,7 @@ const optionsBuilder = builders.group({
     disabled: builders.checkbox().label('Блокировка ввода'),
 })
 
-type ComponentProps = FormCrafterComponentProps<'base', OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = FormCrafterComponentProps<'editable', OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Input = memo(
     forwardRef<HTMLInputElement, ComponentProps>(({ meta, properties: { value, placeholder, label, disabled }, onChangeProperties }, ref) => {
@@ -35,7 +35,7 @@ Input.displayName = 'Input'
 export const inputModule = createComponentModule({
     name: 'input',
     label: 'Input',
-    type: 'base',
+    type: 'editable',
     optionsBuilder,
     Component: Input,
 })

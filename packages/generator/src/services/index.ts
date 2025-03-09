@@ -1,8 +1,8 @@
 // import { createEvent, sample } from 'effector'
 
 import { createComponentsSchemasService } from './components-schemas'
-import { createDynamicContainerService } from './dynamic-container'
 import { createFormService } from './form'
+import { createRepeaterService } from './repeater'
 import { createSchemaService } from './schema'
 import { RootServices, RootServicesParams } from './types'
 import { createViewsService } from './views'
@@ -13,7 +13,7 @@ export const createRootServices = ({ schema, onSubmit }: RootServicesParams): Ro
     const viewsService = createViewsService({ initial: schema.views })
 
     const formService = createFormService({ onSubmit, viewsService, componentsSchemasService })
-    const dynamicContainerService = createDynamicContainerService({ viewsService, componentsSchemasService })
+    const repeaterService = createRepeaterService({ viewsService, componentsSchemasService })
 
     // const setTestComponentHidden = createEvent<any>()
 
@@ -47,6 +47,6 @@ export const createRootServices = ({ schema, onSubmit }: RootServicesParams): Ro
         componentsSchemasService,
         viewsService,
         formService,
-        dynamicContainerService,
+        repeaterService,
     }
 }

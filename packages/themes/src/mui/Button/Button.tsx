@@ -6,7 +6,7 @@ import { forwardRef, memo } from 'react'
 const defautType = 'button'
 
 const optionsBuilder = builders.group({
-    value: builders.input().label('Текст кнопки').required(),
+    text: builders.input().label('Текст кнопки').required(),
     type: builders
         .select()
         .label('Тип кнопки')
@@ -18,13 +18,13 @@ const optionsBuilder = builders.group({
         .required(),
 })
 
-type ComponentProps = FormCrafterComponentProps<'base', OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = FormCrafterComponentProps<'static', OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Button = memo(
-    forwardRef<HTMLButtonElement, ComponentProps>(({ properties: { value, type } }, ref) => {
+    forwardRef<HTMLButtonElement, ComponentProps>(({ properties: { text, type } }, ref) => {
         return (
             <ButtonBase ref={ref} type={type as Parameters<typeof ButtonBase>[0]['type']}>
-                {value}
+                {text}
             </ButtonBase>
         )
     }),
@@ -35,7 +35,7 @@ Button.displayName = 'Button'
 export const buttonModule = createComponentModule({
     name: 'button',
     label: 'Button',
-    type: 'base',
+    type: 'static',
     optionsBuilder,
     Component: Button,
 })

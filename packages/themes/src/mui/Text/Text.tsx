@@ -6,7 +6,7 @@ const optionsBuilder = builders.group({
     value: builders.textarea().required().label('Текст'),
 })
 
-type ComponentProps = FormCrafterComponentProps<'base', OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = FormCrafterComponentProps<'editable', OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Text = memo(
     forwardRef<HTMLDivElement, ComponentProps>(({ properties: { value } }, ref) => {
@@ -19,7 +19,7 @@ Text.displayName = 'Text'
 export const textModule = createComponentModule({
     name: 'text',
     label: 'Text',
-    type: 'base',
+    type: 'editable',
     optionsBuilder,
     Component: Text,
 })

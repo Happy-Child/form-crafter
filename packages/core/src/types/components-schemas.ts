@@ -34,8 +34,8 @@ export type ComponentMeta<T extends ComponentType> = {
     formKey?: string
 }
 
-export type BaseComponentSchema<T extends OptionalSerializableObject = OptionalSerializableObject> = GeneralComponent & {
-    meta: ComponentMeta<'base'>
+export type EditableComponentSchema<T extends OptionalSerializableObject = OptionalSerializableObject> = GeneralComponent & {
+    meta: ComponentMeta<'editable'>
     properties: T
 }
 
@@ -44,16 +44,29 @@ export type ContainerComponentSchema<T extends OptionalSerializableObject = Opti
     properties: T
 }
 
-export type DynamicContainerComponentSchema<T extends OptionalSerializableObject = OptionalSerializableObject> = GeneralComponent & {
-    meta: ComponentMeta<'dynamic-container'>
+export type RepeaterComponentSchema<T extends OptionalSerializableObject = OptionalSerializableObject> = GeneralComponent & {
+    meta: ComponentMeta<'repeater'>
     template: {
         views: ViewsDefinitions
-        componentsSchemas: Record<EntityId, BaseComponentSchema | ContainerComponentSchema | DynamicContainerComponentSchema>
+        componentsSchemas: Record<
+            EntityId,
+            EditableComponentSchema | ContainerComponentSchema | RepeaterComponentSchema | UploaderComponentSchema | StaticComponentSchema
+        >
     }
     properties: T
 }
 
-export type ComponentSchema = BaseComponentSchema | ContainerComponentSchema | DynamicContainerComponentSchema
+export type UploaderComponentSchema<T extends OptionalSerializableObject = OptionalSerializableObject> = GeneralComponent & {
+    meta: ComponentMeta<'uploader'>
+    properties: T
+}
+
+export type StaticComponentSchema<T extends OptionalSerializableObject = OptionalSerializableObject> = GeneralComponent & {
+    meta: ComponentMeta<'static'>
+    properties: T
+}
+
+export type ComponentSchema = EditableComponentSchema | ContainerComponentSchema | RepeaterComponentSchema | UploaderComponentSchema | StaticComponentSchema
 
 export type TemplateComponentSchema<Schema extends ComponentSchema> = Omit<Schema, 'meta'> & {
     meta: Omit<Schema['meta'], 'id' | 'templateId'> & {
@@ -62,13 +75,5 @@ export type TemplateComponentSchema<Schema extends ComponentSchema> = Omit<Schem
 }
 
 export type ComponentsPropertiesData = Record<EntityId, Partial<ComponentSchema['properties']>>
-
-export type ComponentsMetaData = Record<EntityId, ComponentSchema['meta']>
-
-export type ComponentsValidationData = Record<EntityId, NonNullable<ComponentSchema['validation']>>
-
-export type ComponentsRelationsData = Record<EntityId, Required<ComponentSchema['relations']>>
-
-export type ComponentSchemaValue = Extract<ComponentSchema, { properties: { value: unknown } }>['properties']['value']
 
 export type ComponentsSchemas = Record<EntityId, ComponentSchema>

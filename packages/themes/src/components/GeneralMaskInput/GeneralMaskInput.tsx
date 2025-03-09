@@ -1,9 +1,9 @@
-import { BaseComponentProps, MaskOptions } from '@form-crafter/core'
+import { EditableComponentProps, MaskOptions } from '@form-crafter/core'
 import { isNotNull, isNotUndefined, useCombinedRefs } from '@form-crafter/utils'
 import { useMaskito } from '@maskito/react'
 import { FC, ForwardedRef, forwardRef, ReactNode, RefAttributes, useCallback, useState } from 'react'
 
-type InheritedComponent = FC<BaseComponentProps<{ value: any }>>
+type InheritedComponent = FC<EditableComponentProps<{ value: any }>>
 
 type Props<T extends InheritedComponent> = Parameters<T>[0] & {
     Component: FC<Parameters<T>[0]>

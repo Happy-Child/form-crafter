@@ -1,8 +1,8 @@
 import { Schema } from '@form-crafter/core'
 
 import { ComponentsSchemasService } from './components-schemas'
-import { DynamicContainerService } from './dynamic-container/types'
-import { FormService } from './form/types'
+import { FormService } from './form'
+import { RepeaterService } from './repeater'
 import { SchemaService } from './schema'
 import { ViewsService } from './views'
 
@@ -16,5 +16,5 @@ export type RootServices = {
     componentsSchemasService: ComponentsSchemasService
     viewsService: ViewsService
     formService: FormService
-    dynamicContainerService: DynamicContainerService
+    repeaterService: RepeaterService
 }

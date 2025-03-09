@@ -139,19 +139,19 @@ export const employeeFormSchema: Schema = {
     },
     componentsSchemas: {
         'input-first-name': {
-            meta: { id: 'input-first-name', type: 'base', name: 'input' },
+            meta: { id: 'input-first-name', type: 'editable', name: 'input' },
             properties: { label: 'Имя', value: '' },
         },
         'input-last-name': {
-            meta: { id: 'input-last-name', type: 'base', name: 'input' },
+            meta: { id: 'input-last-name', type: 'editable', name: 'input' },
             properties: { label: 'Фамилия', value: '' },
         },
         'date-birth': {
-            meta: { id: 'date-birth', type: 'base', name: 'date-input' },
+            meta: { id: 'date-birth', type: 'editable', name: 'date-input' },
             properties: { label: 'Дата рождения', value: '25.10.2005' },
         },
         email: {
-            meta: { id: 'email', type: 'base', name: 'email' },
+            meta: { id: 'email', type: 'editable', name: 'email' },
             properties: { label: 'Email', value: undefined },
         },
         'group-work': {
@@ -159,15 +159,15 @@ export const employeeFormSchema: Schema = {
             properties: { title: 'Рабочая информация' },
         },
         'input-position': {
-            meta: { id: 'input-position', type: 'base', name: 'input' },
+            meta: { id: 'input-position', type: 'editable', name: 'input' },
             properties: { label: 'Должность', value: undefined },
         },
         'input-salary': {
-            meta: { id: 'input-salary', type: 'base', name: 'number-input' },
+            meta: { id: 'input-salary', type: 'editable', name: 'number-input' },
             properties: { label: 'Зарплата', value: undefined },
         },
         'select-department': {
-            meta: { id: 'select-department', type: 'base', name: 'select' },
+            meta: { id: 'select-department', type: 'editable', name: 'select' },
             properties: {
                 value: undefined,
                 label: 'Отдел',
@@ -179,11 +179,11 @@ export const employeeFormSchema: Schema = {
             },
         },
         'date-start': {
-            meta: { id: 'date-start', type: 'base', name: 'date-input' },
+            meta: { id: 'date-start', type: 'editable', name: 'date-input' },
             properties: { label: 'Дата начала работы', value: '25.10.1999' },
         },
         contacts: {
-            meta: { id: 'contacts', type: 'dynamic-container', name: 'multifield' },
+            meta: { id: 'contacts', type: 'repeater', name: 'multifield' },
             template: {
                 views: {
                     'main-view': {
@@ -269,23 +269,23 @@ export const employeeFormSchema: Schema = {
                         },
                     },
                     'input-first-name': {
-                        meta: { id: 'input-first-name', type: 'base', name: 'input' },
+                        meta: { id: 'input-first-name', type: 'editable', name: 'input' },
                         properties: { label: 'Имя', value: '' },
                     },
                     'input-last-name': {
-                        meta: { id: 'input-last-name', type: 'base', name: 'input' },
+                        meta: { id: 'input-last-name', type: 'editable', name: 'input' },
                         properties: { label: 'Фамилия', value: '' },
                     },
                     'date-birth': {
-                        meta: { id: 'date-birth', type: 'base', name: 'date-input' },
+                        meta: { id: 'date-birth', type: 'editable', name: 'date-input' },
                         properties: { label: 'Дата рождения', value: '25.10.2005' },
                     },
                     email: {
-                        meta: { id: 'email', type: 'base', name: 'email' },
+                        meta: { id: 'email', type: 'editable', name: 'email' },
                         properties: { label: 'Email', value: undefined },
                     },
                     education: {
-                        meta: { id: 'education', type: 'dynamic-container', name: 'multifield' },
+                        meta: { id: 'education', type: 'repeater', name: 'multifield' },
                         template: {
                             views: {
                                 'main-view': {
@@ -332,11 +332,11 @@ export const employeeFormSchema: Schema = {
                                     },
                                 },
                                 'uni-name': {
-                                    meta: { id: 'uni-name', type: 'base', name: 'input' },
+                                    meta: { id: 'uni-name', type: 'editable', name: 'input' },
                                     properties: { label: 'Название учебного заведения', value: '' },
                                 },
                                 'uni-position': {
-                                    meta: { id: 'uni-position', type: 'base', name: 'input' },
+                                    meta: { id: 'uni-position', type: 'editable', name: 'input' },
                                     properties: { label: 'Специальность', value: '' },
                                 },
                             },
@@ -354,6 +354,6 @@ export const employeeFormSchema: Schema = {
             },
         },
     },
-    validationRules: [],
+    validationsRules: [],
     relationsRules: [],
 }

@@ -1,7 +1,7 @@
 import { isNull } from '@form-crafter/utils'
 import { createContext, FC, PropsWithChildren, useContext, useMemo } from 'react'
 
-import { ComponentModule } from '../types'
+import { ComponentModule } from '../create-component-module'
 
 type FormCrafterContext = {
     theme: ComponentModule<any>[]

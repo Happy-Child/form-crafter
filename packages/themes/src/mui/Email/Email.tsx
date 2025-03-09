@@ -10,7 +10,7 @@ const optionsBuilder = builders.group({
     disabled: builders.checkbox().label('Блокировка ввода'),
 })
 
-type ComponentProps = FormCrafterComponentProps<'base', OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = FormCrafterComponentProps<'editable', OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Email = memo(
     forwardRef<HTMLDivElement, ComponentProps>(({ properties: { label, placeholder, disabled, value }, onChangeProperties }, ref) => {
@@ -33,7 +33,7 @@ Email.displayName = 'Email'
 export const emailModule = createComponentModule({
     name: 'email',
     label: 'Email',
-    type: 'base',
+    type: 'editable',
     optionsBuilder,
     Component: Email,
 })

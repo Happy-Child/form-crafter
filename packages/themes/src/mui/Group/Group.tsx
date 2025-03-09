@@ -1,5 +1,5 @@
 import { createComponentModule, FormCrafterComponentProps, OptionsBuilderOutput } from '@form-crafter/core'
-import { RowsList, useIsDynamicContainer } from '@form-crafter/generator'
+import { RowsList, useIsRepeater } from '@form-crafter/generator'
 import { builders } from '@form-crafter/options-builder'
 import { isNotEmpty } from '@form-crafter/utils'
 import { Box } from '@mui/material'
@@ -16,7 +16,7 @@ type ComponentProps = FormCrafterComponentProps<'container', OptionsBuilderOutpu
 
 const Group = memo(
     forwardRef<HTMLDivElement, ComponentProps>(({ rows, properties, ...props }, ref) => {
-        const isTopLevelContainer = useIsDynamicContainer(props.parentId)
+        const isTopLevelContainer = useIsRepeater(props.parentId)
 
         const header = isTopLevelContainer ? (
             <TopLevelContainerHeader {...props} title={properties.title} />

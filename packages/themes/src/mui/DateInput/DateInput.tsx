@@ -28,7 +28,7 @@ const optionsBuilder = builders.group({
     showMask: builders.checkbox().label('Показывать маску').value(false),
 })
 
-type ComponentProps = FormCrafterComponentProps<'base', OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = FormCrafterComponentProps<'editable', OptionsBuilderOutput<typeof optionsBuilder>>
 
 const DateInput = memo(
     forwardRef<HTMLDivElement, ComponentProps>(({ meta, properties: { pattern, showMask, ...properties }, ...props }, ref) => {
@@ -59,7 +59,7 @@ DateInput.displayName = 'DateInput'
 export const dateInputModule = createComponentModule({
     name: 'date-input',
     label: 'Date input',
-    type: 'base',
+    type: 'editable',
     optionsBuilder,
     Component: DateInput,
 })

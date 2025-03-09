@@ -10,7 +10,7 @@ const optionsBuilder = builders.group({
     disabled: builders.checkbox().label('Блокировка ввода'),
 })
 
-type ComponentProps = FormCrafterComponentProps<'base', OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = FormCrafterComponentProps<'editable', OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Textarea = memo(
     forwardRef<HTMLDivElement, ComponentProps>(({ meta, properties: { value, placeholder, label, disabled }, onChangeProperties }, ref) => {
@@ -36,7 +36,7 @@ Textarea.displayName = 'Textarea'
 export const textareaModule = createComponentModule({
     name: 'textarea',
     label: 'Textarea',
-    type: 'base',
+    type: 'editable',
     optionsBuilder,
     Component: Textarea,
 })

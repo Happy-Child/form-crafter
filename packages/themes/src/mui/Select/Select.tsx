@@ -40,7 +40,7 @@ const optionsBuilder = builders.group({
         ]),
 })
 
-type ComponentProps = FormCrafterComponentProps<'base', OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = FormCrafterComponentProps<'editable', OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Select = memo(
     forwardRef<HTMLDivElement, ComponentProps>(({ meta, properties: { options, value, label, disabled }, onChangeProperties }, ref) => {
@@ -80,7 +80,7 @@ Select.displayName = 'Select'
 export const selectModule = createComponentModule({
     name: 'select',
     label: 'Select',
-    type: 'base',
+    type: 'editable',
     optionsBuilder,
     Component: Select,
 })
