@@ -354,6 +354,4 @@ export const employeeFormSchema: Schema = {
             },
         },
     },
-    validationsRules: [],
-    relationsRules: [],
 }

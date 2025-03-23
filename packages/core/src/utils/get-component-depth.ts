@@ -1,6 +1,7 @@
 import { isEmpty } from '@form-crafter/utils'
 
-import { EntityId, ViewDefinitionComponents } from '../types'
+import { EntityId } from '../types'
+import { ViewDefinitionComponents } from '../views'
 
 const deepLevelLeft = 1
 

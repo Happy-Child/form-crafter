@@ -35,5 +35,6 @@ export const emailModule = createComponentModule({
     label: 'Email',
     type: 'editable',
     optionsBuilder,
+    operatorsForConditions: [],
     Component: Email,
 })

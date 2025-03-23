@@ -1,29 +1,28 @@
 import { OptionalSerializableObject } from '@form-crafter/utils'
 
-import { ComponentType, EntityId } from './general'
-import { ValidationRuleSchema } from './validation-schema'
-import { ViewsDefinitions } from './views'
+import { ValidationRuleParams } from '../../rules'
+import { ComponentType, EntityId } from '../../types'
+import { ViewsDefinitions } from '../../views'
 
-export type ValidationsParams = {
+export type ValidationsConfigs = {
     disableSelf?: boolean
     disableChildren?: boolean
 }
 
-export type RelationsParams = {
-    disableSelf?: boolean
-    disableChildren?: boolean
+export type ComponentValidations = {
+    configs: ValidationsConfigs
+    params: ValidationRuleParams[]
 }
 
-export type GeneralComponent = {
+export type ComponentRelations = {
+    params: any[]
+}
+
+export type GeneralComponentSchema = {
+    // TODO impl it
     hidden?: boolean
-    validation?: {
-        params: ValidationsParams
-        rules: ValidationRuleSchema[]
-    }
-    relations?: {
-        params: RelationsParams
-        rules: any[]
-    }
+    validations?: ComponentValidations
+    relations?: ComponentRelations
 }
 
 export type ComponentMeta<T extends ComponentType> = {
@@ -34,17 +33,17 @@ export type ComponentMeta<T extends ComponentType> = {
     formKey?: string
 }
 
-export type EditableComponentSchema<T extends OptionalSerializableObject = OptionalSerializableObject> = GeneralComponent & {
+export type EditableComponentSchema<T extends OptionalSerializableObject = OptionalSerializableObject> = GeneralComponentSchema & {
     meta: ComponentMeta<'editable'>
     properties: T
 }
 
-export type ContainerComponentSchema<T extends OptionalSerializableObject = OptionalSerializableObject> = GeneralComponent & {
+export type ContainerComponentSchema<T extends OptionalSerializableObject = OptionalSerializableObject> = GeneralComponentSchema & {
     meta: ComponentMeta<'container'>
     properties: T
 }
 
-export type RepeaterComponentSchema<T extends OptionalSerializableObject = OptionalSerializableObject> = GeneralComponent & {
+export type RepeaterComponentSchema<T extends OptionalSerializableObject = OptionalSerializableObject> = GeneralComponentSchema & {
     meta: ComponentMeta<'repeater'>
     template: {
         views: ViewsDefinitions
@@ -56,12 +55,12 @@ export type RepeaterComponentSchema<T extends OptionalSerializableObject = Optio
     properties: T
 }
 
-export type UploaderComponentSchema<T extends OptionalSerializableObject = OptionalSerializableObject> = GeneralComponent & {
+export type UploaderComponentSchema<T extends OptionalSerializableObject = OptionalSerializableObject> = GeneralComponentSchema & {
     meta: ComponentMeta<'uploader'>
     properties: T
 }
 
-export type StaticComponentSchema<T extends OptionalSerializableObject = OptionalSerializableObject> = GeneralComponent & {
+export type StaticComponentSchema<T extends OptionalSerializableObject = OptionalSerializableObject> = GeneralComponentSchema & {
     meta: ComponentMeta<'static'>
     properties: T
 }

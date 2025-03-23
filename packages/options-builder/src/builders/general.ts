@@ -1,5 +1,5 @@
-import { OptionsBuilder } from '@form-crafter/core'
 import { OptionalSerializableValue, SomeObject } from '@form-crafter/utils'
+import { OptionsBuilder } from 'packages/core/src/options-builder'
 
 import { RelationRule } from '../relations'
 import { OptionFieldType } from '../types'

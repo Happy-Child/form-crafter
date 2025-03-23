@@ -1,4 +1,4 @@
-// import { ConditionOperator, GeneralConditionOperator } from './types'
+// import {  } from './types'
 
 // export type EditableConditionOperator = any
 
@@ -15,7 +15,7 @@
 // }
 
 // export const createEditableConditionOperator = (params: EditableConditionOperatorParams): EditableConditionOperator => {
-//     return {}
+//     return params
 // }
 
 // const asd = createEditableConditionOperator({
@@ -25,3 +25,4 @@
 //     execute: () => {},
 //     renderValue допустим
 // })
+console.log('asd')

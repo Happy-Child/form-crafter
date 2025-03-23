@@ -61,5 +61,6 @@ export const dateInputModule = createComponentModule({
     label: 'Date input',
     type: 'editable',
     optionsBuilder,
+    operatorsForConditions: [],
     Component: DateInput,
 })

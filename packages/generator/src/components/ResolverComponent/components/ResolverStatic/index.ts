@@ -1,0 +1,1 @@
+export { ResolverStatic } from './ResolverEditable'

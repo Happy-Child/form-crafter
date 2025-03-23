@@ -40,5 +40,6 @@ export const groupModule = createComponentModule({
     label: 'Group',
     type: 'container',
     optionsBuilder,
+    operatorsForConditions: [],
     Component: Group,
 })

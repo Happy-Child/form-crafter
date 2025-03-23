@@ -1,9 +1,9 @@
 import { Nullable, OptionalSerializableObject, OptionalSerializableValue, Unwrap } from '@form-crafter/utils'
 import { FC } from 'react'
 
-import { ComponentMeta } from './components-schemas'
-import { ComponentType, EntityId } from './general'
-import { ViewComponent, ViewRowChild } from './views'
+import { ComponentType, EntityId } from '../../types'
+import { ViewComponent, ViewRowChild } from '../../views'
+import { ComponentMeta } from './schemas'
 
 export type HeaderContainerProps = {
     rows: ViewRowChild[]

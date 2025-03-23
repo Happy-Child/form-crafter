@@ -1,5 +1,5 @@
-import { OptionsBuilder, OptionsBuilderOutput } from '@form-crafter/core'
 import { MakeKeysOptional, OptionalSerializableObject, SomeObject, Undefinable } from '@form-crafter/utils'
+import { OptionsBuilder, OptionsBuilderOutput } from 'packages/core/src/options-builder'
 
 export type OptionFieldType =
     | 'input'

@@ -1,5 +1,7 @@
-// import { ConditionOperator } from './conditions-operators/types'
-import { ComponentProperties, ComponentType, FormCrafterComponent, OptionsBuilder, OptionsBuilderOutput } from './types'
+import { ComponentProperties, FormCrafterComponent } from './components'
+import { ComponentOperator } from './components-operators'
+import { OptionsBuilder, OptionsBuilderOutput } from './options-builder'
+import { ComponentType } from './types'
 
 export type ComponentModule<
     T extends ComponentType = ComponentType,
@@ -9,15 +11,14 @@ export type ComponentModule<
     label: string
     type: T
     optionsBuilder: O extends OptionsBuilder<ComponentProperties<T>> ? O : never
-    // conditionsOperators: ConditionOperator[]
+    operatorsForConditions?: ComponentOperator[]
     Component: FormCrafterComponent<T, OptionsBuilderOutput<O>>
 }
 
-export type CreateComponentModuleParams<
-    T extends ComponentType = ComponentType,
-    O extends OptionsBuilder<ComponentProperties<T>> = OptionsBuilder<ComponentProperties<T>>,
-> = ComponentModule<T, O>
+type CreateComponentModuleParams<T extends ComponentType, O extends OptionsBuilder<ComponentProperties<T>>> = ComponentModule<T, O>
 
-export const createComponentModule = <T extends ComponentType, O extends OptionsBuilder<any>>(params: CreateComponentModuleParams<T, O>) => {
+// TODO check components operators by type
+
+export const createComponentModule = <T extends ComponentType, O extends OptionsBuilder<ComponentProperties<T>>>(params: CreateComponentModuleParams<T, O>) => {
     return params
 }

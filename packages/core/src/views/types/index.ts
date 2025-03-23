@@ -1,4 +1,4 @@
-import { ColSpan, EntityId, ResponsiveSizes } from './general'
+import { ColSpan, EntityId, ResponsiveSizes } from '../../types'
 
 export type ViewComponentChild = { id: EntityId }
 export type ViewRowChild = { id: EntityId }

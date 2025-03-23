@@ -86,5 +86,6 @@ export const checkboxModule = createComponentModule({
     label: 'Checkbox',
     type: 'editable',
     optionsBuilder,
+    operatorsForConditions: [],
     Component: Checkbox,
 })
