@@ -18,7 +18,7 @@ export const createFormService = ({ onSubmit, componentsSchemasService, viewsSer
 
     const onFormSubmitEvent = createEvent('onFormSubmitEvent')
 
-    init({ onFormSubmitEvent, invokeUserSubmitHandlerFx, componentsSchemasService, viewsService })
+    // init({ onFormSubmitEvent, invokeUserSubmitHandlerFx, componentsSchemasService, viewsService })
 
     return {
         $userSubmitHandler,

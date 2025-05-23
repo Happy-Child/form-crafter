@@ -1,17 +1,21 @@
-import { EntityId } from '@form-crafter/core'
-import { isNotEmpty } from '@form-crafter/utils'
-import { useStoreMap } from 'effector-react'
+import { ComponentSchema, EntityId } from '@form-crafter/core'
+import { createStore, StoreWritable } from 'effector'
+import { useStoreMap, useUnit } from 'effector-react'
 
 import { useGeneratorContext } from '../contexts'
+
+const nullStore = createStore(null)
 
 export const useIsRepeater = (id: EntityId): boolean => {
     const { services } = useGeneratorContext()
 
-    const type = useStoreMap({
-        store: services.componentsSchemasService.$schemas,
+    const data = useStoreMap({
+        store: services.componentsSchemasService.$schemasMap,
         keys: [id],
-        fn: (data, [id]) => (isNotEmpty(data[id]) ? data[id].meta.type : null),
+        fn: (map, [id]) => map.get(id),
     })
 
-    return type === 'repeater'
+    const schema = useUnit((data?.$schema || nullStore) as StoreWritable<ComponentSchema | null>)
+
+    return schema?.meta?.type === 'repeater'
 }

@@ -5,9 +5,9 @@ import { GeneralOptionBuilder } from './general'
 
 type Properties = {
     label: Undefinable<string>
-    value: Undefinable<string | number>
-    min: Undefinable<string | number>
-    max: Undefinable<string | number>
+    value: Undefinable<number>
+    min: Undefinable<number>
+    max: Undefinable<number>
     disable: Undefinable<boolean>
     nullable: Undefinable<boolean>
     readonly: Undefinable<boolean>

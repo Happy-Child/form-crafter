@@ -1,38 +1,67 @@
-// Repeater child components validation
+import { OptionalSerializableValue, SerializableObject } from '@form-crafter/utils'
 
 import { ConditionNode } from '../../conditions'
 import { OptionsBuilder, OptionsBuilderOutput } from '../../options-builder'
+import { EntityId } from '../../types'
+import { RuleExecuteParams, RuleExecuteParamsWithoutOptions } from '../types'
 
-// {
-//     componentId: EntityId
-//     options: T['options']
-//     fieldsProperties: ComponentsPropertiesData
-//     fieldsTree: any
-// }
-
-// { options: T; fieldsProperties: ComponentsPropertiesData; fieldsTree: any }
-
-// И как-то потом понимать, что есть оишбки на полях и не invalid=true
-// продумать как будет устанавливаться error msg множественно в том числе и куда
-
-export type ValidationRuleParams = {
+export type ValidationRuleUserOptions = {
+    id: EntityId
     ruleName: string
-    options: OptionsBuilderOutput<OptionsBuilder>
+    options?: OptionsBuilderOutput<OptionsBuilder<SerializableObject>>
     condition?: ConditionNode
 }
 
-export type ValidationComponentRule = {
+type GeneralValidationRule = {
     ruleName: string
-    kind: 'component'
     displayName: string
-    validate: (value: any, params: any) => any
 }
 
-export type ValidationFormRule = {
-    ruleName: string
-    kind: 'form'
-    displayName: string
-    validate: (params: any) => any
+export type ValidationRuleFormParams<O extends OptionsBuilder<SerializableObject>> = {
+    options: OptionsBuilderOutput<O>
+}
+export type ValidationRuleFormParamsWithoutOptions = {}
+
+export type EditableValidationRule<
+    V extends OptionalSerializableValue,
+    O extends OptionsBuilder<SerializableObject> = OptionsBuilder<SerializableObject>,
+> = GeneralValidationRule & {
+    optionsBuilder: O
+    validate: (value: V, params: RuleExecuteParams<O>) => any
+}
+export type EditableValidationRuleWithoutOptions<V extends OptionalSerializableValue> = GeneralValidationRule & {
+    validate: (value: V, params: RuleExecuteParamsWithoutOptions) => any
 }
 
-export type ValidationRule = ValidationComponentRule | ValidationFormRule
+export type ContainerValidationRule<O extends OptionsBuilder<SerializableObject> = OptionsBuilder<SerializableObject>> = GeneralValidationRule & {
+    optionsBuilder: O
+    validate: (componentId: EntityId, params: RuleExecuteParams<O>) => any
+}
+export type ContainerValidationRuleWithoutOptions = GeneralValidationRule & {
+    validate: (componentId: EntityId, params: RuleExecuteParamsWithoutOptions) => any
+}
+
+export type RepeaterValidationRule<O extends OptionsBuilder<SerializableObject> = OptionsBuilder<SerializableObject>> = GeneralValidationRule & {
+    optionsBuilder: O
+    validate: (componentId: EntityId, params: RuleExecuteParams<O>) => any
+}
+export type RepeaterValidationRuleWithoutOptions = GeneralValidationRule & {
+    validate: (componentId: EntityId, params: RuleExecuteParamsWithoutOptions) => any
+}
+
+// TODO fix generic type
+export type UploaderValidationRule<V, O extends OptionsBuilder<SerializableObject> = OptionsBuilder<SerializableObject>> = GeneralValidationRule & {
+    optionsBuilder: O
+    validate: (value: V, params: RuleExecuteParams<O>) => any
+}
+export type UploaderValidationRuleWithoutOptions<V> = GeneralValidationRule & {
+    validate: (value: V, params: RuleExecuteParamsWithoutOptions) => any
+}
+
+export type FormValidationRule<O extends OptionsBuilder<SerializableObject> = OptionsBuilder<SerializableObject>> = GeneralValidationRule & {
+    optionsBuilder: O
+    validate: (params: ValidationRuleFormParams<O>) => any
+}
+export type FormValidationRuleWithoutOptions = GeneralValidationRule & {
+    validate: (params: ValidationRuleFormParamsWithoutOptions) => any
+}

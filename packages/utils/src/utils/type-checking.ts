@@ -31,6 +31,8 @@ export const isNumber = (value: unknown): value is number => {
     return false
 }
 
+export const isBoolean = (v: any): v is boolean => typeof v === 'boolean'
+
 export const isEmpty = <T>(value: Maybe<T>): value is Maybe<T> => {
     if (isNull(value) || isUndefined(value)) {
         return true
@@ -49,3 +51,7 @@ export const isNotEmpty = <T>(value: Maybe<T>): value is T => {
 }
 
 export const isFunction = (val: unknown): val is Function => typeof val === 'function'
+
+export const isObject = (value: unknown): value is object => {
+    return typeof value === 'object' && value !== null && !isArray(value) && Object.prototype.toString.call(value) === '[object Object]'
+}

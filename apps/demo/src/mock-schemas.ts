@@ -1,4 +1,5 @@
 import { rootComponentId, Schema } from '@form-crafter/core'
+import { genId } from '@form-crafter/generator'
 
 export const employeeFormSchema: Schema = {
     id: 'employee-form',
@@ -139,31 +140,61 @@ export const employeeFormSchema: Schema = {
     },
     componentsSchemas: {
         'input-first-name': {
-            meta: { id: 'input-first-name', type: 'editable', name: 'input' },
+            meta: { id: 'input-first-name', type: 'editable', name: 'text-field' },
             properties: { label: 'Имя', value: '' },
         },
         'input-last-name': {
-            meta: { id: 'input-last-name', type: 'editable', name: 'input' },
+            meta: { id: 'input-last-name', type: 'editable', name: 'text-field' },
             properties: { label: 'Фамилия', value: '' },
+            relations: {
+                options: [
+                    {
+                        id: genId(),
+                        ruleName: 'duplicateValue',
+                        options: { duplicateValueComponentId: 'input-first-name' },
+                    },
+                    {
+                        id: genId(),
+                        ruleName: 'hidden',
+                        condition: { type: 'component', componentId: 'input-salary', operatorName: 'isNotEmpty' },
+                    },
+                ],
+            },
         },
         'date-birth': {
-            meta: { id: 'date-birth', type: 'editable', name: 'date-input' },
+            meta: { id: 'date-birth', type: 'editable', name: 'date-field' },
             properties: { label: 'Дата рождения', value: '25.10.2005' },
         },
         email: {
             meta: { id: 'email', type: 'editable', name: 'email' },
             properties: { label: 'Email', value: undefined },
+            relations: {
+                options: [
+                    {
+                        id: genId(),
+                        ruleName: 'hidden',
+                        condition: {
+                            type: 'operator',
+                            operator: 'and',
+                            operands: [
+                                { type: 'component', componentId: 'input-first-name', operatorName: 'isEmpty' },
+                                { type: 'component', componentId: 'date-birth', operatorName: 'beforeDate', options: { date: '01-01-2000' } },
+                            ],
+                        },
+                    },
+                ],
+            },
         },
         'group-work': {
             meta: { id: 'group-work', type: 'container', name: 'group' },
             properties: { title: 'Рабочая информация' },
         },
         'input-position': {
-            meta: { id: 'input-position', type: 'editable', name: 'input' },
+            meta: { id: 'input-position', type: 'editable', name: 'text-field' },
             properties: { label: 'Должность', value: undefined },
         },
         'input-salary': {
-            meta: { id: 'input-salary', type: 'editable', name: 'number-input' },
+            meta: { id: 'input-salary', type: 'editable', name: 'number-field' },
             properties: { label: 'Зарплата', value: undefined },
         },
         'select-department': {
@@ -177,9 +208,31 @@ export const employeeFormSchema: Schema = {
                     { label: 'Продажи', value: 'sales' },
                 ],
             },
+            relations: {
+                options: [
+                    {
+                        id: genId(),
+                        ruleName: 'changeSelectOptions',
+                        options: {
+                            topComponentId: 'input-salary',
+                            example: {
+                                componentId: 'input-position',
+                            },
+                        },
+                        condition: {
+                            type: 'operator',
+                            operator: 'or',
+                            operands: [
+                                { type: 'component', componentId: 'input-first-name', operatorName: 'startsWith', options: { startsWith: 'egor' } },
+                                { type: 'component', componentId: 'input-last-name', operatorName: 'startsWith', options: { startsWith: 'lazuka' } },
+                            ],
+                        },
+                    },
+                ],
+            },
         },
         'date-start': {
-            meta: { id: 'date-start', type: 'editable', name: 'date-input' },
+            meta: { id: 'date-start', type: 'editable', name: 'date-field' },
             properties: { label: 'Дата начала работы', value: '25.10.1999' },
         },
         contacts: {
@@ -269,15 +322,15 @@ export const employeeFormSchema: Schema = {
                         },
                     },
                     'input-first-name': {
-                        meta: { id: 'input-first-name', type: 'editable', name: 'input' },
+                        meta: { id: 'input-first-name', type: 'editable', name: 'text-field' },
                         properties: { label: 'Имя', value: '' },
                     },
                     'input-last-name': {
-                        meta: { id: 'input-last-name', type: 'editable', name: 'input' },
+                        meta: { id: 'input-last-name', type: 'editable', name: 'text-field' },
                         properties: { label: 'Фамилия', value: '' },
                     },
                     'date-birth': {
-                        meta: { id: 'date-birth', type: 'editable', name: 'date-input' },
+                        meta: { id: 'date-birth', type: 'editable', name: 'date-field' },
                         properties: { label: 'Дата рождения', value: '25.10.2005' },
                     },
                     email: {
@@ -332,11 +385,11 @@ export const employeeFormSchema: Schema = {
                                     },
                                 },
                                 'uni-name': {
-                                    meta: { id: 'uni-name', type: 'editable', name: 'input' },
+                                    meta: { id: 'uni-name', type: 'editable', name: 'text-field' },
                                     properties: { label: 'Название учебного заведения', value: '' },
                                 },
                                 'uni-position': {
-                                    meta: { id: 'uni-position', type: 'editable', name: 'input' },
+                                    meta: { id: 'uni-position', type: 'editable', name: 'text-field' },
                                     properties: { label: 'Специальность', value: '' },
                                 },
                             },

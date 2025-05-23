@@ -1,15 +1,15 @@
-import { EntityId } from '@form-crafter/core'
+import { ComponentSchema, EntityId } from '@form-crafter/core'
 import { useStoreMap } from 'effector-react'
 import {} from 'react'
 
-import { useGeneratorContext } from '../contexts'
+import { useComponentModel } from './useComponentModel'
 
 export const useIsHiddenComponent = (id: EntityId) => {
-    const { services } = useGeneratorContext()
+    const { $schema } = useComponentModel(id)
 
     return useStoreMap({
-        store: services.componentsSchemasService.$schemas,
-        keys: [id],
-        fn: (data, [id]) => data[id].hidden === true,
+        store: $schema,
+        keys: [],
+        fn: (data: ComponentSchema) => data.properties.hidden,
     })
 }

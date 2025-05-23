@@ -2,6 +2,9 @@ import { MaskitoOptions } from '@maskito/core'
 
 import { maxColSpan } from '../consts'
 
+export * from './components-properties'
+export * from './components-schemas'
+
 export type ResponsiveSizes<T> = {
     default: T
     xxl?: T

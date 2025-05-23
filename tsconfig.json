@@ -22,8 +22,8 @@
         "resolveJsonModule": true,
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
-        "forceConsistentCasingInFileNames": true
+        "forceConsistentCasingInFileNames": true,
     },
-    "include": ["packages", "apps"],
+    "include": ["packages", "apps", "test.tsx", "packages/generator/src/services/theme/utils/__tests__/get-deps-paths-rules-components.spec.ts"],
     "extends": "./tsconfig.base.json"
 }

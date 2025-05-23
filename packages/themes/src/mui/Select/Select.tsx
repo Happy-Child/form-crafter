@@ -1,8 +1,11 @@
-import { createComponentModule, FormCrafterComponentProps, OptionsBuilderOutput } from '@form-crafter/core'
+import { createEditableComponentModule, EditableComponentProps, OptionsBuilderOutput } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
 import { FormControl, InputLabel, ListItemText, MenuItem, Select as SelectBase } from '@mui/material'
 import { SelectInputProps } from '@mui/material/Select/SelectInput'
 import { forwardRef, memo, useCallback } from 'react'
+
+import { componentsOperators } from '../../components-operators'
+import { rules } from '../../rules'
 
 const optionsBuilder = builders.group({
     value: builders
@@ -19,12 +22,13 @@ const optionsBuilder = builders.group({
         ])
         .required()
         .nullable(),
-    label: builders.input().label('Название'),
+    readonly: builders.checkbox().label('Только для чтения'),
+    label: builders.text().label('Название'),
     disabled: builders.checkbox().label('Блокировка ввода'),
     options: builders
         .multifield({
-            label: builders.input().label('Название').required().value('Например'),
-            value: builders.input().label('Значение').required().value('value'),
+            label: builders.text().label('Название').required().value('Название'),
+            value: builders.text().label('Значение').required().value('Значение'),
         })
         .required()
         .label('Список опций')
@@ -40,7 +44,7 @@ const optionsBuilder = builders.group({
         ]),
 })
 
-type ComponentProps = FormCrafterComponentProps<'editable', OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = EditableComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Select = memo(
     forwardRef<HTMLDivElement, ComponentProps>(({ meta, properties: { options, value, label, disabled }, onChangeProperties }, ref) => {
@@ -77,10 +81,12 @@ const Select = memo(
 
 Select.displayName = 'Select'
 
-export const selectModule = createComponentModule({
+export const selectModule = createEditableComponentModule({
     name: 'select',
     label: 'Select',
-    type: 'editable',
     optionsBuilder,
+    operatorsForConditions: [componentsOperators.isEmptyOperator, componentsOperators.isNotEmptyOperator],
+    relationsRules: [rules.relations.duplicateValueRule, rules.relations.hiddenRule, rules.relations.changeSelectOptionsRule],
+    validationsRules: [rules.validations.editable.isRequiredRule],
     Component: Select,
 })

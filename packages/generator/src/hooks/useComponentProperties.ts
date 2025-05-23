@@ -1,21 +1,16 @@
-import { ComponentProperties, ComponentType, EntityId } from '@form-crafter/core'
-import { isEmpty, isNotEmpty } from '@form-crafter/utils'
+import { ComponentProperties, ComponentSchema, ComponentType, EntityId } from '@form-crafter/core'
 import { useStoreMap } from 'effector-react'
 
-import { useGeneratorContext } from '../contexts'
+import { useComponentModel } from './useComponentModel'
 
 export const useComponentProperties = <T extends ComponentType = ComponentType>(id: EntityId): ComponentProperties<T> => {
-    const { services } = useGeneratorContext()
+    const model = useComponentModel<T>(id)
 
     const properties = useStoreMap({
-        store: services.componentsSchemasService.$schemas,
-        keys: [id],
-        fn: (data, [id]) => (isNotEmpty(data[id]) ? (data[id].properties as ComponentProperties<T>) : null),
+        store: model.$schema,
+        keys: [],
+        fn: (schema: ComponentSchema) => schema.properties,
     })
 
-    if (isEmpty(properties)) {
-        throw new Error(`Missing properties for component ${id}`)
-    }
-
-    return properties
+    return properties as ComponentProperties<T>
 }

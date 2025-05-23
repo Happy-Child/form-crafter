@@ -1,12 +1,14 @@
-import { createComponentModule, FormCrafterComponentProps, OptionsBuilderOutput } from '@form-crafter/core'
+import { createStaticComponentModule, OptionsBuilderOutput, StaticComponentProps } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
 import { forwardRef, memo } from 'react'
+
+import { rules } from '../../rules'
 
 const optionsBuilder = builders.group({
     value: builders.textarea().required().label('Текст'),
 })
 
-type ComponentProps = FormCrafterComponentProps<'editable', OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = StaticComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Text = memo(
     forwardRef<HTMLDivElement, ComponentProps>(({ properties: { value } }, ref) => {
@@ -16,10 +18,10 @@ const Text = memo(
 
 Text.displayName = 'Text'
 
-export const textModule = createComponentModule({
+export const textModule = createStaticComponentModule({
     name: 'text',
     label: 'Text',
-    type: 'editable',
     optionsBuilder,
+    relationsRules: [rules.relations.hiddenRule],
     Component: Text,
 })

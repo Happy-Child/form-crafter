@@ -1,15 +1,15 @@
-// import { createEvent, sample } from 'effector'
-
 import { createComponentsSchemasService } from './components-schemas'
 import { createFormService } from './form'
 import { createRepeaterService } from './repeater'
 import { createSchemaService } from './schema'
+import { createThemeService } from './theme'
 import { RootServices, RootServicesParams } from './types'
 import { createViewsService } from './views'
 
-export const createRootServices = ({ schema, onSubmit }: RootServicesParams): RootServices => {
+export const createRootServices = ({ schema, theme, PlaceholderComponent, onSubmit }: RootServicesParams): RootServices => {
+    const themeService = createThemeService({ theme, PlaceholderComponent })
     const schemaService = createSchemaService({ layout: schema.layout })
-    const componentsSchemasService = createComponentsSchemasService({ initial: schema.componentsSchemas })
+    const componentsSchemasService = createComponentsSchemasService({ initial: schema.componentsSchemas, themeService })
     const viewsService = createViewsService({ initial: schema.views })
 
     const formService = createFormService({ onSubmit, viewsService, componentsSchemasService })
@@ -47,6 +47,7 @@ export const createRootServices = ({ schema, onSubmit }: RootServicesParams): Ro
         componentsSchemasService,
         viewsService,
         formService,
+        themeService,
         repeaterService,
     }
 }

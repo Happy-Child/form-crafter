@@ -10,6 +10,7 @@
         "skipLibCheck": true,
         "skipDefaultLibCheck": true,
         "baseUrl": ".",
+        "jsx": "react-jsx",
         "paths": {
             "@form-crafter/core": ["packages/core/src/index.ts"],
             "@form-crafter/generator": ["packages/generator/src/index.ts"],

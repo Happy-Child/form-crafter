@@ -1,19 +1,21 @@
-import { createComponentModule, FormCrafterComponentProps, OptionsBuilderOutput } from '@form-crafter/core'
+import { createRepeaterComponentModule, OptionsBuilderOutput, RepeaterComponentProps } from '@form-crafter/core'
 import { RowsList } from '@form-crafter/generator'
 import { builders } from '@form-crafter/options-builder'
 import { isNotEmpty } from '@form-crafter/utils'
 import { Box, Button } from '@mui/material'
 import { forwardRef, memo } from 'react'
 
+import { componentsOperators } from '../../components-operators'
 import { initialAddButtonText } from '../../consts'
+import { rules } from '../../rules'
 import { Title } from '../Title'
 
 const optionsBuilder = builders.group({
-    title: builders.input().label('Заголовок').nullable(),
-    addButtonText: builders.input().label('Текст кнопки добавления').nullable(),
+    title: builders.text().label('Заголовок').nullable(),
+    addButtonText: builders.text().label('Текст кнопки добавления').nullable(),
 })
 
-type ComponentProps = FormCrafterComponentProps<'repeater', OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = RepeaterComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Multifield = memo(
     forwardRef<HTMLDivElement, ComponentProps>(({ id, rows, onAddRow, properties: { title, addButtonText } }, ref) => {
@@ -33,10 +35,12 @@ const Multifield = memo(
 
 Multifield.displayName = 'Multifield'
 
-export const multifieldModule = createComponentModule({
+export const multifieldModule = createRepeaterComponentModule({
     name: 'multifield',
     label: 'Multifield',
-    type: 'repeater',
     optionsBuilder,
+    operatorsForConditions: [componentsOperators.isEmptyOperator, componentsOperators.isNotEmptyOperator],
+    validationsRules: [rules.validations.repeater.isRequiredRule, rules.validations.repeater.minLengthRule, rules.validations.repeater.maxLengthRule],
+    relationsRules: [rules.relations.hiddenRule],
     Component: Multifield,
 })

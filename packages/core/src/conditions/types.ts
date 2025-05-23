@@ -14,7 +14,7 @@ export type ConditionComponentNode = {
     type: 'component'
     componentId: EntityId
     operatorName: string
-    value?: SerializableValue
+    options?: SerializableValue
 }
 
 export type ConditionNode = ConditionComponentNode | ConditionOperatorNode

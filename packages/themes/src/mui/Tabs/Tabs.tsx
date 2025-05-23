@@ -26,7 +26,7 @@
 //     menuItems: builders
 //         .multifield({
 //             index: builders.number().label('Позиция').required(),
-//             title: builders.input().label('Название').required(),
+//             title: builders.text().label('Название').required(),
 //         })
 //         .value([
 //             {

@@ -1,5 +1,5 @@
 import { ComponentsSchemas } from '../../components'
-import { ValidationRuleParams } from '../../rules'
+import { ValidationRuleUserOptions } from '../../rules'
 import { ResponsiveSizes } from '../../types'
 import { Views } from '../../views'
 
@@ -16,6 +16,6 @@ export type Schema = {
     componentsSchemas: ComponentsSchemas
     validations?: {
         validateOn?: 'onSubmit' | 'onChange' | 'onBlur'
-        params: ValidationRuleParams[]
+        options: ValidationRuleUserOptions[]
     }
 }

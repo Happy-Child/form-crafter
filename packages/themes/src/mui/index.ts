@@ -1,31 +1,29 @@
-import { ComponentModule } from '@form-crafter/core'
-
 import { buttonModule } from './Button'
 import { checkboxModule } from './Checkbox'
-import { dateInputModule } from './DateInput'
+import { dateFieldModule } from './DateField'
 import { emailModule } from './Email'
 import { groupModule } from './Group'
-import { inputModule } from './Input'
 import { multifieldModule } from './Multifield'
-import { numberInputModule } from './NumberInput'
+import { numberFieldModule } from './NumberField'
 import { radioModule } from './Radio'
 import { selectModule } from './Select'
 import { textModule } from './Text'
 import { textareaModule } from './Textarea'
-import { timeInputModule } from './TimeInput'
+import { textFieldModule } from './TextField'
+import { timeFieldModule } from './TimeField'
 
 export const muiTheme = [
     buttonModule,
     checkboxModule,
-    dateInputModule,
+    dateFieldModule,
     emailModule,
     groupModule,
-    inputModule,
-    numberInputModule,
+    textFieldModule,
+    numberFieldModule,
     multifieldModule,
     radioModule,
     selectModule,
     textModule,
     textareaModule,
-    timeInputModule,
-] as ComponentModule[]
+    timeFieldModule,
+]

@@ -1,16 +1,20 @@
-import { createComponentModule, FormCrafterComponentProps, OptionsBuilderOutput } from '@form-crafter/core'
+import { createEditableComponentModule, EditableComponentProps, OptionsBuilderOutput } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
 import { TextField } from '@mui/material'
 import { forwardRef, memo } from 'react'
 
+import { componentsOperators } from '../../components-operators'
+import { rules } from '../../rules'
+
 const optionsBuilder = builders.group({
-    value: builders.input().label('Значение').required().nullable(),
-    label: builders.input().label('Название'),
-    placeholder: builders.input().label('Название'),
+    value: builders.text().label('Значение').required().nullable(),
+    readonly: builders.checkbox().label('Только для чтения'),
+    label: builders.text().label('Название'),
+    placeholder: builders.text().label('Название'),
     disabled: builders.checkbox().label('Блокировка ввода'),
 })
 
-type ComponentProps = FormCrafterComponentProps<'editable', OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = EditableComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Textarea = memo(
     forwardRef<HTMLDivElement, ComponentProps>(({ meta, properties: { value, placeholder, label, disabled }, onChangeProperties }, ref) => {
@@ -33,10 +37,17 @@ const Textarea = memo(
 
 Textarea.displayName = 'Textarea'
 
-export const textareaModule = createComponentModule({
+export const textareaModule = createEditableComponentModule({
     name: 'textarea',
     label: 'Textarea',
-    type: 'editable',
     optionsBuilder,
+    operatorsForConditions: [
+        componentsOperators.isEmptyOperator,
+        componentsOperators.isNotEmptyOperator,
+        componentsOperators.endsWithOperator,
+        componentsOperators.startsWithOperator,
+    ],
+    relationsRules: [rules.relations.duplicateValueRule, rules.relations.hiddenRule],
+    validationsRules: [rules.validations.editable.isRequiredRule, rules.validations.editable.minLengthRule, rules.validations.editable.maxLengthRule],
     Component: Textarea,
 })

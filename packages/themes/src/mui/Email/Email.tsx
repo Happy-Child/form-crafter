@@ -1,16 +1,20 @@
-import { createComponentModule, FormCrafterComponentProps, OptionsBuilderOutput } from '@form-crafter/core'
+import { createEditableComponentModule, EditableComponentProps, OptionsBuilderOutput } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
 import { TextField } from '@mui/material'
 import { forwardRef, memo } from 'react'
 
+import { componentsOperators } from '../../components-operators'
+import { rules } from '../../rules'
+
 const optionsBuilder = builders.group({
-    value: builders.input().label('Значение').required().nullable(),
-    label: builders.input().label('Название'),
-    placeholder: builders.input().label('Название'),
+    value: builders.text().label('Значение').required().nullable(),
+    readonly: builders.checkbox().label('Только для чтения'),
+    label: builders.text().label('Название'),
+    placeholder: builders.text().label('Название'),
     disabled: builders.checkbox().label('Блокировка ввода'),
 })
 
-type ComponentProps = FormCrafterComponentProps<'editable', OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = EditableComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Email = memo(
     forwardRef<HTMLDivElement, ComponentProps>(({ properties: { label, placeholder, disabled, value }, onChangeProperties }, ref) => {
@@ -30,11 +34,12 @@ const Email = memo(
 
 Email.displayName = 'Email'
 
-export const emailModule = createComponentModule({
+export const emailModule = createEditableComponentModule({
     name: 'email',
     label: 'Email',
-    type: 'editable',
     optionsBuilder,
-    operatorsForConditions: [],
+    operatorsForConditions: [componentsOperators.isEmptyOperator, componentsOperators.isNotEmptyOperator],
+    relationsRules: [rules.relations.duplicateValueRule, rules.relations.hiddenRule],
+    validationsRules: [rules.validations.editable.isRequiredRule, rules.validations.editable.isEmailRule],
     Component: Email,
 })

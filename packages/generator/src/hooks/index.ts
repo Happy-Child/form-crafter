@@ -1,6 +1,6 @@
-export * from './useChangePropertiesHandler'
 export * from './useComponentDepth'
 export * from './useComponentMeta'
+export * from './useComponentModel'
 export * from './useComponentProperties'
 export * from './useDisplayComponent'
 export * from './useGeneratorLayout'

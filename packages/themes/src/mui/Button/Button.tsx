@@ -1,12 +1,14 @@
-import { createComponentModule, FormCrafterComponentProps, OptionsBuilderOutput } from '@form-crafter/core'
+import { createStaticComponentModule, OptionsBuilderOutput, StaticComponentProps } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
 import { Button as ButtonBase } from '@mui/material'
 import { forwardRef, memo } from 'react'
 
+import { rules } from '../../rules'
+
 const defautType = 'button'
 
 const optionsBuilder = builders.group({
-    text: builders.input().label('Текст кнопки').required(),
+    text: builders.text().label('Текст кнопки').required(),
     type: builders
         .select()
         .label('Тип кнопки')
@@ -18,7 +20,7 @@ const optionsBuilder = builders.group({
         .required(),
 })
 
-type ComponentProps = FormCrafterComponentProps<'static', OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = StaticComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Button = memo(
     forwardRef<HTMLButtonElement, ComponentProps>(({ properties: { text, type } }, ref) => {
@@ -32,10 +34,10 @@ const Button = memo(
 
 Button.displayName = 'Button'
 
-export const buttonModule = createComponentModule({
+export const buttonModule = createStaticComponentModule({
     name: 'button',
     label: 'Button',
-    type: 'static',
     optionsBuilder,
+    relationsRules: [rules.relations.hiddenRule],
     Component: Button,
 })

@@ -1,5 +1,4 @@
 {
-    "include": ["src"],
+    "include": ["src", "src/services/theme/utils/__tests__/get-deps-paths-rules-components.spec.ts"],
     "extends": "../../tsconfig.json"
-  }
-  
+}

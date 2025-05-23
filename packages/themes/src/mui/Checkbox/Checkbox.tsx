@@ -1,12 +1,16 @@
-import { createComponentModule, FormCrafterComponentProps, OptionsBuilderOutput, SelectionOption } from '@form-crafter/core'
+import { createEditableComponentModule, EditableComponentProps, OptionsBuilderOutput, SelectionOption } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
 import { toggleArrItem } from '@form-crafter/utils'
 import { Box, Checkbox as CheckboxBase, FormControl, FormControlLabel, FormLabel } from '@mui/material'
 import { forwardRef, memo, useCallback } from 'react'
 
+import { componentsOperators } from '../../components-operators'
+import { rules } from '../../rules'
+
 const optionsBuilder = builders.group({
-    label: builders.input().label('Название'),
+    label: builders.text().label('Название'),
     disabled: builders.checkbox().label('Блокировка ввода'),
+    readonly: builders.checkbox().label('Только для чтения').required().nullable(),
     value: builders
         .multiSelect()
         .options([
@@ -23,8 +27,8 @@ const optionsBuilder = builders.group({
         .nullable(),
     options: builders
         .multifield({
-            label: builders.input().label('Название').required().value('Например'),
-            value: builders.input().label('Значение').required().value('value'),
+            label: builders.text().label('Название').required().value('Например'),
+            value: builders.text().label('Значение').required().value('value'),
         })
         .required()
         .label('Список опций')
@@ -40,7 +44,7 @@ const optionsBuilder = builders.group({
         ]),
 })
 
-type ComponentProps = FormCrafterComponentProps<'editable', OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = EditableComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Checkbox = memo(
     forwardRef<HTMLDivElement, ComponentProps>(({ properties: { options, value, label, disabled }, onChangeProperties }, ref) => {
@@ -81,11 +85,12 @@ const Checkbox = memo(
 
 Checkbox.displayName = 'Checkbox'
 
-export const checkboxModule = createComponentModule({
+export const checkboxModule = createEditableComponentModule({
     name: 'checkbox',
     label: 'Checkbox',
-    type: 'editable',
     optionsBuilder,
-    operatorsForConditions: [],
+    operatorsForConditions: [componentsOperators.isEmptyOperator, componentsOperators.isNotEmptyOperator],
+    relationsRules: [rules.relations.duplicateValueRule, rules.relations.hiddenRule],
+    validationsRules: [rules.validations.editable.isRequiredRule],
     Component: Checkbox,
 })

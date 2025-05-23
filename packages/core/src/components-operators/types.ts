@@ -1,31 +1,20 @@
-import { ComponentType } from '../types'
+import { SerializableObject } from '@form-crafter/utils'
 
-export type GeneralComponentOperator = {
+import { OptionsBuilder } from '../options-builder'
+import { RuleExecuteParams, RuleExecuteParamsWithoutOptions } from '../rules'
+import { EntityId } from '../types'
+
+type GeneralConditionOperator = {
     name: string
     displayName: string
     helpText?: string
-    execute: () => boolean
-    renderValue: any
 }
 
-export type EditableComponentOperator = {
-    name: string
+export type ComponentConditionOperator<O extends OptionsBuilder<SerializableObject> = OptionsBuilder<SerializableObject>> = GeneralConditionOperator & {
+    execute: (componentId: EntityId, params: RuleExecuteParams<O>) => boolean
+    optionsBuilder: O
 }
 
-export type RepeaterComponentOperator = {
-    name: string
+export type ComponentConditionOperatorWithoutOptions = GeneralConditionOperator & {
+    execute: (componentId: EntityId, params: RuleExecuteParamsWithoutOptions) => boolean
 }
-
-export type UploaderComponentOperator = {
-    name: string
-}
-
-type AllowComponentType = Extract<ComponentType, 'editable' | 'repeater' | 'uploader'>
-
-export type ComponentOperator<T extends AllowComponentType = never> = T extends 'editable'
-    ? EditableComponentOperator
-    : T extends 'repeater'
-      ? RepeaterComponentOperator
-      : T extends 'uploader'
-        ? UploaderComponentOperator
-        : GeneralComponentOperator

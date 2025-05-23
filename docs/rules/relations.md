@@ -24,6 +24,12 @@ Remove:
 type ComponentOverrides = {properties?: SomeObject, hidden?: boolean}
 type OverridesCache = {
     [componentId: string]: {
-        [ruleName: string]: ComponentOverrides;
+        [id: string]: ComponentOverrides;
     };
 }
+
+
+Info:
+1. По мере обхода и применения правил нужно так же ставить значения из кэша или схемы, чтобы в следущие ТАКИЕ ЖЕ правила, если есть, шли самые актуальные значения,
+и чтобы именно они уже шли к кэш для нового (дублирующего) правила.
+2. execute у правил завис. отдаёт объект либо null. если null - ничего не ставим, оставляем как есть.

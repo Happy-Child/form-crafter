@@ -1,11 +1,15 @@
-import { createComponentModule, FormCrafterComponentProps, OptionsBuilderOutput } from '@form-crafter/core'
+import { createEditableComponentModule, EditableComponentProps, OptionsBuilderOutput } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
 import { Box, FormControl, FormControlLabel, FormLabel, Radio as Radioeditable } from '@mui/material'
 import { forwardRef, memo } from 'react'
 
+import { componentsOperators } from '../../components-operators'
+import { rules } from '../../rules'
+
 const optionsBuilder = builders.group({
-    label: builders.input().label('Название'),
+    label: builders.text().label('Название'),
     disabled: builders.checkbox().label('Блокировка ввода'),
+    readonly: builders.checkbox().label('Только для чтения'),
     value: builders
         .select()
         .options([
@@ -22,8 +26,8 @@ const optionsBuilder = builders.group({
         .nullable(),
     options: builders
         .multifield({
-            label: builders.input().label('Название').required().value('Например'),
-            value: builders.input().label('Значение').required().value('value'),
+            label: builders.text().label('Название').required().value('Например'),
+            value: builders.text().label('Значение').required().value('value'),
         })
         .required()
         .label('Список опций')
@@ -39,7 +43,7 @@ const optionsBuilder = builders.group({
         ]),
 })
 
-type ComponentProps = FormCrafterComponentProps<'editable', OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = EditableComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Radio = memo(
     forwardRef<HTMLDivElement, ComponentProps>(({ meta, properties: { options, value, label, disabled }, onChangeProperties }, ref) => {
@@ -70,10 +74,12 @@ const Radio = memo(
 
 Radio.displayName = 'Radio'
 
-export const radioModule = createComponentModule({
+export const radioModule = createEditableComponentModule({
     name: 'radio',
     label: 'Radio',
-    type: 'editable',
     optionsBuilder,
+    operatorsForConditions: [componentsOperators.isEmptyOperator, componentsOperators.isNotEmptyOperator],
+    relationsRules: [rules.relations.duplicateValueRule, rules.relations.hiddenRule],
+    validationsRules: [rules.validations.editable.isRequiredRule],
     Component: Radio,
 })

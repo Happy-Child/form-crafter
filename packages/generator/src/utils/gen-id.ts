@@ -7,7 +7,7 @@ type Props = {
     prefix?: string
 }
 
-export const genId = ({ prefix }: Props) => {
+export const genId = ({ prefix }: Props = {}) => {
     const id = nanoid()
     if (prefix?.length) {
         return `${prefix}_${id}`

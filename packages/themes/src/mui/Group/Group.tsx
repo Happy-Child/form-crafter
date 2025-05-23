@@ -1,18 +1,19 @@
-import { createComponentModule, FormCrafterComponentProps, OptionsBuilderOutput } from '@form-crafter/core'
+import { ContainerComponentProps, createContainerComponentModule, OptionsBuilderOutput } from '@form-crafter/core'
 import { RowsList, useIsRepeater } from '@form-crafter/generator'
 import { builders } from '@form-crafter/options-builder'
 import { isNotEmpty } from '@form-crafter/utils'
 import { Box } from '@mui/material'
 import { forwardRef, memo } from 'react'
 
+import { rules } from '../../rules'
 import { Title } from '../Title'
 import { TopLevelContainerHeader } from './TopLevelContainerHeader'
 
 const optionsBuilder = builders.group({
-    title: builders.input().label('Заголовок').nullable(),
+    title: builders.text().label('Заголовок').nullable(),
 })
 
-type ComponentProps = FormCrafterComponentProps<'container', OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = ContainerComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Group = memo(
     forwardRef<HTMLDivElement, ComponentProps>(({ rows, properties, ...props }, ref) => {
@@ -35,11 +36,10 @@ const Group = memo(
 
 Group.displayName = 'Group'
 
-export const groupModule = createComponentModule({
+export const groupModule = createContainerComponentModule({
     name: 'group',
     label: 'Group',
-    type: 'container',
     optionsBuilder,
-    operatorsForConditions: [],
+    relationsRules: [rules.relations.hiddenRule],
     Component: Group,
 })
