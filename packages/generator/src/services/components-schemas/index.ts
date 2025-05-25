@@ -1,122 +1,91 @@
-import { ComponentsSchemas, EntityId } from '@form-crafter/core'
-import { isEmpty, isNotEmpty } from '@form-crafter/utils'
-import { createEvent, createStore } from 'effector'
+import { ComponentsSchemas, EntityId, isConditionsSuccessful } from '@form-crafter/core'
+import { isNotEmpty, OptionalSerializableObject } from '@form-crafter/utils'
+import { createEvent, createStore, sample, StoreValue } from 'effector'
+import { clone, cloneDeep } from 'lodash-es'
 
-import { componentSchemaFactory } from './factories'
 import { init } from './init'
-import { ComponentsSchemasService, ComponentsSchemasServiceParams, SchemaMap, UpdateComponentPropertiesPayload } from './types'
-import { extractComponentsDepsFromSchema } from './utils'
+import { ComponentSchemaModel, componentSchemaModel } from './models'
+import { CalcRelationsRulesPayload, ComponentsSchemasService, ComponentsSchemasServiceParams, SchemaMap, UpdateComponentPropertiesPayload } from './types'
+import { buildDepsResolutionOrder, extractComponentsDepsFromSchema } from './utils'
 
 export type { ComponentsSchemasService }
 
-const createInitialSchemasMap = (data: ComponentsSchemas) =>
-    Object.entries(data).reduce<SchemaMap>((map, [componentId, componentSchema]) => {
-        const model = componentSchemaFactory({ schema: componentSchema })
-        map.set(componentId, model)
-        return map
-    }, new Map())
-
-// RENAME GET -> BUILD
-
-// ** Sort BEGIN **
-const extractAffectedDeps = (componentId: EntityId, reverseDepsGraph: Record<EntityId, EntityId[]>): EntityId[] => {
-    const deps = reverseDepsGraph[componentId]
-    if (!deps?.length) {
-        return []
-    }
-
-    const result: EntityId[] = []
-
-    const queue: EntityId[] = [...deps]
-
-    while (queue.length) {
-        const componentId = queue.shift()!
-
-        if (result.includes(componentId)) {
-            continue
-        }
-
-        result.push(componentId)
-        const deps = reverseDepsGraph[componentId]
-        queue.push(...deps)
-    }
-
-    return result
-}
-
-const sortAffectedDeps = (affected: EntityId[], depsGraph: Record<EntityId, EntityId[]>): EntityId[] => {
-    const subDepsGraph = Object.entries(depsGraph).reduce<Record<EntityId, EntityId[]>>((cur, [componentId, deps]) => {
-        if (!affected.includes(componentId)) {
-            return cur
-        }
-        cur[componentId] = deps.filter((depId) => affected.includes(depId))
-        return cur
-    }, {})
-
-    const result: EntityId[] = []
-    const visited = new Set<EntityId>()
-    const visiting = new Set<EntityId>()
-
-    const executeSort = (componentId: EntityId) => {
-        if (visited.has(componentId)) {
-            return
-        }
-
-        if (visiting.has(componentId)) {
-            throw new Error(`Circular dependency detected in sortAffectedDeps: ${[...visiting, componentId].join(' -> ')}`)
-        }
-
-        visiting.add(componentId)
-
-        for (const depId of subDepsGraph[componentId] || []) {
-            executeSort(depId)
-        }
-
-        visiting.delete(componentId)
-        visited.add(componentId)
-        result.push(componentId)
-    }
-
-    for (const componentId of affected) {
-        executeSort(componentId)
-    }
-
-    return result
-}
-
-const buildDepsResolutionOrder = (depsGraph: Record<EntityId, EntityId[]>, reverseDepsGraph: Record<EntityId, EntityId[]>): Record<EntityId, EntityId[]> => {
-    const data: Record<EntityId, EntityId[]> = {}
-
-    for (const [componentId] of Object.entries(reverseDepsGraph)) {
-        const affected = extractAffectedDeps(componentId, reverseDepsGraph)
-        const sortedAffeted = sortAffectedDeps(affected, depsGraph)
-        data[componentId] = sortedAffeted
-    }
-
-    return data
-}
-
-// ОТЛОВ ЦИКЛА, прокид ошибки, получния сутрктуры для ошибки, отправка в ошбий сервис store для работы с ошибками
-// ХРАНИЛИЖЕ ОШИБОК
-
-// если есть то не запускать фабрики?
-
-// в любом случае показывать на ui ошибку, но двать юзеру переопределять ui?
-
-// А ЗАЧЕМ ПРОДОЛЖАТ ЬРАБОТУ С СТРОИТЬ ФОРМУ ПУСТУЮ, ЧАСТИЧНО, ЕСЛИ МОЖНО ПРОЧСИТЬ ИСКЛЮЧАНИЕ, ПЕРЕХВАТИТЬ ВНУТРИ GENERATOR И ПОКАЗТЬ UI ЮЗЕРА?
-// ** Sort END **
-
 export const createComponentsSchemasService = ({ initial, themeService }: ComponentsSchemasServiceParams): ComponentsSchemasService => {
-    const initialSchemasMap = createInitialSchemasMap(initial)
-    const $schemasMap = createStore<SchemaMap>(initialSchemasMap)
-
     const { depsGraph, reverseDepsGraph } = extractComponentsDepsFromSchema(initial, themeService.$depsPathsRulesComponents.getState())
-    const depsResolutionOrder = buildDepsResolutionOrder(depsGraph, reverseDepsGraph)
+    const $depsResolutionOrder = createStore<Record<EntityId, EntityId[]>>(buildDepsResolutionOrder(depsGraph, reverseDepsGraph))
+
+    const calcRelationsRulesEvent = createEvent<CalcRelationsRulesPayload>('calcRelationsRulesEvent')
+
+    const componentsSchemasModel = (data: ComponentsSchemas) => {
+        const result = Object.entries(data).reduce<SchemaMap>((map, [componentId, componentSchema]) => {
+            const model = componentSchemaModel({ schema: componentSchema, calcRelationsRulesEvent })
+            map.set(componentId, model)
+            return map
+        }, new Map())
+
+        const $model = createStore<SchemaMap>(result)
+
+        return $model
+    }
+
+    const $componentsSchemasModel = componentsSchemasModel(initial)
+
+    const testEvent = createEvent('testEvent')
+    testEvent.watch((data) => console.log(`testEvent: `, data))
+
+    // ДОЛЖНА БЫТЬ ОДНА ФУНКЦИЯ, В КОТОРУЮ ПЕРЕДЕВАТЬ PAYLOAD И В НЕЁ ВСЕ ПРОИСХОДИТ
+    // ВЫЗВАТЬ С ID, А ДАЛЬШЕ ИТЕРИРОВАТЬСЯ ПО RESOLUTIONS ORDER, ЕСЛИ НЕ ПУСТОЕ
+    // В КОНЦЕ НЕ ПОНЯТНО ЧТО ДЕЛАТЬ, КАК ВЫХОДИТЬ И ПРОСТО СЕТАТЬ ТО, ЧТО ПЕРЕДАЛ ЮЗЕР, БЕЗ МОДИФИКАЦИЙ
+
+    // ОЧЕНЬ ЖИРНЫЙ SAMPLE!!!
+    sample({
+        source: { componentsSchemasModel: $componentsSchemasModel, depsResolutionOrder: $depsResolutionOrder },
+        clock: calcRelationsRulesEvent,
+        fn: ({ componentsSchemasModel, depsResolutionOrder }, { id: componentIdToUpdate, data: propertiesToUpdate }) => {
+            const componentsSchemas = Object.entries(Object.fromEntries(componentsSchemasModel)).reduce<
+                Record<EntityId, StoreValue<ComponentSchemaModel['$model']>>
+            >((obj, [componentId, value]) => ({ ...obj, [componentId]: value.$model.getState() }), {})
+
+            const tempComponentsSchemas = cloneDeep(componentsSchemas)
+            tempComponentsSchemas[componentIdToUpdate].properties = {
+                ...tempComponentsSchemas[componentIdToUpdate].properties,
+                ...propertiesToUpdate,
+            }
+
+            const execute = (componentId: EntityId) => {
+                const componentModel = tempComponentsSchemas[componentId]
+                const relationsRules = componentModel.relations
+
+                relationsRules?.options?.forEach(({ id, ruleName, options, condition }) => {
+                    const success = isNotEmpty(condition) && isConditionsSuccessful(condition, tempComponentsSchemas)
+                    if (success) {
+                        //
+                    }
+                })
+
+                const depsResolutionOrderToUpdate = depsResolutionOrder[componentId]
+                depsResolutionOrderToUpdate?.forEach(execute)
+            }
+            execute(componentIdToUpdate, propertiesToUpdate)
+
+            if (!isNotEmpty(depsResolutionOrderToUpdate)) {
+                // выйти
+            }
+
+            return {}
+        },
+        target: testEvent,
+    })
 
     console.log('depsPathsRulesComponents: ', themeService.$depsPathsRulesComponents.getState())
     console.log('depsGraph: ', depsGraph)
     console.log('reverseDepsGraph: ', reverseDepsGraph)
-    console.log('depsResolutionOrder: ', depsResolutionOrder)
+    console.log('$depsResolutionOrder: ', $depsResolutionOrder.getState())
+
+    // вроде бы так:
+    // 1. на событие onChangeProperties (if value can beed changed) или onAddGroup идём наружу?
+    // 2. для repeater хотел создать отдельную структуру, НО передумал и просто запускаю по id проход по всем компонентам
+    // 3. для editable/uploader по сути то же самое?
 
     // OLD BEGIN
     const $schemas = createStore<ComponentsSchemas>(initial)
@@ -149,7 +118,7 @@ export const createComponentsSchemasService = ({ initial, themeService }: Compon
     init({})
 
     return {
-        $schemasMap,
+        $schemasMap: $componentsSchemasModel,
         updateComponentsSchemasEvent,
         updateComponentPropertiesEvent,
         removeComponentsSchemasByIdsEvent,

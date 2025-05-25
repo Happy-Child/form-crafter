@@ -4,7 +4,7 @@ import { isNotEmpty } from '@form-crafter/utils'
 import { extractComponentsDepsFromConditions } from './extract-components-deps-from-conditions'
 import { getRuleOptionsValuesByDepsPaths } from './get-rule-options-values-by-deps-paths'
 
-const getReverseDepsGraph = (depsGraph: Record<EntityId, EntityId[]>) =>
+const buildReverseDepsGraph = (depsGraph: Record<EntityId, EntityId[]>) =>
     Object.entries(depsGraph).reduce<Record<EntityId, EntityId[]>>((graph, [componentId, deps]) => {
         deps.forEach((depId) => {
             if (!graph[depId]) {
@@ -48,7 +48,7 @@ export const extractComponentsDepsFromSchema = (componentsSchemas: ComponentsSch
         depsGraph[componentId] = Array.from(new Set(userOptionsComponentsDeps))
     })
 
-    const reverseDepsGraph = getReverseDepsGraph(depsGraph)
+    const reverseDepsGraph = buildReverseDepsGraph(depsGraph)
 
     return { depsGraph, reverseDepsGraph }
 }

@@ -216,15 +216,15 @@ export const employeeFormSchema: Schema = {
                         options: {
                             topComponentId: 'input-salary',
                             example: {
-                                componentId: 'input-position',
+                                componentId: 'input-first-name',
                             },
                         },
                         condition: {
                             type: 'operator',
                             operator: 'or',
                             operands: [
-                                { type: 'component', componentId: 'input-first-name', operatorName: 'startsWith', options: { startsWith: 'egor' } },
                                 { type: 'component', componentId: 'input-last-name', operatorName: 'startsWith', options: { startsWith: 'lazuka' } },
+                                { type: 'component', componentId: 'input-position', operatorName: 'startsWith', options: { startsWith: 'egor' } },
                             ],
                         },
                     },

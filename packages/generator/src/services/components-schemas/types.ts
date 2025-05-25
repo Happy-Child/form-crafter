@@ -1,15 +1,16 @@
 import { ComponentSchema, ComponentsSchemas, EntityId } from '@form-crafter/core'
+import { OptionalSerializableObject } from '@form-crafter/utils'
 import { EventCallable, StoreWritable } from 'effector'
 
 import { ThemeService } from '../theme'
-import { ComponentSchemaFactory } from './factories'
+import { ComponentSchemaModel } from './models'
 
 export type UpdateComponentPropertiesPayload = {
     id: EntityId
     data: Partial<ComponentSchema['properties']>
 }
 
-export type SchemaMap = Map<EntityId, ComponentSchemaFactory>
+export type SchemaMap = Map<EntityId, ComponentSchemaModel>
 
 export type ComponentsSchemasService = {
     $schemasMap: StoreWritable<SchemaMap>
@@ -22,3 +23,5 @@ export type ComponentsSchemasServiceParams = {
     initial: ComponentsSchemas
     themeService: ThemeService
 }
+
+export type CalcRelationsRulesPayload = { id: EntityId; data: OptionalSerializableObject }
