@@ -8,12 +8,10 @@ type Params = Pick<RepeaterService, 'addChildEvent' | 'removeChildEvent'> & Pick
 
 export const init = ({ componentsSchemasService, viewsService, addChildEvent, removeChildEvent }: Params) => {
     const executeAddChildEvent = sample({
-        source: { views: viewsService.$views, componentsSchemas: componentsSchemasService.$schemasMap },
+        source: { views: viewsService.$views, schemasMap: componentsSchemasService.$schemasMap },
         clock: addChildEvent,
-        fn: ({ views: currentViews, componentsSchemas }, { repeaterId }) => {
-            console.log('wasedf')
-
-            const { template } = componentsSchemas.get(repeaterId)!.$schema.getState() as RepeaterComponentSchema
+        fn: ({ views: currentViews, schemasMap }, { repeaterId }) => {
+            const { template } = schemasMap.get(repeaterId)!.$model.getState() as RepeaterComponentSchema
 
             const { views: additionalViews, componentsSchemas: additionalComponentsSchemas, additionalRowId } = createViewsDefinitions(template, repeaterId)
 
@@ -23,9 +21,6 @@ export const init = ({ componentsSchemasService, viewsService, addChildEvent, re
                 repeaterId,
                 additionalRowId,
             })
-
-            console.log('finalViews: ', JSON.stringify(finalViews, null, 2))
-            console.log('additionalComponentsSchemas: ', additionalComponentsSchemas)
 
             return {
                 views: finalViews,
@@ -50,7 +45,7 @@ export const init = ({ componentsSchemasService, viewsService, addChildEvent, re
         source: { views: viewsService.$views, componentsSchemas: componentsSchemasService.$schemasMap },
         clock: removeChildEvent,
         fn: ({ views: currentViews, componentsSchemas }, { rowId, repeaterId }) => {
-            const { template } = componentsSchemas.get(repeaterId)!.$schema.getState() as RepeaterComponentSchema
+            const { template } = componentsSchemas.get(repeaterId)!.$model.getState() as RepeaterComponentSchema
 
             const relevantViews = extractRelevantViews(currentViews, template.views)
             const { views: finalViews, componentsIdsToRemove } = removeViewRow(relevantViews, repeaterId, rowId)

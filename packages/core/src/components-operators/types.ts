@@ -1,4 +1,4 @@
-import { SerializableObject } from '@form-crafter/utils'
+import { OptionalSerializableObject } from '@form-crafter/utils'
 
 import { OptionsBuilder } from '../options-builder'
 import { RuleExecuteParams, RuleExecuteParamsWithoutOptions } from '../rules'
@@ -10,10 +10,11 @@ type GeneralConditionOperator = {
     helpText?: string
 }
 
-export type ComponentConditionOperator<O extends OptionsBuilder<SerializableObject> = OptionsBuilder<SerializableObject>> = GeneralConditionOperator & {
-    execute: (componentId: EntityId, params: RuleExecuteParams<O>) => boolean
-    optionsBuilder: O
-}
+export type ComponentConditionOperator<O extends OptionsBuilder<OptionalSerializableObject> = OptionsBuilder<OptionalSerializableObject>> =
+    GeneralConditionOperator & {
+        execute: (componentId: EntityId, params: RuleExecuteParams<O>) => boolean
+        optionsBuilder: O
+    }
 
 export type ComponentConditionOperatorWithoutOptions = GeneralConditionOperator & {
     execute: (componentId: EntityId, params: RuleExecuteParamsWithoutOptions) => boolean

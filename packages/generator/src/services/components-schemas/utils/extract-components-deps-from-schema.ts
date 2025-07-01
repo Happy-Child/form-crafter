@@ -1,5 +1,5 @@
 import { ComponentSchema, ComponentsSchemas, EntityId } from '@form-crafter/core'
-import { isNotEmpty } from '@form-crafter/utils'
+import { isEmpty, isNotEmpty } from '@form-crafter/utils'
 
 import { extractComponentsDepsFromConditions } from './extract-components-deps-from-conditions'
 import { getRuleOptionsValuesByDepsPaths } from './get-rule-options-values-by-deps-paths'
@@ -22,30 +22,36 @@ export const extractComponentsDepsFromSchema = (componentsSchemas: ComponentsSch
 
     entriesMap.forEach(([componentId]) => (depsGraph[componentId] = []))
 
-    entriesMap.forEach(([componentId, { relations }]) => {
-        const userOptions = relations?.options
+    entriesMap.forEach(([componentId, { relations, visability }]) => {
+        const сomponentsDeps: EntityId[] = []
 
-        if (!isNotEmpty(userOptions)) {
+        if (isNotEmpty(visability) && isNotEmpty(visability.condition)) {
+            const deps = extractComponentsDepsFromConditions([], visability.condition)
+            сomponentsDeps.push(...deps)
+        }
+
+        const userOptions = relations?.options
+        if (isNotEmpty(userOptions)) {
+            userOptions.forEach((userOption) => {
+                if (isNotEmpty(userOption.condition)) {
+                    const deps = extractComponentsDepsFromConditions([], userOption.condition)
+                    сomponentsDeps.push(...deps)
+                }
+
+                const optionsDepsKeys = depsPathsRulesComponents[userOption.ruleName]
+
+                if (isNotEmpty(userOption.options) && isNotEmpty(optionsDepsKeys)) {
+                    const deps = getRuleOptionsValuesByDepsPaths(userOption.options, optionsDepsKeys)
+                    сomponentsDeps.push(...deps)
+                }
+            })
+        }
+
+        if (isEmpty(сomponentsDeps)) {
             return
         }
 
-        const userOptionsComponentsDeps: EntityId[] = []
-        userOptions.forEach((userOption) => {
-            if (isNotEmpty(userOption.condition)) {
-                const deps = extractComponentsDepsFromConditions([], userOption.condition)
-                userOptionsComponentsDeps.push(...deps)
-            }
-
-            const optionsDepsKeys = depsPathsRulesComponents[userOption.ruleName]
-
-            if (isNotEmpty(userOption.options) && isNotEmpty(optionsDepsKeys)) {
-                const depsKeys = getRuleOptionsValuesByDepsPaths(userOption.options, optionsDepsKeys)
-
-                userOptionsComponentsDeps.push(...depsKeys)
-            }
-        })
-
-        depsGraph[componentId] = Array.from(new Set(userOptionsComponentsDeps))
+        depsGraph[componentId] = Array.from(new Set(сomponentsDeps))
     })
 
     const reverseDepsGraph = buildReverseDepsGraph(depsGraph)

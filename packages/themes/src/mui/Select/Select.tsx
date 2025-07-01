@@ -85,8 +85,8 @@ export const selectModule = createEditableComponentModule({
     name: 'select',
     label: 'Select',
     optionsBuilder,
-    operatorsForConditions: [componentsOperators.isEmptyOperator, componentsOperators.isNotEmptyOperator],
-    relationsRules: [rules.relations.duplicateValueRule, rules.relations.hiddenRule, rules.relations.changeSelectOptionsRule],
+    operatorsForConditions: [componentsOperators.isEmptyOperator, componentsOperators.isNotEmptyOperator, componentsOperators.equalStringOperator],
+    relationsRules: [rules.relations.duplicateValueRule, rules.relations.changeSelectOptionsRule],
     validationsRules: [rules.validations.editable.isRequiredRule],
     Component: Select,
 })

@@ -40,7 +40,7 @@ export const multifieldModule = createRepeaterComponentModule({
     label: 'Multifield',
     optionsBuilder,
     operatorsForConditions: [componentsOperators.isEmptyOperator, componentsOperators.isNotEmptyOperator],
+    relationsRules: [],
     validationsRules: [rules.validations.repeater.isRequiredRule, rules.validations.repeater.minLengthRule, rules.validations.repeater.maxLengthRule],
-    relationsRules: [rules.relations.hiddenRule],
     Component: Multifield,
 })

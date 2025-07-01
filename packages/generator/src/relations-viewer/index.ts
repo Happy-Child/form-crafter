@@ -45,4 +45,5 @@ const show = false
 
 if (show) {
     const network = new Network(container!, data, options)
+    console.log('network: ', network)
 }

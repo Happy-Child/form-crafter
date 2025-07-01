@@ -40,6 +40,7 @@ export type MakeKeysOptional<T> = T extends SomeObject ? Unwrap<OptionalIfUndefi
 
 export type ChildType<T> = T extends Array<infer I> ? I : never
 
+// TODO Не поддерживает вложенные объекты в массивы
 export type RequiredDeepObject<T extends SomeObject> = {
     [K in keyof T]-?: T[K] extends SomeObject ? RequiredDeepObject<T[K]> : T[K]
 }

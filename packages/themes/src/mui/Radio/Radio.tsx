@@ -79,7 +79,7 @@ export const radioModule = createEditableComponentModule({
     label: 'Radio',
     optionsBuilder,
     operatorsForConditions: [componentsOperators.isEmptyOperator, componentsOperators.isNotEmptyOperator],
-    relationsRules: [rules.relations.duplicateValueRule, rules.relations.hiddenRule],
+    relationsRules: [rules.relations.duplicateValueRule],
     validationsRules: [rules.validations.editable.isRequiredRule],
     Component: Radio,
 })

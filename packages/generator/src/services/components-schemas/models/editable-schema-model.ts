@@ -1,6 +1,8 @@
 import { EditableComponentProperties, EditableComponentSchema } from '@form-crafter/core'
-import { createEvent, createStore, EventCallable, sample, StoreWritable } from 'effector'
+import { OptionalSerializableObject } from '@form-crafter/utils'
+import { createEvent, createStore, EventCallable, sample } from 'effector'
 
+import { EditableSchemaModel } from '../../../types'
 import { CalcRelationsRulesPayload } from '../types'
 
 export type EditableSchemaModelParams = {
@@ -8,17 +10,17 @@ export type EditableSchemaModelParams = {
     calcRelationsRulesEvent: EventCallable<CalcRelationsRulesPayload>
 }
 
-export type EditableSchemaModel = {
-    $model: StoreWritable<EditableComponentSchema>
-    onUpdatePropertiesEvent: EventCallable<Partial<EditableComponentProperties>>
-    onSetPropertiesEvent: EventCallable<Partial<EditableComponentProperties>>
-}
-
 export const editableSchemaModel = ({ schema, calcRelationsRulesEvent }: EditableSchemaModelParams): EditableSchemaModel => {
     const $model = createStore<EditableComponentSchema>(schema)
 
     const setPropertiesEvent = createEvent<Partial<EditableComponentProperties>>('setPropertiesEvent')
     const updatePropertiesEvent = createEvent<Partial<EditableComponentProperties>>('updatePropertiesEvent')
+    const setModelEvent = createEvent<OptionalSerializableObject>('setModelEvent')
+
+    $model.on(setModelEvent, (schema, newSchema) => ({
+        ...schema,
+        ...newSchema,
+    }))
 
     $model.on(setPropertiesEvent, (schema, newProperties) => ({
         ...schema,
@@ -39,5 +41,5 @@ export const editableSchemaModel = ({ schema, calcRelationsRulesEvent }: Editabl
     // on blur event
     // слушать updatePropertiesEvent, если меняем value то вызывать другой ивент и начинать валидацию
 
-    return { $model, onUpdatePropertiesEvent: updatePropertiesEvent, onSetPropertiesEvent: setPropertiesEvent }
+    return { $model, setModelEvent, onUpdatePropertiesEvent: updatePropertiesEvent, onSetPropertiesEvent: setPropertiesEvent }
 }

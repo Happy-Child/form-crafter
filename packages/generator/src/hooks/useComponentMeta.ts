@@ -4,10 +4,10 @@ import { useStoreMap } from 'effector-react'
 import { useComponentModel } from './useComponentModel'
 
 export const useComponentMeta = <T extends ComponentType = ComponentType>(id: EntityId): ComponentSchemaByType<T>['meta'] => {
-    const model = useComponentModel<T>(id)
+    const { $model } = useComponentModel<T>(id)
 
     const meta = useStoreMap({
-        store: model.$schema,
+        store: $model,
         keys: [],
         fn: (schema: ComponentSchema) => schema.meta,
     })

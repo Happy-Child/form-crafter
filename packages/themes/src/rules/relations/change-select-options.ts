@@ -1,5 +1,6 @@
 import { createRelationRule, EditableComponentProperties } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
+import { isNotEmpty } from '@form-crafter/utils'
 
 const optionsBuilder = builders.group({
     topComponentId: builders.selectComponent().label('Выберете поле').nullable(),
@@ -20,8 +21,12 @@ export const changeSelectOptionsRule = createRelationRule<EditableComponentPrope
     displayName: 'Установка значений выпадающего списка',
     optionsBuilder,
     execute: (_, { options }) => {
+        if (!isNotEmpty(options)) {
+            return null
+        }
+
         const { newOptions } = options
 
-        return { properties: { value: [], options: newOptions } }
+        return { value: [newOptions[0].value], options: newOptions }
     },
 })

@@ -1,7 +1,7 @@
 import { EditableComponentProps, MaskOptions } from '@form-crafter/core'
-import { isNotNull, isNotUndefined, useCombinedRefs } from '@form-crafter/utils'
+import { useCombinedRefs } from '@form-crafter/utils'
 import { useMaskito } from '@maskito/react'
-import { FC, ForwardedRef, forwardRef, ReactNode, RefAttributes, useCallback, useState } from 'react'
+import { FC, ForwardedRef, forwardRef, ReactNode, RefAttributes, useCallback } from 'react'
 
 type InheritedComponent = FC<EditableComponentProps<{ value: any }>>
 
@@ -18,13 +18,8 @@ const GeneralMaskInputBase = <T extends InheritedComponent>(
 ): ReactNode => {
     const ref = useMaskito({ options: maskOptions })
 
-    const [maskedValue, setMaskedValue] = useState(properties.value || '')
-
     const handleChange = useCallback<typeof onChangeProperties>(
-        ({ value, ...params }) => {
-            if (isNotUndefined(value) && isNotNull(value)) {
-                setMaskedValue(value)
-            }
+        (params) => {
             if (Object.keys(params).length > 0) {
                 onChangeProperties(params)
             }
@@ -34,7 +29,7 @@ const GeneralMaskInputBase = <T extends InheritedComponent>(
 
     const refs = useCombinedRefs(ref, rootRef)
 
-    return <Component ref={refs} {...props} properties={{ ...properties, value: maskedValue }} onChangeProperties={handleChange} />
+    return <Component ref={refs} {...props} properties={properties} onChangeProperties={handleChange} />
 }
 
 export const GeneralMaskInput = forwardRef(GeneralMaskInputBase) as unknown as (<T extends InheritedComponent>(

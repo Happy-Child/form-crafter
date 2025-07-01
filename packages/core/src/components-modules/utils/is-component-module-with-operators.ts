@@ -6,4 +6,4 @@ export const isComponentModuleWithOperators = (
     module: ComponentModule,
 ): module is
     | EditableComponentModule<GroupOptionsBuilder<EditableComponentProperties>>
-    | UploaderComponentModule<GroupOptionsBuilder<UploaderComponentProperties>> => 'relationsRules' in module
+    | UploaderComponentModule<GroupOptionsBuilder<UploaderComponentProperties>> => 'operatorsForConditions' in module

@@ -25,6 +25,10 @@ export const employeeFormSchema: Schema = {
                         id: 'row_id_3',
                         children: [{ id: 'input-salary' }],
                     },
+                    row_id_31: {
+                        id: 'row_id_3',
+                        children: [{ id: 'country' }, { id: 'region' }],
+                    },
                     row_id_4: {
                         id: 'row_id_4',
                         children: [{ id: 'group-work' }],
@@ -42,6 +46,7 @@ export const employeeFormSchema: Schema = {
                         children: [{ id: 'date-start' }],
                     },
                 },
+
                 components: {
                     [rootComponentId]: {
                         id: rootComponentId,
@@ -54,6 +59,9 @@ export const employeeFormSchema: Schema = {
                             },
                             {
                                 id: 'row_id_3',
+                            },
+                            {
+                                id: 'row_id_31',
                             },
                             {
                                 id: 'row_id_4',
@@ -113,6 +121,20 @@ export const employeeFormSchema: Schema = {
                             layout: { col: { default: 12 } },
                         },
                     },
+                    country: {
+                        id: 'country',
+                        parentId: rootComponentId,
+                        params: {
+                            layout: { col: { default: 12 } },
+                        },
+                    },
+                    region: {
+                        id: 'region',
+                        parentId: rootComponentId,
+                        params: {
+                            layout: { col: { default: 12 } },
+                        },
+                    },
                     'select-department': {
                         id: 'select-department',
                         parentId: 'group-work',
@@ -145,18 +167,15 @@ export const employeeFormSchema: Schema = {
         },
         'input-last-name': {
             meta: { id: 'input-last-name', type: 'editable', name: 'text-field' },
+            visability: { condition: { type: 'component', componentId: 'input-salary', operatorName: 'isNotEmpty' } },
             properties: { label: 'Фамилия', value: '' },
             relations: {
                 options: [
                     {
-                        id: genId(),
+                        id: 'EGORRRRRR',
                         ruleName: 'duplicateValue',
                         options: { duplicateValueComponentId: 'input-first-name' },
-                    },
-                    {
-                        id: genId(),
-                        ruleName: 'hidden',
-                        condition: { type: 'component', componentId: 'input-salary', operatorName: 'isNotEmpty' },
+                        condition: { type: 'component', componentId: 'input-first-name', operatorName: 'isNotEmpty' },
                     },
                 ],
             },
@@ -167,23 +186,8 @@ export const employeeFormSchema: Schema = {
         },
         email: {
             meta: { id: 'email', type: 'editable', name: 'email' },
-            properties: { label: 'Email', value: undefined },
-            relations: {
-                options: [
-                    {
-                        id: genId(),
-                        ruleName: 'hidden',
-                        condition: {
-                            type: 'operator',
-                            operator: 'and',
-                            operands: [
-                                { type: 'component', componentId: 'input-first-name', operatorName: 'isEmpty' },
-                                { type: 'component', componentId: 'date-birth', operatorName: 'beforeDate', options: { date: '01-01-2000' } },
-                            ],
-                        },
-                    },
-                ],
-            },
+            visability: { condition: { type: 'component', componentId: 'input-first-name', operatorName: 'isNotEmpty' } },
+            properties: { label: 'Email', value: '' },
         },
         'group-work': {
             meta: { id: 'group-work', type: 'container', name: 'group' },
@@ -191,16 +195,110 @@ export const employeeFormSchema: Schema = {
         },
         'input-position': {
             meta: { id: 'input-position', type: 'editable', name: 'text-field' },
-            properties: { label: 'Должность', value: undefined },
+            properties: { label: 'Должность', value: '' },
         },
         'input-salary': {
             meta: { id: 'input-salary', type: 'editable', name: 'number-field' },
-            properties: { label: 'Зарплата', value: undefined },
+            properties: { label: 'Зарплата', value: '' },
+        },
+        country: {
+            meta: { id: 'country', type: 'editable', name: 'select' },
+            properties: {
+                value: [],
+                label: 'Страна',
+                options: [
+                    { label: 'Беларусь', value: 'belarus' },
+                    { label: 'Армения', value: 'armeny' },
+                    { label: 'Чили', value: 'chili' },
+                ],
+            },
+        },
+        region: {
+            meta: { id: 'region', type: 'editable', name: 'select' },
+            properties: {
+                value: [],
+                label: 'Область',
+                options: [],
+            },
+            relations: {
+                options: [
+                    {
+                        id: genId(),
+                        ruleName: 'changeSelectOptions',
+                        options: {
+                            newOptions: [
+                                { label: 'Брестская область', value: 'brest' },
+                                { label: 'Витебская область', value: 'vitebsk' },
+                                { label: 'Гомельская область', value: 'gomel' },
+                                { label: 'Гродненская область', value: 'grodno' },
+                                { label: 'Минская область', value: 'minsk_region' },
+                                { label: 'Могилёвская область', value: 'mogilev' },
+                            ],
+                        },
+                        condition: {
+                            type: 'operator',
+                            operator: 'or',
+                            operands: [{ type: 'component', componentId: 'country', operatorName: 'equalString', options: { equalTo: 'belarus' } }],
+                        },
+                    },
+                    {
+                        id: genId(),
+                        ruleName: 'changeSelectOptions',
+                        options: {
+                            newOptions: [
+                                { label: 'Арагацотн', value: 'aragatsotn' },
+                                { label: 'Арарат', value: 'ararat' },
+                                { label: 'Армавир', value: 'armavir' },
+                                { label: 'Гегаркуник', value: 'gegharkunik' },
+                                { label: 'Котайк', value: 'kotayk' },
+                                { label: 'Лори', value: 'lori' },
+                                { label: 'Ширак', value: 'shirak' },
+                                { label: 'Сюник', value: 'syunik' },
+                                { label: 'Тавуш', value: 'tavush' },
+                                { label: 'Вайоц Дзор', value: 'vayots_dzor' },
+                            ],
+                        },
+                        condition: {
+                            type: 'operator',
+                            operator: 'or',
+                            operands: [{ type: 'component', componentId: 'country', operatorName: 'equalString', options: { equalTo: 'armeny' } }],
+                        },
+                    },
+                    {
+                        id: genId(),
+                        ruleName: 'changeSelectOptions',
+                        options: {
+                            newOptions: [
+                                { label: 'Аріка-и-Парінакота', value: 'arica_parinacota' },
+                                { label: 'Тарапака', value: 'tarapaca' },
+                                { label: 'Антофагаста', value: 'antofagasta' },
+                                { label: 'Атакама', value: 'atacama' },
+                                { label: 'Кокимбо', value: 'coquimbo' },
+                                { label: 'Вальпараисо', value: 'valparaiso' },
+                                { label: 'Столичный регион Сантьяго', value: 'santiago_metropolitan' },
+                                { label: 'О’Хиггинс', value: 'ohiggins' },
+                                { label: 'Мауле', value: 'maule' },
+                                { label: 'Ньюбле', value: 'nuble' },
+                                { label: 'Био-Био', value: 'biobio' },
+                                { label: 'Араукания', value: 'araucania' },
+                                { label: 'Лос-Риос', value: 'los_rios' },
+                                { label: 'Лос-Лагос', value: 'los_lagos' },
+                                { label: 'Айсен', value: 'aisen' },
+                            ],
+                        },
+                        condition: {
+                            type: 'operator',
+                            operator: 'or',
+                            operands: [{ type: 'component', componentId: 'country', operatorName: 'equalString', options: { equalTo: 'chili' } }],
+                        },
+                    },
+                ],
+            },
         },
         'select-department': {
             meta: { id: 'select-department', type: 'editable', name: 'select' },
             properties: {
-                value: undefined,
+                value: [],
                 label: 'Отдел',
                 options: [
                     { label: 'Разработка', value: 'dev' },
@@ -218,6 +316,11 @@ export const employeeFormSchema: Schema = {
                             example: {
                                 componentId: 'input-first-name',
                             },
+                            newOptions: [
+                                { label: 'Менеджмент', value: 'manager' },
+                                { label: 'Уборка', value: 'example' },
+                                { label: 'Продажи', value: 'marketing' },
+                            ],
                         },
                         condition: {
                             type: 'operator',
@@ -335,7 +438,7 @@ export const employeeFormSchema: Schema = {
                     },
                     email: {
                         meta: { id: 'email', type: 'editable', name: 'email' },
-                        properties: { label: 'Email', value: undefined },
+                        properties: { label: 'Email', value: '' },
                     },
                     education: {
                         meta: { id: 'education', type: 'repeater', name: 'multifield' },

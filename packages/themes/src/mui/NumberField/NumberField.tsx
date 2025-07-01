@@ -48,7 +48,7 @@ export const numberFieldModule = createEditableComponentModule({
     label: 'Number field',
     optionsBuilder,
     operatorsForConditions: [componentsOperators.isEmptyOperator, componentsOperators.isNotEmptyOperator],
-    relationsRules: [rules.relations.duplicateValueRule, rules.relations.hiddenRule],
+    relationsRules: [rules.relations.duplicateValueRule],
     validationsRules: [rules.validations.editable.isRequiredRule, rules.validations.editable.minNumberRule, rules.validations.editable.maxNumberRule],
     Component: NumberField,
 })

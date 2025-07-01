@@ -7,12 +7,12 @@ import {
 } from '@form-crafter/core'
 import { EventCallable } from 'effector'
 
+import { ComponentSchemaModel } from '../../../types'
 import { CalcRelationsRulesPayload } from '../types'
 import { containerSchemaModel } from './container-schema-model'
 import { editableSchemaModel } from './editable-schema-model'
 import { repeaterSchemaModel } from './repeater-schema-model'
 import { staticSchemaModel } from './static-schema-model'
-import { ComponentSchemaModel } from './types'
 import { uploaderSchemaModel } from './uploader-schema-model'
 
 export type ComponentSchemaModelParams = {

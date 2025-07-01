@@ -14,7 +14,7 @@ const createComponentModule = (name: string, label: string, rules: ReturnType<ty
 }
 
 const optionsBuilder1 = builders.group({
-    value: builders.checkbox().label(''),
+    value: builders.checkbox().label('').required(),
 })
 const rule1 = createRelationRule<EditableComponentProperties, typeof optionsBuilder1>({
     ruleName: 'rule1',
@@ -23,7 +23,7 @@ const rule1 = createRelationRule<EditableComponentProperties, typeof optionsBuil
     execute: () => ({ properties: {} }),
 })
 const optionsBuilder2 = builders.group({
-    value: builders.checkbox().label(''),
+    value: builders.checkbox().label('').required(),
     field1: builders.selectComponent(),
     field2: builders.selectComponents(),
 })
@@ -35,7 +35,7 @@ const rule2 = createRelationRule<EditableComponentProperties, typeof optionsBuil
 })
 
 const optionsBuilder3 = builders.group({
-    value: builders.checkbox().label(''),
+    value: builders.checkbox().label('').required(),
     field1: builders.selectComponents(),
     nestedGroup: builders.group({
         field1: builders.selectComponent().nullable(),
@@ -62,6 +62,8 @@ export const mockTheme: ComponentModule[] = [
     createComponentModule('password', 'Password', [rule2]),
     createComponentModule('name', 'Name', [rule3]),
 ]
+
+export const mockRelationsRules = [rule1, rule2, rule3]
 
 export const mockEmptyRulesTheme: ComponentModule[] = [
     createComponentModule('email', 'Email'),

@@ -69,7 +69,7 @@ export const dateFieldModule = createEditableComponentModule({
         componentsOperators.beforeDateOperator,
         componentsOperators.afterDateOperator,
     ],
-    relationsRules: [rules.relations.duplicateValueRule, rules.relations.hiddenRule],
+    relationsRules: [rules.relations.duplicateValueRule],
     validationsRules: [rules.validations.editable.isRequiredRule, rules.validations.editable.minDateRule, rules.validations.editable.maxDateRule],
     Component: DateField,
 })

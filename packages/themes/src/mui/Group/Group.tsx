@@ -5,7 +5,6 @@ import { isNotEmpty } from '@form-crafter/utils'
 import { Box } from '@mui/material'
 import { forwardRef, memo } from 'react'
 
-import { rules } from '../../rules'
 import { Title } from '../Title'
 import { TopLevelContainerHeader } from './TopLevelContainerHeader'
 
@@ -40,6 +39,6 @@ export const groupModule = createContainerComponentModule({
     name: 'group',
     label: 'Group',
     optionsBuilder,
-    relationsRules: [rules.relations.hiddenRule],
+    relationsRules: [],
     Component: Group,
 })

@@ -1,4 +1,4 @@
-import { EditableComponentProperties, UploaderComponentProperties } from 'packages/core/src/types'
+import { EditableComponentProperties, UploaderComponentProperties } from '@form-crafter/core'
 
 import { GroupOptionsBuilder, isGroupOptionsBuilder } from '../../../options-builder'
 import { RelationRule, RelationRuleWithoutOptions } from '../types'

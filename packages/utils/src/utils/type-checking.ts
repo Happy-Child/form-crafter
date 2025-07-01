@@ -20,9 +20,7 @@ export const isString = (value: unknown): value is string => {
     return typeof value === 'string'
 }
 
-export const isArray = <T>(value: unknown): value is T[] => {
-    return Array.isArray(value)
-}
+export const isArray = <T = unknown>(value: unknown): value is T[] => Array.isArray(value)
 
 export const isNumber = (value: unknown): value is number => {
     if (typeof value === 'number') {

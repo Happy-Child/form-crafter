@@ -1,1 +1,2 @@
 - Разделить types на отдельные каталоги и в них писать необходимые типы?
+- components import rules, rules import components (RuleExecutorContext). Разрешить кросс импорт.

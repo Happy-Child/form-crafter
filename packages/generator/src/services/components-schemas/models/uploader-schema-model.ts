@@ -1,18 +1,23 @@
 import { UploaderComponentProperties, UploaderComponentSchema } from '@form-crafter/core'
-import { createEvent, createStore, EventCallable, StoreWritable } from 'effector'
+import { OptionalSerializableObject } from '@form-crafter/utils'
+import { createEvent, createStore } from 'effector'
+
+import { UploaderSchemaModel } from '../../../types'
 
 export type UploaderSchemaModelParams = {
     schema: UploaderComponentSchema
 }
 
-export type UploaderSchemaModel = {
-    $model: StoreWritable<UploaderComponentSchema>
-    onUpdatePropertiesEvent: EventCallable<Partial<UploaderComponentProperties>>
-}
-
 export const uploaderSchemaModel = ({ schema }: UploaderSchemaModelParams): UploaderSchemaModel => {
     const $model = createStore<UploaderComponentSchema>(schema)
+
     const updatePropertiesEvent = createEvent<Partial<UploaderComponentProperties>>('onUpdatePropertiesEvent')
+    const setModelEvent = createEvent<OptionalSerializableObject>('setModelEvent')
+
+    $model.on(setModelEvent, (schema, newSchema) => ({
+        ...schema,
+        ...newSchema,
+    }))
 
     $model.on(updatePropertiesEvent, (model, newProperties) => ({
         ...model,
@@ -22,5 +27,5 @@ export const uploaderSchemaModel = ({ schema }: UploaderSchemaModelParams): Uplo
         },
     }))
 
-    return { $model, onUpdatePropertiesEvent: updatePropertiesEvent }
+    return { $model, setModelEvent, onUpdatePropertiesEvent: updatePropertiesEvent }
 }

@@ -1,18 +1,26 @@
-import { ComponentsSchemas, EntityId, isConditionsSuccessful } from '@form-crafter/core'
-import { isNotEmpty, OptionalSerializableObject } from '@form-crafter/utils'
-import { createEvent, createStore, sample, StoreValue } from 'effector'
-import { clone, cloneDeep } from 'lodash-es'
+import { ComponentsSchemas, EntityId } from '@form-crafter/core'
+import { isNotEmpty } from '@form-crafter/utils'
+import { attach, combine, createEffect, createEvent, createStore } from 'effector'
 
+import { SchemaMap } from '../../types'
 import { init } from './init'
-import { ComponentSchemaModel, componentSchemaModel } from './models'
-import { CalcRelationsRulesPayload, ComponentsSchemasService, ComponentsSchemasServiceParams, SchemaMap, UpdateComponentPropertiesPayload } from './types'
+import { componentSchemaModel } from './models'
+import {
+    CalcRelationsRulesPayload,
+    ComponentsSchemasService,
+    ComponentsSchemasServiceParams,
+    RulesOverridesCacheStore,
+    UpdateComponentPropertiesPayload,
+} from './types'
 import { buildDepsResolutionOrder, extractComponentsDepsFromSchema } from './utils'
 
 export type { ComponentsSchemasService }
 
 export const createComponentsSchemasService = ({ initial, themeService }: ComponentsSchemasServiceParams): ComponentsSchemasService => {
-    const { depsGraph, reverseDepsGraph } = extractComponentsDepsFromSchema(initial, themeService.$depsPathsRulesComponents.getState())
-    const $depsResolutionOrder = createStore<Record<EntityId, EntityId[]>>(buildDepsResolutionOrder(depsGraph, reverseDepsGraph))
+    const $initialComponentsSchemas = createStore<ComponentsSchemas>(initial)
+
+    const $componentsDepsFromSchema = combine($initialComponentsSchemas, themeService.$depsPathsRulesComponents, extractComponentsDepsFromSchema)
+    const $depsResolutionOrder = combine($componentsDepsFromSchema, ({ depsGraph, reverseDepsGraph }) => buildDepsResolutionOrder(depsGraph, reverseDepsGraph))
 
     const calcRelationsRulesEvent = createEvent<CalcRelationsRulesPayload>('calcRelationsRulesEvent')
 
@@ -27,60 +35,65 @@ export const createComponentsSchemasService = ({ initial, themeService }: Compon
 
         return $model
     }
-
     const $componentsSchemasModel = componentsSchemasModel(initial)
 
-    const testEvent = createEvent('testEvent')
-    testEvent.watch((data) => console.log(`testEvent: `, data))
+    const $rulesOverridesCache = createStore<RulesOverridesCacheStore>({})
 
-    // ДОЛЖНА БЫТЬ ОДНА ФУНКЦИЯ, В КОТОРУЮ ПЕРЕДЕВАТЬ PAYLOAD И В НЕЁ ВСЕ ПРОИСХОДИТ
-    // ВЫЗВАТЬ С ID, А ДАЛЬШЕ ИТЕРИРОВАТЬСЯ ПО RESOLUTIONS ORDER, ЕСЛИ НЕ ПУСТОЕ
-    // В КОНЦЕ НЕ ПОНЯТНО ЧТО ДЕЛАТЬ, КАК ВЫХОДИТЬ И ПРОСТО СЕТАТЬ ТО, ЧТО ПЕРЕДАЛ ЮЗЕР, БЕЗ МОДИФИКАЦИЙ
+    const $hiddenComponents = createStore<Set<EntityId>>(new Set())
 
-    // ОЧЕНЬ ЖИРНЫЙ SAMPLE!!!
-    sample({
-        source: { componentsSchemasModel: $componentsSchemasModel, depsResolutionOrder: $depsResolutionOrder },
-        clock: calcRelationsRulesEvent,
-        fn: ({ componentsSchemasModel, depsResolutionOrder }, { id: componentIdToUpdate, data: propertiesToUpdate }) => {
-            const componentsSchemas = Object.entries(Object.fromEntries(componentsSchemasModel)).reduce<
-                Record<EntityId, StoreValue<ComponentSchemaModel['$model']>>
-            >((obj, [componentId, value]) => ({ ...obj, [componentId]: value.$model.getState() }), {})
+    const setRulesOverridesCacheEvent = createEvent<RulesOverridesCacheStore>('setRulesOverridesCacheEvent')
 
-            const tempComponentsSchemas = cloneDeep(componentsSchemas)
-            tempComponentsSchemas[componentIdToUpdate].properties = {
-                ...tempComponentsSchemas[componentIdToUpdate].properties,
-                ...propertiesToUpdate,
-            }
+    const setHiddenComponentsEvent = createEvent<Set<EntityId>>('setHiddenComponentsEvent')
 
-            const execute = (componentId: EntityId) => {
-                const componentModel = tempComponentsSchemas[componentId]
-                const relationsRules = componentModel.relations
-
-                relationsRules?.options?.forEach(({ id, ruleName, options, condition }) => {
-                    const success = isNotEmpty(condition) && isConditionsSuccessful(condition, tempComponentsSchemas)
-                    if (success) {
-                        //
-                    }
-                })
-
-                const depsResolutionOrderToUpdate = depsResolutionOrder[componentId]
-                depsResolutionOrderToUpdate?.forEach(execute)
-            }
-            execute(componentIdToUpdate, propertiesToUpdate)
-
-            if (!isNotEmpty(depsResolutionOrderToUpdate)) {
-                // выйти
-            }
-
-            return {}
+    const baseComponentsSchemasModelFx = createEffect<
+        {
+            componentsSchemasModel: SchemaMap
+            componentsSchemasToUpdate: ComponentsSchemas
         },
-        target: testEvent,
+        SchemaMap
+    >(({ componentsSchemasModel, componentsSchemasToUpdate }) => {
+        const newMap = Object.entries(componentsSchemasToUpdate).reduce((map, [componentId, schema]) => {
+            const model = map.get(componentId)
+            if (isNotEmpty(model)) {
+                model.setModelEvent(schema)
+            }
+            return map
+        }, new Map(componentsSchemasModel))
+
+        return newMap
+    })
+
+    const updateComponentsSchemasModelFx = attach({
+        source: $componentsSchemasModel,
+        mapParams: (componentsSchemasToUpdate: ComponentsSchemas, componentsSchemasModel: SchemaMap) => ({
+            componentsSchemasModel,
+            componentsSchemasToUpdate,
+        }),
+        effect: baseComponentsSchemasModelFx,
+    })
+
+    $rulesOverridesCache.on(setRulesOverridesCacheEvent, (_, newCache) => newCache)
+
+    $hiddenComponents.on(setHiddenComponentsEvent, (_, newComponentsToHidden) => newComponentsToHidden)
+
+    init({
+        calcRelationsRulesEvent,
+        setRulesOverridesCacheEvent,
+        setHiddenComponentsEvent,
+        updateComponentsSchemasModelFx,
+        $hiddenComponents,
+        $initialComponentsSchemas,
+        $componentsSchemasModel,
+        $rulesOverridesCache,
+        $depsResolutionOrder,
+        $componentsDepsFromSchema,
+        $operatorsForConditions: themeService.$operatorsForConditions,
+        $relationsRulesMap: themeService.$relationsRulesMap,
     })
 
     console.log('depsPathsRulesComponents: ', themeService.$depsPathsRulesComponents.getState())
-    console.log('depsGraph: ', depsGraph)
-    console.log('reverseDepsGraph: ', reverseDepsGraph)
-    console.log('$depsResolutionOrder: ', $depsResolutionOrder.getState())
+    console.log('componentsDepsFromSchema: ', $componentsDepsFromSchema.getState())
+    console.log('depsResolutionOrder: ', $depsResolutionOrder.getState())
 
     // вроде бы так:
     // 1. на событие onChangeProperties (if value can beed changed) или onAddGroup идём наружу?
@@ -88,34 +101,30 @@ export const createComponentsSchemasService = ({ initial, themeService }: Compon
     // 3. для editable/uploader по сути то же самое?
 
     // OLD BEGIN
-    const $schemas = createStore<ComponentsSchemas>(initial)
-
     const updateComponentsSchemasEvent = createEvent<ComponentsSchemas>('updateComponentsSchemasEvent')
     const removeComponentsSchemasByIdsEvent = createEvent<{ ids: EntityId[] }>('removeComponentsSchemasByIdsEvent')
     const updateComponentPropertiesEvent = createEvent<UpdateComponentPropertiesPayload>('updateComponentPropertiesEvent')
 
-    $schemas
-        .on(updateComponentsSchemasEvent, (curData, data) => ({
-            ...curData,
-            ...data,
-        }))
-        .on(removeComponentsSchemasByIdsEvent, (curData, { ids }) =>
-            Object.fromEntries(Object.entries(curData).filter(([componentId]) => !ids.includes(componentId))),
-        )
+    // $schemas
+    //     .on(updateComponentsSchemasEvent, (curData, data) => ({
+    //         ...curData,
+    //         ...data,
+    //     }))
+    //     .on(removeComponentsSchemasByIdsEvent, (curData, { ids }) =>
+    //         Object.fromEntries(Object.entries(curData).filter(([componentId]) => !ids.includes(componentId))),
+    //     )
 
-    $schemas.on(updateComponentPropertiesEvent, (curData, { id, data }) => ({
-        ...curData,
-        [id]: {
-            ...curData[id],
-            properties: {
-                ...curData[id].properties,
-                ...data,
-            },
-        },
-    }))
+    // $schemas.on(updateComponentPropertiesEvent, (curData, { id, data }) => ({
+    //     ...curData,
+    //     [id]: {
+    //         ...curData[id],
+    //         properties: {
+    //             ...curData[id].properties,
+    //             ...data,
+    //         },
+    //     },
+    // }))
     // OLD END
-
-    init({})
 
     return {
         $schemasMap: $componentsSchemasModel,

@@ -1,18 +1,25 @@
 import { ComponentModule } from '@form-crafter/core'
-import { createStore } from 'effector'
+import { combine, createStore } from 'effector'
 import { FC } from 'react'
 
 import { init } from './init'
 import { ThemeService, ThemeServiceParams } from './types'
-import { getDepsPathsRulesComponents } from './utils'
+import { extractRelationsRules, getDepsPathsRulesComponents } from './utils'
+import { extractOperatorsForConditions } from './utils/extract-operators-for-conditions'
 
 export type { ThemeService, ThemeServiceParams }
 
 export const createThemeService = ({ theme, PlaceholderComponent }: ThemeServiceParams): ThemeService => {
     const $theme = createStore<ComponentModule[]>(theme)
-    //ВЫНЕСТИ ПРАВИЛА ЗАВИС. В ОТДЕЬЛНЫЙ СТОР И ЮЗАР ЕГО В getDepsPathsRulesComponents ИЛИ в COMBINE depsPathsRulesComponents
-    const $depsPathsRulesComponents = createStore<Record<string, string[][]>>(getDepsPathsRulesComponents(theme))
-    const $operatorsForConditions = createStore<Record<string, any>>(getOperatorsForConditions(theme))
+
+    const $relationsRules = combine($theme, extractRelationsRules)
+
+    const $relationsRulesMap = combine($relationsRules, (rules) => rules.reduce((map, rule) => ({ ...map, [rule.ruleName]: rule }), {}))
+
+    const $depsPathsRulesComponents = combine($relationsRules, getDepsPathsRulesComponents)
+
+    const $operatorsForConditions = combine($theme, extractOperatorsForConditions)
+
     const $placeholderComponent = createStore<FC>(PlaceholderComponent)
 
     init({})
@@ -20,6 +27,8 @@ export const createThemeService = ({ theme, PlaceholderComponent }: ThemeService
     return {
         $theme,
         $depsPathsRulesComponents,
+        $operatorsForConditions,
+        $relationsRulesMap,
         $placeholderComponent,
     }
 }

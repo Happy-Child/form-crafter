@@ -20,7 +20,7 @@ const Email = memo(
     forwardRef<HTMLDivElement, ComponentProps>(({ properties: { label, placeholder, disabled, value }, onChangeProperties }, ref) => {
         return (
             <TextField
-                ref={ref}
+                inputRef={ref}
                 fullWidth
                 value={value}
                 disabled={disabled}
@@ -39,7 +39,7 @@ export const emailModule = createEditableComponentModule({
     label: 'Email',
     optionsBuilder,
     operatorsForConditions: [componentsOperators.isEmptyOperator, componentsOperators.isNotEmptyOperator],
-    relationsRules: [rules.relations.duplicateValueRule, rules.relations.hiddenRule],
+    relationsRules: [rules.relations.duplicateValueRule],
     validationsRules: [rules.validations.editable.isRequiredRule, rules.validations.editable.isEmailRule],
     Component: Email,
 })

@@ -1,16 +1,22 @@
 import { RepeaterComponentSchema } from '@form-crafter/core'
-import { createStore, StoreWritable } from 'effector'
+import { OptionalSerializableObject } from '@form-crafter/utils'
+import { createEvent, createStore } from 'effector'
+
+import { RepeaterSchemaModel } from '../../../types'
 
 export type RepeaterSchemaModelParams = {
     schema: RepeaterComponentSchema
 }
 
-export type RepeaterSchemaModel = {
-    $model: StoreWritable<RepeaterComponentSchema>
-}
-
 export const repeaterSchemaModel = ({ schema }: RepeaterSchemaModelParams): RepeaterSchemaModel => {
     const $model = createStore<RepeaterComponentSchema>(schema)
 
-    return { $model }
+    const setModelEvent = createEvent<OptionalSerializableObject>('setModelEvent')
+
+    $model.on(setModelEvent, (schema, newSchema) => ({
+        ...schema,
+        ...newSchema,
+    }))
+
+    return { $model, setModelEvent }
 }

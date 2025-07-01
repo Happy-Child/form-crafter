@@ -3,8 +3,6 @@ import { builders } from '@form-crafter/options-builder'
 import { Button as ButtonBase } from '@mui/material'
 import { forwardRef, memo } from 'react'
 
-import { rules } from '../../rules'
-
 const defautType = 'button'
 
 const optionsBuilder = builders.group({
@@ -38,6 +36,6 @@ export const buttonModule = createStaticComponentModule({
     name: 'button',
     label: 'Button',
     optionsBuilder,
-    relationsRules: [rules.relations.hiddenRule],
+    relationsRules: [],
     Component: Button,
 })

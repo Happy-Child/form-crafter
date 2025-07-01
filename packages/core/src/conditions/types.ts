@@ -1,4 +1,4 @@
-import { SerializableValue } from '@form-crafter/utils'
+import { OptionalSerializableObject } from '@form-crafter/utils'
 
 import { EntityId } from '../types'
 
@@ -14,7 +14,11 @@ export type ConditionComponentNode = {
     type: 'component'
     componentId: EntityId
     operatorName: string
-    options?: SerializableValue
+    options?: OptionalSerializableObject
+}
+
+export type ConditionComponentNodeWithOptions = Omit<ConditionComponentNode, 'options'> & {
+    options: OptionalSerializableObject
 }
 
 export type ConditionNode = ConditionComponentNode | ConditionOperatorNode

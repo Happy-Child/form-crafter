@@ -44,9 +44,15 @@ importers:
       effector:
         specifier: ^23.3.0
         version: 23.3.0
+      effector-action:
+        specifier: ^1.1.3
+        version: 1.1.3(effector@23.3.0)(patronum@2.3.0(effector@23.3.0))
       effector-react:
         specifier: ^23.3.0
         version: 23.3.0(effector@23.3.0)(react@18.3.1)
+      imask:
+        specifier: ^7.6.1
+        version: 7.6.1
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
@@ -62,6 +68,9 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+      react-imask:
+        specifier: ^7.6.1
+        version: 7.6.1(react@18.3.1)
       vis-network:
         specifier: ^9.1.10
         version: 9.1.10(@egjs/hammerjs@2.0.17)(component-emitter@1.3.1)(keycharm@0.4.0)(uuid@8.3.2)(vis-data@7.1.9(uuid@8.3.2)(vis-util@5.0.7(@egjs/hammerjs@2.0.17)(component-emitter@1.3.1)))(vis-util@5.0.7(@egjs/hammerjs@2.0.17)(component-emitter@1.3.1))
@@ -952,6 +961,10 @@ packages:
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
+
+  '@babel/runtime-corejs3@7.27.3':
+    resolution: {integrity: sha512-ZYcgrwb+dkWNcDlsTe4fH1CMdqMDSJ5lWFd1by8Si2pI54XcQjte/+ViIPqAk7EAWisaUxvQ89grv+bNX2x8zg==}
+    engines: {node: '>=6.9.0'}
 
   '@babel/runtime@7.27.0':
     resolution: {integrity: sha512-VtPOkrdPHZsKc/clNqyi9WUA8TINkZ4cGk63UUE3u4pmB2k+ZMQRDuIOagv8UVd6j7k0T3+RRIb7beKTebNbcw==}
@@ -4082,6 +4095,9 @@ packages:
   core-js-compat@3.41.0:
     resolution: {integrity: sha512-RFsU9LySVue9RTwdDVX/T0e2Y6jRYWXERKElIjpuEOEnxaXffI0X7RUwVzfYLfzuLXSNJDYoRYUAmRUcyln20A==}
 
+  core-js-pure@3.42.0:
+    resolution: {integrity: sha512-007bM04u91fF4kMgwom2I5cQxAFIy8jVulgr9eozILl/SZE53QOqnW/+vviC+wQWLv+AunBG+8Q0TLoeSsSxRQ==}
+
   core-js@3.37.1:
     resolution: {integrity: sha512-Xn6qmxrQZyB0FFY8E3bgRXei3lWDJHhvI+u0q9TKIYM49G8pAr0FgnnrFRAmsbptZL1yxRADVXn+x5AGsbBfyw==}
 
@@ -4517,6 +4533,12 @@ packages:
 
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
+
+  effector-action@1.1.3:
+    resolution: {integrity: sha512-3YsfaRDP9Y/VF7/vn7DmNmztzz0QlqLK9scdag7oyQ6e3Df6aWako+2FfC9k0NT7dHtLhOo4lJR20zePWEW6IQ==}
+    peerDependencies:
+      effector: '>=23'
+      patronum: '>=2.1.0'
 
   effector-react@23.3.0:
     resolution: {integrity: sha512-QR0+x1EnbiWhO80Yc0GVF+I9xCYoxBm3t+QLB5Wg+1uY1Q1BrSWDmKvJaJJZ/+9BU4RAr25yS5J2EkdWnicu8g==}
@@ -5468,6 +5490,10 @@ packages:
     resolution: {integrity: sha512-6TDAlDPZxUFCv+fuOkIoXT/V/f3Qbq8e37p+YOiYrUv3v9cc3/6x78VdfPgFVaB9dZYeLUfKgHRebpkm/oP2VQ==}
     engines: {node: '>=0.10.0'}
     hasBin: true
+
+  imask@7.6.1:
+    resolution: {integrity: sha512-sJlIFM7eathUEMChTh9Mrfw/IgiWgJqBKq2VNbyXvBZ7ev/IlO6/KQTKlV/Fm+viQMLrFLG/zCuudrLIwgK2dg==}
+    engines: {npm: '>=4.0.0'}
 
   immutable@5.1.1:
     resolution: {integrity: sha512-3jatXi9ObIsPGr3N5hGw/vWWcTkq6hUYhpQz4k0wLC+owqWi/LiugIw9x0EdNZ2yGedKN/HzePiBvaJRXa0Ujg==}
@@ -7322,6 +7348,12 @@ packages:
     resolution: {integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==}
     peerDependencies:
       react: ^18.3.1
+
+  react-imask@7.6.1:
+    resolution: {integrity: sha512-vLNfzcCz62Yzx/GRGh5tiCph9Gbh2cZu+Tz8OiO5it2eNuuhpA0DWhhSlOtVtSJ80+Bx+vFK5De8eQ9AmbkXzA==}
+    engines: {npm: '>=4.0.0'}
+    peerDependencies:
+      react: '>=0.14.0'
 
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -9595,6 +9627,10 @@ snapshots:
       '@babel/plugin-transform-typescript': 7.27.0(@babel/core@7.26.10)
     transitivePeerDependencies:
       - supports-color
+
+  '@babel/runtime-corejs3@7.27.3':
+    dependencies:
+      core-js-pure: 3.42.0
 
   '@babel/runtime@7.27.0':
     dependencies:
@@ -13321,6 +13357,8 @@ snapshots:
     dependencies:
       browserslist: 4.24.4
 
+  core-js-pure@3.42.0: {}
+
   core-js@3.37.1: {}
 
   core-js@3.41.0: {}
@@ -13775,6 +13813,11 @@ snapshots:
       safe-buffer: 5.2.1
 
   ee-first@1.1.1: {}
+
+  effector-action@1.1.3(effector@23.3.0)(patronum@2.3.0(effector@23.3.0)):
+    dependencies:
+      effector: 23.3.0
+      patronum: 2.3.0(effector@23.3.0)
 
   effector-react@23.3.0(effector@23.3.0)(react@18.3.1):
     dependencies:
@@ -15087,6 +15130,10 @@ snapshots:
 
   image-size@0.5.5:
     optional: true
+
+  imask@7.6.1:
+    dependencies:
+      '@babel/runtime-corejs3': 7.27.3
 
   immutable@5.1.1: {}
 
@@ -17186,6 +17233,12 @@ snapshots:
       loose-envify: 1.4.0
       react: 18.3.1
       scheduler: 0.23.2
+
+  react-imask@7.6.1(react@18.3.1):
+    dependencies:
+      imask: 7.6.1
+      prop-types: 15.8.1
+      react: 18.3.1
 
   react-is@16.13.1: {}
 

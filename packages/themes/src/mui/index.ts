@@ -12,6 +12,8 @@ import { textareaModule } from './Textarea'
 import { textFieldModule } from './TextField'
 import { timeFieldModule } from './TimeField'
 
+export { textFieldModule }
+
 export const muiTheme = [
     buttonModule,
     checkboxModule,

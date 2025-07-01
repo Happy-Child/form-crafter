@@ -2,8 +2,6 @@ import { createStaticComponentModule, OptionsBuilderOutput, StaticComponentProps
 import { builders } from '@form-crafter/options-builder'
 import { forwardRef, memo } from 'react'
 
-import { rules } from '../../rules'
-
 const optionsBuilder = builders.group({
     value: builders.textarea().required().label('Текст'),
 })
@@ -22,6 +20,6 @@ export const textModule = createStaticComponentModule({
     name: 'text',
     label: 'Text',
     optionsBuilder,
-    relationsRules: [rules.relations.hiddenRule],
+    relationsRules: [],
     Component: Text,
 })

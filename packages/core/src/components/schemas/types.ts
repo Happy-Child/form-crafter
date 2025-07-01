@@ -1,5 +1,6 @@
+import { ConditionNode } from '../../conditions'
 import { RelationRuleUserOptions, ValidationRuleUserOptions } from '../../rules'
-import { ComponentSchemaSettings, ComponentType, EntityId } from '../../types'
+import { ComponentType, EntityId } from '../../types'
 import {
     ContainerComponentProperties,
     EditableComponentProperties,
@@ -8,6 +9,8 @@ import {
     UploaderComponentProperties,
 } from '../../types'
 import { ViewsDefinitions } from '../../views'
+
+export type ComponentSchemaVisability = { hidden?: boolean; condition?: ConditionNode }
 
 // TODO impl it
 export type ValidationsConfigs = {
@@ -25,7 +28,7 @@ export type ComponentRelations = {
 }
 
 export type GeneralComponentSchema = {
-    settings?: ComponentSchemaSettings
+    visability?: ComponentSchemaVisability
     validations?: ComponentValidations
     relations?: ComponentRelations
 }

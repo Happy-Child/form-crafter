@@ -4,6 +4,6 @@ export const disabledRule = createRelationRule({
     ruleName: 'disabled',
     displayName: 'Блокировка поля',
     execute: () => {
-        return { properties: { disabled: true } }
+        return { disabled: true }
     },
 })
