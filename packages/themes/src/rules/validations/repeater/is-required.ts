@@ -16,9 +16,9 @@ export const isRequiredRule = createRepeaterValidationRule<typeof optionsBuilder
         const children = ctx.getRepeaterChildIds(componentId)
 
         if (isEmpty(children)) {
-            // set error
+            return { isValid: false, error: { message } }
         }
 
-        // skip
+        return { isValid: true }
     },
 })

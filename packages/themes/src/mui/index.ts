@@ -1,3 +1,4 @@
+import { rules } from '../rules'
 import { buttonModule } from './Button'
 import { checkboxModule } from './Checkbox'
 import { dateFieldModule } from './DateField'
@@ -12,20 +13,21 @@ import { textareaModule } from './Textarea'
 import { textFieldModule } from './TextField'
 import { timeFieldModule } from './TimeField'
 
-export { textFieldModule }
-
-export const muiTheme = [
-    buttonModule,
-    checkboxModule,
-    dateFieldModule,
-    emailModule,
-    groupModule,
-    textFieldModule,
-    numberFieldModule,
-    multifieldModule,
-    radioModule,
-    selectModule,
-    textModule,
-    textareaModule,
-    timeFieldModule,
-]
+export const muiTheme = {
+    componentsModules: [
+        buttonModule,
+        checkboxModule,
+        dateFieldModule,
+        emailModule,
+        groupModule,
+        textFieldModule,
+        numberFieldModule,
+        multifieldModule,
+        radioModule,
+        selectModule,
+        textModule,
+        textareaModule,
+        timeFieldModule,
+    ],
+    formValidationRules: [rules.validations.form.oneOfNotEmptyRule],
+}

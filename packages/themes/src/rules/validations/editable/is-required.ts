@@ -1,4 +1,4 @@
-import { createEditableValidationRule } from '@form-crafter/core'
+import { createEditableValidationRule, validationRuleNames } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
 import { isBoolean, isEmpty, isNull, isString, Maybe, UniversalValue } from '@form-crafter/utils'
 
@@ -9,28 +9,28 @@ const optionsBuilder = builders.group({
 })
 
 export const isRequiredRule = createEditableValidationRule<Maybe<UniversalValue | UniversalValue[]>, typeof optionsBuilder>({
-    ruleName: 'isRequired',
+    ruleName: validationRuleNames.isRequired,
     displayName: 'Обязательное поле',
     optionsBuilder,
     validate: (value, params) => {
         const { skipNull, withTrim, message } = params.options
 
         if (skipNull && isNull(value)) {
-            // skip
+            return { isValid: true }
         }
 
         if (withTrim && isString(value) && isEmpty(value.trim())) {
-            // set error
+            return { isValid: false, error: { message } }
         }
 
         if (isBoolean(value) && !value) {
-            // set error
+            return { isValid: false, error: { message } }
         }
 
         if (isEmpty(value)) {
-            // set error
+            return { isValid: false, error: { message } }
         }
 
-        // skip
+        return { isValid: true }
     },
 })

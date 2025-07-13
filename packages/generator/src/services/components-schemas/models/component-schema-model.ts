@@ -1,24 +1,12 @@
-import {
-    ComponentSchema,
-    isContainerComponentSchema,
-    isEditableComponentSchema,
-    isRepeaterComponentSchema,
-    isUploaderComponentSchema,
-} from '@form-crafter/core'
-import { EventCallable } from 'effector'
+import { isContainerComponentSchema, isEditableComponentSchema, isRepeaterComponentSchema, isUploaderComponentSchema } from '@form-crafter/core'
 
 import { ComponentSchemaModel } from '../../../types'
-import { CalcRelationsRulesPayload } from '../types'
 import { containerSchemaModel } from './container-schema-model'
 import { editableSchemaModel } from './editable-schema-model'
 import { repeaterSchemaModel } from './repeater-schema-model'
 import { staticSchemaModel } from './static-schema-model'
+import { ComponentSchemaModelParams } from './types'
 import { uploaderSchemaModel } from './uploader-schema-model'
-
-export type ComponentSchemaModelParams = {
-    schema: ComponentSchema
-    calcRelationsRulesEvent: EventCallable<CalcRelationsRulesPayload>
-}
 
 export const componentSchemaModel = ({ schema, ...args }: ComponentSchemaModelParams): ComponentSchemaModel => {
     if (isEditableComponentSchema(schema)) {

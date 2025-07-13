@@ -1,10 +1,10 @@
 import { isNull } from '@form-crafter/utils'
 import { createContext, FC, PropsWithChildren, useContext, useMemo } from 'react'
 
-import { ComponentModule } from '../components-modules'
+import { FormCrafterTheme } from '../schema'
 
 type FormCrafterContext = {
-    theme: ComponentModule[]
+    theme: FormCrafterTheme
     PlaceholderComponent: FC
 }
 

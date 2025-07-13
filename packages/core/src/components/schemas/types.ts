@@ -1,5 +1,8 @@
+import { SerializableObject } from '@form-crafter/utils'
+
 import { ConditionNode } from '../../conditions'
-import { RelationRuleUserOptions, ValidationRuleUserOptions } from '../../rules'
+import { OptionsBuilder, OptionsBuilderOutput } from '../../options-builder'
+import { RelationRuleUserOptions } from '../../rules'
 import { ComponentType, EntityId } from '../../types'
 import {
     ContainerComponentProperties,
@@ -10,17 +13,23 @@ import {
 } from '../../types'
 import { ViewsDefinitions } from '../../views'
 
-export type ComponentSchemaVisability = { hidden?: boolean; condition?: ConditionNode }
+export type ComponentVisability = { hidden?: boolean; condition?: ConditionNode }
 
-// TODO impl it
+export type ValidationRuleSchema = {
+    id: EntityId
+    ruleName: string
+    options?: OptionsBuilderOutput<OptionsBuilder<SerializableObject>>
+    condition?: ConditionNode
+}
+
 export type ValidationsConfigs = {
     disableSelf?: boolean
     disableChildren?: boolean
 }
 
-export type ComponentValidations = {
-    configs: ValidationsConfigs
-    options: ValidationRuleUserOptions[]
+export type ComponentValidationsSchema = {
+    configs?: ValidationsConfigs
+    options: ValidationRuleSchema[]
 }
 
 export type ComponentRelations = {
@@ -28,8 +37,8 @@ export type ComponentRelations = {
 }
 
 export type GeneralComponentSchema = {
-    visability?: ComponentSchemaVisability
-    validations?: ComponentValidations
+    visability?: ComponentVisability
+    validations?: ComponentValidationsSchema
     relations?: ComponentRelations
 }
 

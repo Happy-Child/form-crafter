@@ -8,8 +8,8 @@ import { createViewsService } from './views'
 
 export const createRootServices = ({ schema, theme, PlaceholderComponent, onSubmit }: RootServicesParams): RootServices => {
     const themeService = createThemeService({ theme, PlaceholderComponent })
-    const schemaService = createSchemaService({ layout: schema.layout })
-    const componentsSchemasService = createComponentsSchemasService({ initial: schema.componentsSchemas, themeService })
+    const schemaService = createSchemaService(schema)
+    const componentsSchemasService = createComponentsSchemasService({ initial: schema.componentsSchemas, themeService, schemaService })
     const viewsService = createViewsService({ initial: schema.views })
 
     const formService = createFormService({ onSubmit, viewsService, componentsSchemasService })

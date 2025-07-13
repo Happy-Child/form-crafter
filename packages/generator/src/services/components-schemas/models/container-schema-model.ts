@@ -9,17 +9,17 @@ export type ContainerSchemaModelParams = {
 }
 
 export const containerSchemaModel = ({ schema }: ContainerSchemaModelParams): ContainerSchemaModel => {
-    const $model = createStore<ContainerComponentSchema>(schema)
+    const $schema = createStore<ContainerComponentSchema>(schema)
 
     const updatePropertiesEvent = createEvent<Partial<ContainerComponentProperties>>('updatePropertiesEvent')
     const setModelEvent = createEvent<OptionalSerializableObject>('setModelEvent')
 
-    $model.on(setModelEvent, (schema, newSchema) => ({
+    $schema.on(setModelEvent, (schema, newSchema) => ({
         ...schema,
         ...newSchema,
     }))
 
-    $model.on(updatePropertiesEvent, (model, newProperties) => ({
+    $schema.on(updatePropertiesEvent, (model, newProperties) => ({
         ...model,
         properties: {
             ...model.properties,
@@ -27,5 +27,5 @@ export const containerSchemaModel = ({ schema }: ContainerSchemaModelParams): Co
         },
     }))
 
-    return { $model, setModelEvent, onUpdatePropertiesEvent: updatePropertiesEvent }
+    return { $schema, setModelEvent, onUpdatePropertiesEvent: updatePropertiesEvent }
 }

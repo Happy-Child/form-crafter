@@ -1,4 +1,4 @@
-import { UploaderComponentProperties, UploaderComponentSchema } from '@form-crafter/core'
+import { UploaderComponentProperties, UploaderComponentSchema, ValidationRuleComponentError } from '@form-crafter/core'
 import { OptionalSerializableObject } from '@form-crafter/utils'
 import { createEvent, createStore } from 'effector'
 
@@ -9,17 +9,24 @@ export type UploaderSchemaModelParams = {
 }
 
 export const uploaderSchemaModel = ({ schema }: UploaderSchemaModelParams): UploaderSchemaModel => {
-    const $model = createStore<UploaderComponentSchema>(schema)
+    const $schema = createStore<UploaderComponentSchema>(schema)
+
+    const $error = createStore<ValidationRuleComponentError | null>(null)
+
+    const $isRequired = createStore<boolean>(false)
 
     const updatePropertiesEvent = createEvent<Partial<UploaderComponentProperties>>('onUpdatePropertiesEvent')
+
     const setModelEvent = createEvent<OptionalSerializableObject>('setModelEvent')
 
-    $model.on(setModelEvent, (schema, newSchema) => ({
+    const runValidationEvent = createEvent('runValidationEvent')
+
+    $schema.on(setModelEvent, (schema, newSchema) => ({
         ...schema,
         ...newSchema,
     }))
 
-    $model.on(updatePropertiesEvent, (model, newProperties) => ({
+    $schema.on(updatePropertiesEvent, (model, newProperties) => ({
         ...model,
         properties: {
             ...model.properties,
@@ -27,5 +34,5 @@ export const uploaderSchemaModel = ({ schema }: UploaderSchemaModelParams): Uplo
         },
     }))
 
-    return { $model, setModelEvent, onUpdatePropertiesEvent: updatePropertiesEvent }
+    return { $schema, $error, $isRequired, setModelEvent, onUpdatePropertiesEvent: updatePropertiesEvent, runValidationEvent }
 }

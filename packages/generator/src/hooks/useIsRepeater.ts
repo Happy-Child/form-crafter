@@ -15,7 +15,7 @@ export const useIsRepeater = (id: EntityId): boolean => {
         fn: (map, [id]) => map.get(id),
     })
 
-    const schema = useUnit((data?.$model || nullStore) as StoreWritable<ComponentSchema | null>)
+    const schema = useUnit((data?.$schema || nullStore) as StoreWritable<ComponentSchema | null>)
 
     return schema?.meta?.type === 'repeater'
 }

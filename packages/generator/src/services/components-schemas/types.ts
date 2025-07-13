@@ -1,14 +1,36 @@
-import { ComponentSchema, ComponentsSchemas, EntityId } from '@form-crafter/core'
+import { ComponentSchema, ComponentsSchemas, EntityId, ValidationRuleSchema } from '@form-crafter/core'
 import { OptionalSerializableObject } from '@form-crafter/utils'
 import { EventCallable, StoreWritable } from 'effector'
 
 import { SchemaMap } from '../../types'
+import { SchemaService } from '../schema'
 import { ThemeService } from '../theme'
+
+export type ReadyValidationsRules = Record<EntityId, { readyBySchemaId: Set<EntityId>; readyGroupedByRuleName: Record<string, Set<EntityId>> }>
+
+export type ReadyConditionalValidationsRules = ReadyValidationsRules
+
+export type RulesOverridesCache = Record<EntityId, OptionalSerializableObject | null>
+
+export type RulesDepsFromSchema = {
+    relations: {
+        schemaIdToDeps: Record<EntityId, EntityId[]>
+        schemaIdToDependents: Record<EntityId, EntityId[]>
+    }
+    validations: {
+        schemaIdToDeps: Record<string, EntityId[]>
+        schemaIdToDependents: Record<EntityId, string[]>
+    }
+}
+
+export type ValidationRuleSchemas = Record<EntityId, { ownerComponentId: EntityId; schema: ValidationRuleSchema }>
 
 export type UpdateComponentPropertiesPayload = {
     id: EntityId
     data: Partial<ComponentSchema['properties']>
 }
+
+export type CalcRelationsRulesPayload = { id: EntityId; data: OptionalSerializableObject }
 
 export type ComponentsSchemasService = {
     $schemasMap: StoreWritable<SchemaMap>
@@ -20,13 +42,5 @@ export type ComponentsSchemasService = {
 export type ComponentsSchemasServiceParams = {
     initial: ComponentsSchemas
     themeService: ThemeService
-}
-
-export type CalcRelationsRulesPayload = { id: EntityId; data: OptionalSerializableObject }
-
-export type RulesOverridesCacheStore = Record<EntityId, OptionalSerializableObject | null>
-
-export type ComponentsDepsFromSchemaStore = {
-    depsGraph: Record<EntityId, EntityId[]>
-    reverseDepsGraph: Record<EntityId, EntityId[]>
+    schemaService: SchemaService
 }

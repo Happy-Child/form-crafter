@@ -8,7 +8,7 @@ import { useComponentMeta } from './useComponentMeta'
 export const useDisplayComponent = <T extends ComponentType = ComponentType>(id: EntityId) => {
     const meta = useComponentMeta<T>(id)
     const { services } = useGeneratorContext()
-    const [theme] = useUnit([services.themeService.$theme])
+    const [theme] = useUnit([services.themeService.$componentsModules])
 
     const module = useMemo(() => theme.find(({ name }) => name === meta.name), [theme, meta])
 

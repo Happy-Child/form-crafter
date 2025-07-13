@@ -1,7 +1,7 @@
 import { Effect, EventCallable, sample } from 'effector'
 
 import { GeneratorProps } from '../../types'
-import { getComponentsSchemasState } from '../../utils'
+import { getComponentsSchemasFromModels } from '../../utils'
 import { FormServiceParams } from './types'
 
 type Params = Pick<FormServiceParams, 'componentsSchemasService' | 'viewsService'> & {
@@ -14,7 +14,8 @@ export const init = ({ onFormSubmitEvent, invokeUserSubmitHandlerFx, componentsS
         source: { schemasMap: componentsSchemasService.$schemasMap, views: viewsService.$views },
         clock: onFormSubmitEvent,
         fn: ({ views, schemasMap }) => {
-            const componentsSchemas = getComponentsSchemasState(schemasMap)
+            const componentsSchemas = getComponentsSchemasFromModels(schemasMap)
+            // TODO преобразовать в { key: value by key }
             return {
                 views,
                 componentsSchemas,

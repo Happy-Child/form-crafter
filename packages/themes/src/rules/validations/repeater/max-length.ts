@@ -18,9 +18,9 @@ export const maxLengthRule = createRepeaterValidationRule<typeof optionsBuilder>
         const children = ctx.getRepeaterChildIds(componentId)
 
         if (isNotNull(children) && children.length > maxLength) {
-            // set error
+            return { isValid: false, error: { message: errorMessage } }
         }
 
-        // skip
+        return { isValid: true }
     },
 })

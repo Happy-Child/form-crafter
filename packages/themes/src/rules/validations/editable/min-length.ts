@@ -16,13 +16,13 @@ export const minLengthRule = createEditableValidationRule<OptionalSerializableVa
         const errorMessage = message.replace('{minLength}', minLength.toString())
 
         if (isString(value) && value.trim().length > minLength) {
-            // set error
+            return { isValid: false, error: { message: errorMessage } }
         }
 
         if (isArray(value) && value.length > minLength) {
-            // set error
+            return { isValid: false, error: { message: errorMessage } }
         }
 
-        // skip
+        return { isValid: true }
     },
 })

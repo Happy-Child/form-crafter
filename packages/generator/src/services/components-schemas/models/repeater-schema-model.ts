@@ -1,4 +1,4 @@
-import { RepeaterComponentSchema } from '@form-crafter/core'
+import { RepeaterComponentSchema, ValidationRuleComponentError } from '@form-crafter/core'
 import { OptionalSerializableObject } from '@form-crafter/utils'
 import { createEvent, createStore } from 'effector'
 
@@ -9,14 +9,20 @@ export type RepeaterSchemaModelParams = {
 }
 
 export const repeaterSchemaModel = ({ schema }: RepeaterSchemaModelParams): RepeaterSchemaModel => {
-    const $model = createStore<RepeaterComponentSchema>(schema)
+    const $schema = createStore<RepeaterComponentSchema>(schema)
+
+    const $error = createStore<ValidationRuleComponentError | null>(null)
+
+    const $isRequired = createStore<boolean>(false)
 
     const setModelEvent = createEvent<OptionalSerializableObject>('setModelEvent')
 
-    $model.on(setModelEvent, (schema, newSchema) => ({
+    const runValidationEvent = createEvent('runValidationEvent')
+
+    $schema.on(setModelEvent, (schema, newSchema) => ({
         ...schema,
         ...newSchema,
     }))
 
-    return { $model, setModelEvent }
+    return { $schema, $isRequired, $error, setModelEvent, runValidationEvent }
 }

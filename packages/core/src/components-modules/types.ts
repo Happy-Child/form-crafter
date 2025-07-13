@@ -2,8 +2,6 @@ import { ContainerComponent, EditableComponent, RepeaterComponent, StaticCompone
 import { ComponentConditionOperator, ComponentConditionOperatorWithoutOptions } from '../components-operators'
 import { GroupOptionsBuilder, OptionsBuilderOutput } from '../options-builder'
 import {
-    ContainerValidationRule,
-    ContainerValidationRuleWithoutOptions,
     EditableValidationRule,
     EditableValidationRuleWithoutOptions,
     RelationRule,
@@ -38,8 +36,6 @@ export type EditableComponentModule<O extends GroupOptionsBuilder<EditableCompon
 }
 
 export type ContainerComponentModule<O extends GroupOptionsBuilder<ContainerComponentProperties>> = GeneralComponentModule<O> & {
-    validationsRules?: (ContainerValidationRule | ContainerValidationRuleWithoutOptions)[]
-    relationsRules?: (RelationRule<ContainerComponentProperties, any> | RelationRuleWithoutOptions<ContainerComponentProperties>)[]
     Component: ContainerComponent<OptionsBuilderOutput<O>>
 }
 
@@ -53,7 +49,7 @@ export type RepeaterComponentModule<O extends GroupOptionsBuilder<RepeaterCompon
 export type UploaderComponentModule<O extends GroupOptionsBuilder<UploaderComponentProperties>> = GeneralComponentModule<O> & {
     operatorsForConditions?: (ComponentConditionOperator<any> | ComponentConditionOperatorWithoutOptions)[]
     relationsRules?: (RelationRule<UploaderComponentProperties, any> | RelationRuleWithoutOptions<UploaderComponentProperties>)[]
-    validationsRules?: (UploaderValidationRule<unknown> | UploaderValidationRuleWithoutOptions<unknown>)[]
+    validationsRules?: (UploaderValidationRule<any> | UploaderValidationRuleWithoutOptions<any>)[]
     Component: UploaderComponent<OptionsBuilderOutput<O>>
 }
 

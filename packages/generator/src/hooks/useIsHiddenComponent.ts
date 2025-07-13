@@ -5,10 +5,10 @@ import {} from 'react'
 import { useComponentModel } from './useComponentModel'
 
 export const useIsHiddenComponent = (id: EntityId) => {
-    const { $model } = useComponentModel(id)
+    const { $schema } = useComponentModel(id)
 
     return useStoreMap({
-        store: $model,
+        store: $schema,
         keys: [],
         fn: (data: ComponentSchema) => data.visability?.hidden,
     })

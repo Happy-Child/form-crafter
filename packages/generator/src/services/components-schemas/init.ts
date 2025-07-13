@@ -1,40 +1,48 @@
-import { ComponentSchema, ComponentsSchemas, EntityId, isConditionSuccessful, RuleExecutorContext } from '@form-crafter/core'
+import { ComponentSchema, ComponentsSchemas, EntityId, isConditionSuccessful } from '@form-crafter/core'
 import { isEmpty, isNotEmpty } from '@form-crafter/utils'
 import { Effect, EventCallable, sample, Store, StoreValue, StoreWritable } from 'effector'
 import { cloneDeep, isEqual, pick } from 'lodash-es'
 
 import { SchemaMap } from '../../types'
+import { getComponentsSchemasFromModels } from '../../utils'
 import { ThemeService } from '../theme'
-import { CalcRelationsRulesPayload, ComponentsDepsFromSchemaStore, RulesOverridesCacheStore } from './types'
+import { CalcRelationsRulesPayload, ReadyConditionalValidationsRules, RulesDepsFromSchema, RulesOverridesCache, ValidationRuleSchemas } from './types'
+import { buildExecutorContext } from './utils'
 
 type Params = {
     calcRelationsRulesEvent: EventCallable<CalcRelationsRulesPayload>
-    setRulesOverridesCacheEvent: EventCallable<RulesOverridesCacheStore>
+    setRulesOverridesCacheEvent: EventCallable<RulesOverridesCache>
     setHiddenComponentsEvent: EventCallable<Set<EntityId>>
     updateComponentsSchemasModelFx: Effect<ComponentsSchemas, SchemaMap, Error>
+    setReadyConditionalValidationsRulesEvent: EventCallable<ReadyConditionalValidationsRules>
     $hiddenComponents: StoreWritable<Set<EntityId>>
     $initialComponentsSchemas: StoreWritable<ComponentsSchemas>
     $componentsSchemasModel: StoreWritable<SchemaMap>
-    $rulesOverridesCache: StoreWritable<RulesOverridesCacheStore>
+    $rulesOverridesCache: StoreWritable<RulesOverridesCache>
     $depsResolutionOrder: Store<Record<EntityId, EntityId[]>>
-    $componentsDepsFromSchema: Store<ComponentsDepsFromSchemaStore>
+    $rulesDepsFromSchema: Store<RulesDepsFromSchema>
+    $validationRuleSchemas: Store<ValidationRuleSchemas>
+    $readyConditionalValidationsRules: Store<ReadyConditionalValidationsRules>
     $operatorsForConditions: ThemeService['$operatorsForConditions']
-    $relationsRulesMap: ThemeService['$relationsRulesMap']
+    $relationsRules: ThemeService['$relationsRules']
 }
 
 export const init = ({
     calcRelationsRulesEvent,
     setRulesOverridesCacheEvent,
     setHiddenComponentsEvent,
+    setReadyConditionalValidationsRulesEvent,
     updateComponentsSchemasModelFx,
     $hiddenComponents,
     $initialComponentsSchemas,
     $componentsSchemasModel,
     $rulesOverridesCache,
     $depsResolutionOrder,
-    $componentsDepsFromSchema,
+    $rulesDepsFromSchema,
+    $validationRuleSchemas,
     $operatorsForConditions,
-    $relationsRulesMap,
+    $relationsRules,
+    $readyConditionalValidationsRules,
 }: Params) => {
     const executeRelationsRulesEvent = sample({
         source: {
@@ -42,9 +50,9 @@ export const init = ({
             componentsSchemasModel: $componentsSchemasModel,
             rulesOverridesCache: $rulesOverridesCache,
             depsResolutionOrder: $depsResolutionOrder,
-            componentsDepsFromSchema: $componentsDepsFromSchema,
+            rulesDepsFromSchema: $rulesDepsFromSchema,
             operatorsForConditions: $operatorsForConditions,
-            relationsRulesMap: $relationsRulesMap,
+            relationsRules: $relationsRules,
             hiddenComponents: $hiddenComponents,
         },
         clock: calcRelationsRulesEvent,
@@ -54,17 +62,14 @@ export const init = ({
                 componentsSchemasModel,
                 rulesOverridesCache,
                 depsResolutionOrder,
-                componentsDepsFromSchema,
+                rulesDepsFromSchema,
                 operatorsForConditions,
-                relationsRulesMap,
+                relationsRules,
                 hiddenComponents,
             },
             { id: componentIdToUpdate, data: propertiesToUpdate },
         ) => {
-            const componentsSchemas = Object.entries(Object.fromEntries(componentsSchemasModel)).reduce<ComponentsSchemas>(
-                (obj, [componentId, data]) => ({ ...obj, [componentId]: data.$model.getState() }),
-                {},
-            )
+            const componentsSchemas = getComponentsSchemasFromModels(componentsSchemasModel)
 
             const componentsIdsToUpdates: Set<EntityId> = new Set()
             componentsIdsToUpdates.add(componentIdToUpdate)
@@ -76,28 +81,15 @@ export const init = ({
                 ...propertiesToUpdate,
             }
 
-            const executorContext: RuleExecutorContext = {
-                getComponentSchemaById: (componentId: EntityId) => {
-                    const schema = newComponentsSchemas[componentId] || null
-                    return !schema?.visability?.hidden ? schema : null
-                },
-                getRepeaterChildIds: (componentId: EntityId) => {
-                    console.log(componentId)
-                    return []
-                },
-                isTemplateComponentId: (componentId: EntityId) => {
-                    console.log(componentId)
-                    return false
-                },
-            }
+            const executorContext = buildExecutorContext({ componentsSchemas: newComponentsSchemas })
 
             const runCalcRules = (componentId: EntityId) => {
                 const componentModel = newComponentsSchemas[componentId]
-                const relationsRules = componentModel.relations
+                const relationsRulesSchema = componentModel.relations
 
                 const iterationsRelationsRulesAppliedCache: StoreValue<typeof $rulesOverridesCache> = {}
 
-                relationsRules?.options?.forEach(({ id: ruleId, ruleName, options, condition }) => {
+                relationsRulesSchema?.options?.forEach(({ id: ruleId, ruleName, options, condition }) => {
                     if (isEmpty(condition)) {
                         return
                     }
@@ -106,7 +98,7 @@ export const init = ({
                     const isActiveRule = ruleId in newRulesOverridesCache
 
                     if (canBeApply) {
-                        const rule = relationsRulesMap[ruleName]
+                        const rule = relationsRules[ruleName]
                         const newProperties = rule.execute(componentModel, { options: options || {}, ctx: executorContext })
 
                         if (!isNotEmpty(newProperties)) {
@@ -131,8 +123,8 @@ export const init = ({
                     } else if (isActiveRule) {
                         const ruleLatestAppliedKeysCache = Object.keys(newRulesOverridesCache[ruleId] || {})
 
-                        let iterationsUpdatedProperties = Object.entries(iterationsRelationsRulesAppliedCache).reduce<string[]>(
-                            (arr, [_, appliedComponentProperties]) => {
+                        let iterationsUpdatedKeysProperties = Object.entries(iterationsRelationsRulesAppliedCache).reduce<string[]>(
+                            (arr, [, appliedComponentProperties]) => {
                                 if (isNotEmpty(appliedComponentProperties)) {
                                     return [...arr, ...Object.keys(appliedComponentProperties)]
                                 }
@@ -140,9 +132,9 @@ export const init = ({
                             },
                             [],
                         )
-                        iterationsUpdatedProperties = Array.from(new Set(iterationsUpdatedProperties))
+                        iterationsUpdatedKeysProperties = Array.from(new Set(iterationsUpdatedKeysProperties))
 
-                        const propertiesKeysToRollback = ruleLatestAppliedKeysCache.filter((key) => !iterationsUpdatedProperties.includes(key))
+                        const propertiesKeysToRollback = ruleLatestAppliedKeysCache.filter((key) => !iterationsUpdatedKeysProperties.includes(key))
 
                         const propertiesToRollback = pick(initialComponentsSchemas[componentId].properties, propertiesKeysToRollback)
 
@@ -165,7 +157,7 @@ export const init = ({
             depsResolutionOrder[componentIdToUpdate]?.forEach((depComponentId) => {
                 // 1.1 Проверить есть ли не скрытые зависимости. Если есть - идём дальше. Если нет - выход.
                 // 1.2 Так же идём дальше если нет зависимостей вообще.
-                const deps = componentsDepsFromSchema.reverseDepsGraph[depComponentId]
+                const deps = rulesDepsFromSchema.relations.schemaIdToDependents[depComponentId]
                 const existsVisibleDep = isNotEmpty(deps) ? deps.some((componentId) => !finalHiddenComponents.has(componentId)) : true
                 if (!existsVisibleDep) {
                     return
@@ -216,6 +208,7 @@ export const init = ({
                 }
             })
 
+            // TODO change to array
             const componentsSchemasToUpdate = Array.from(componentsIdsToUpdates)
                 .filter((componentId) => {
                     const isEqualProperties = isEqual(componentsSchemas[componentId].properties, newComponentsSchemas[componentId].properties)
@@ -226,6 +219,96 @@ export const init = ({
 
             return { componentsSchemasToUpdate, rulesOverridesCacheToUpdate: newRulesOverridesCache, hiddenComponents: finalHiddenComponents }
         },
+    })
+
+    sample({
+        source: {
+            validationRuleSchemas: $validationRuleSchemas,
+            rulesDepsFromSchema: $rulesDepsFromSchema,
+            componentsSchemasModel: $componentsSchemasModel,
+            operatorsForConditions: $operatorsForConditions,
+            readyConditionalValidationsRules: $readyConditionalValidationsRules,
+        },
+        clock: executeRelationsRulesEvent,
+        fn: (
+            { validationRuleSchemas, rulesDepsFromSchema, componentsSchemasModel, operatorsForConditions, readyConditionalValidationsRules },
+            { componentsSchemasToUpdate, hiddenComponents },
+        ) => {
+            const componentsSchemas = getComponentsSchemasFromModels(componentsSchemasModel)
+
+            const validationSchemaIdToDependents = rulesDepsFromSchema.validations.schemaIdToDependents
+
+            const readyRules = cloneDeep(readyConditionalValidationsRules)
+
+            const getOrInitReadyRules = (ownerComponentId: EntityId, ruleName: string) => {
+                if (!(ownerComponentId in readyRules)) {
+                    readyRules[ownerComponentId] = {
+                        readyBySchemaId: new Set(),
+                        readyGroupedByRuleName: {},
+                    }
+                }
+
+                const readyByComponent = readyRules[ownerComponentId]
+                if (!(ruleName in readyByComponent.readyGroupedByRuleName)) {
+                    readyByComponent.readyGroupedByRuleName[ruleName] = new Set()
+                }
+
+                return {
+                    readyBySchemaId: readyByComponent.readyBySchemaId,
+                    readyGroupedByRuleName: readyByComponent.readyGroupedByRuleName[ruleName],
+                }
+            }
+
+            Object.entries(componentsSchemasToUpdate).forEach(([componentId, componentSchema]) => {
+                if (hiddenComponents.has(componentId)) {
+                    return
+                }
+
+                const oldValue = componentsSchemas[componentId].properties.value
+                const newValue = componentSchema.properties.value
+
+                // TODO Если uploader компонент и в value объект - что делать? Сравнить файлы как объекты не получиться
+                if (isEqual(oldValue, newValue)) {
+                    return
+                }
+
+                const dependentsValidations = validationSchemaIdToDependents[componentId]
+                if (!isNotEmpty(dependentsValidations)) {
+                    return
+                }
+
+                const executorContext = buildExecutorContext({ componentsSchemas })
+                const evokedValidationsRules: Set<EntityId> = new Set()
+
+                dependentsValidations.forEach((validationSchemaId) => {
+                    if (evokedValidationsRules.has(validationSchemaId)) {
+                        return
+                    }
+
+                    const { ownerComponentId, schema: validationRuleSchema } = validationRuleSchemas[validationSchemaId]
+                    const ruleIsReady = isConditionSuccessful({
+                        ctx: executorContext,
+                        condition: validationRuleSchema.condition!,
+                        operators: operatorsForConditions,
+                    })
+
+                    const { readyBySchemaId, readyGroupedByRuleName } = getOrInitReadyRules(ownerComponentId, validationRuleSchema.ruleName)
+
+                    if (ruleIsReady) {
+                        readyBySchemaId.add(validationSchemaId)
+                        readyGroupedByRuleName.add(validationSchemaId)
+
+                        evokedValidationsRules.add(validationSchemaId)
+                    } else {
+                        readyBySchemaId.delete(validationSchemaId)
+                        readyGroupedByRuleName.delete(validationSchemaId)
+                    }
+                })
+            })
+
+            return readyRules
+        },
+        target: setReadyConditionalValidationsRulesEvent,
     })
 
     sample({

@@ -57,15 +57,19 @@ const rule3 = createRelationRule<EditableComponentProperties, typeof optionsBuil
     execute: () => ({ properties: {} }),
 })
 
-export const mockTheme: ComponentModule[] = [
+export const mockComponentsModules: ComponentModule[] = [
     createComponentModule('email', 'Email', [rule1]),
     createComponentModule('password', 'Password', [rule2]),
     createComponentModule('name', 'Name', [rule3]),
 ]
 
-export const mockRelationsRules = [rule1, rule2, rule3]
+export const mockRelationsRules = {
+    rule1: rule1,
+    rule2: rule2,
+    rule3: rule3,
+}
 
-export const mockEmptyRulesTheme: ComponentModule[] = [
+export const mockEmptyRulesComponentsModules: ComponentModule[] = [
     createComponentModule('email', 'Email'),
     createComponentModule('password', 'Password'),
     createComponentModule('name', 'Name'),

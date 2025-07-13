@@ -3,10 +3,6 @@ import { builders } from '@form-crafter/options-builder'
 import { isNotEmpty } from '@form-crafter/utils'
 
 const optionsBuilder = builders.group({
-    topComponentId: builders.selectComponent().label('Выберете поле').nullable(),
-    example: builders.group({
-        componentId: builders.selectComponent().label('Выберете поле').nullable(),
-    }),
     newOptions: builders
         .multifield({
             label: builders.text().label('Название').required().value('Название'),

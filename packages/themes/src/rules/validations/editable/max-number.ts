@@ -16,9 +16,9 @@ export const maxNumberRule = createEditableValidationRule<Maybe<number>, typeof 
         const errorMessage = message.replace('{maxNumber}', maxNumber.toString())
 
         if (isNotEmpty(value) && value > maxNumber) {
-            // set error
+            return { isValid: false, error: { message: errorMessage } }
         }
 
-        // skip
+        return { isValid: true }
     },
 })

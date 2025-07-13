@@ -4,6 +4,9 @@ import { genId } from '@form-crafter/generator'
 export const employeeFormSchema: Schema = {
     id: 'employee-form',
     version: '1.0',
+    validations: {
+        additionalTriggers: ['onChange'],
+    },
     layout: {
         colsSpanPx: { default: 24 },
         rowsSpanPx: { default: 36 },
@@ -164,6 +167,15 @@ export const employeeFormSchema: Schema = {
         'input-first-name': {
             meta: { id: 'input-first-name', type: 'editable', name: 'text-field' },
             properties: { label: 'Имя', value: '' },
+            validations: {
+                options: [
+                    {
+                        id: genId(),
+                        ruleName: 'isRequired',
+                        options: { message: 'Обязательное поле' },
+                    },
+                ],
+            },
         },
         'input-last-name': {
             meta: { id: 'input-last-name', type: 'editable', name: 'text-field' },
@@ -172,10 +184,20 @@ export const employeeFormSchema: Schema = {
             relations: {
                 options: [
                     {
-                        id: 'EGORRRRRR',
+                        id: genId(),
                         ruleName: 'duplicateValue',
                         options: { duplicateValueComponentId: 'input-first-name' },
                         condition: { type: 'component', componentId: 'input-first-name', operatorName: 'isNotEmpty' },
+                    },
+                ],
+            },
+            validations: {
+                options: [
+                    {
+                        id: genId(),
+                        ruleName: 'isRequired',
+                        options: { message: 'Обязательное поле' },
+                        condition: { type: 'component', componentId: 'date-birth', operatorName: 'isNotEmpty' },
                     },
                 ],
             },
@@ -188,6 +210,23 @@ export const employeeFormSchema: Schema = {
             meta: { id: 'email', type: 'editable', name: 'email' },
             visability: { condition: { type: 'component', componentId: 'input-first-name', operatorName: 'isNotEmpty' } },
             properties: { label: 'Email', value: '' },
+            validations: {
+                options: [
+                    {
+                        id: genId(),
+                        ruleName: 'isRequired',
+                        options: { message: 'Обязательное поле' },
+                        condition: {
+                            type: 'operator',
+                            operator: 'and',
+                            operands: [
+                                { type: 'component', componentId: 'date-birth', operatorName: 'isNotEmpty' },
+                                { type: 'component', componentId: 'input-salary', operatorName: 'isNotEmpty' },
+                            ],
+                        },
+                    },
+                ],
+            },
         },
         'group-work': {
             meta: { id: 'group-work', type: 'container', name: 'group' },
@@ -312,10 +351,6 @@ export const employeeFormSchema: Schema = {
                         id: genId(),
                         ruleName: 'changeSelectOptions',
                         options: {
-                            topComponentId: 'input-salary',
-                            example: {
-                                componentId: 'input-first-name',
-                            },
                             newOptions: [
                                 { label: 'Менеджмент', value: 'manager' },
                                 { label: 'Уборка', value: 'example' },

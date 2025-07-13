@@ -2,7 +2,7 @@ import { createRepeaterComponentModule, OptionsBuilderOutput, RepeaterComponentP
 import { RowsList } from '@form-crafter/generator'
 import { builders } from '@form-crafter/options-builder'
 import { isNotEmpty } from '@form-crafter/utils'
-import { Box, Button } from '@mui/material'
+import { Box, Button, FormHelperText } from '@mui/material'
 import { forwardRef, memo } from 'react'
 
 import { componentsOperators } from '../../components-operators'
@@ -18,7 +18,7 @@ const optionsBuilder = builders.group({
 type ComponentProps = RepeaterComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Multifield = memo(
-    forwardRef<HTMLDivElement, ComponentProps>(({ id, rows, onAddRow, properties: { title, addButtonText } }, ref) => {
+    forwardRef<HTMLDivElement, ComponentProps>(({ id, rows, onAddRow, properties: { title, addButtonText }, error }, ref) => {
         const finalAddButtonText = addButtonText || initialAddButtonText
 
         return (
@@ -28,6 +28,7 @@ const Multifield = memo(
                     <Button onClick={onAddRow}>{finalAddButtonText}</Button>
                 </Box>
                 {isNotEmpty(rows) && <RowsList rows={rows} />}
+                {isNotEmpty(error?.message) && <FormHelperText error>{error.message}</FormHelperText>}
             </Box>
         )
     }),

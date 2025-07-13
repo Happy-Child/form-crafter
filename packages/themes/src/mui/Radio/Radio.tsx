@@ -1,6 +1,7 @@
 import { createEditableComponentModule, EditableComponentProps, OptionsBuilderOutput } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
-import { Box, FormControl, FormControlLabel, FormLabel, Radio as Radioeditable } from '@mui/material'
+import { isNotEmpty } from '@form-crafter/utils'
+import { Box, FormControl, FormControlLabel, FormHelperText, FormLabel, Radio as Radioeditable } from '@mui/material'
 import { forwardRef, memo } from 'react'
 
 import { componentsOperators } from '../../components-operators'
@@ -46,14 +47,15 @@ const optionsBuilder = builders.group({
 type ComponentProps = EditableComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Radio = memo(
-    forwardRef<HTMLDivElement, ComponentProps>(({ meta, properties: { options, value, label, disabled }, onChangeProperties }, ref) => {
+    forwardRef<HTMLDivElement, ComponentProps>(({ meta, properties: { options, value, label, disabled }, isRequired, error, onChangeProperties }, ref) => {
         return (
-            <FormControl ref={ref} fullWidth>
+            <FormControl ref={ref} required={isRequired} fullWidth error={isNotEmpty(error)}>
                 {label && <FormLabel>{label}</FormLabel>}
                 <Box sx={{ display: 'flex', gap: 1 }}>
                     {options.map((option) => (
                         <FormControlLabel
                             key={option.value}
+                            required={isRequired}
                             control={
                                 <Radioeditable
                                     checked={value === option.value}
@@ -67,6 +69,7 @@ const Radio = memo(
                         />
                     ))}
                 </Box>
+                {isNotEmpty(error?.message) && <FormHelperText error>{error.message}</FormHelperText>}
             </FormControl>
         )
     }),

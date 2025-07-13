@@ -1,8 +1,8 @@
 import { EntityId, errorCodes, FormCrafterError, getErrorMessages } from '@form-crafter/core'
 import { isNotEmpty } from '@form-crafter/utils'
 
-const extractAffectedDeps = (componentId: EntityId, reverseDepsGraph: Record<EntityId, EntityId[]>): EntityId[] => {
-    const deps = reverseDepsGraph[componentId]
+const extractAffectedDeps = (componentId: EntityId, schemaIdToDependents: Record<EntityId, EntityId[]>): EntityId[] => {
+    const deps = schemaIdToDependents[componentId]
     if (!deps?.length) {
         return []
     }
@@ -20,7 +20,7 @@ const extractAffectedDeps = (componentId: EntityId, reverseDepsGraph: Record<Ent
 
         result.push(componentId)
 
-        const deps = reverseDepsGraph[componentId]
+        const deps = schemaIdToDependents[componentId]
         if (!isNotEmpty(deps)) {
             continue
         }
@@ -76,14 +76,14 @@ const sortAffectedDeps = (affected: EntityId[], depsGraph: Record<EntityId, Enti
 }
 
 export const buildDepsResolutionOrder = (
-    depsGraph: Record<EntityId, EntityId[]>,
-    reverseDepsGraph: Record<EntityId, EntityId[]>,
+    schemaIdToDeps: Record<EntityId, EntityId[]>,
+    schemaIdToDependents: Record<EntityId, EntityId[]>,
 ): Record<EntityId, EntityId[]> => {
     const data: Record<EntityId, EntityId[]> = {}
 
-    for (const [componentId] of Object.entries(reverseDepsGraph)) {
-        const affected = extractAffectedDeps(componentId, reverseDepsGraph)
-        const sortedAffeted = sortAffectedDeps(affected, depsGraph)
+    for (const [componentId] of Object.entries(schemaIdToDependents)) {
+        const affected = extractAffectedDeps(componentId, schemaIdToDependents)
+        const sortedAffeted = sortAffectedDeps(affected, schemaIdToDeps)
         data[componentId] = sortedAffeted
     }
 

@@ -12,6 +12,8 @@ import {
 import { ViewComponent, ViewRowChild } from '../../views'
 import { ComponentMeta } from '../schemas'
 
+export type ValidationRuleComponentError = { message: string }
+
 export type HeaderContainerProps = {
     rows: ViewRowChild[]
 }
@@ -39,7 +41,10 @@ export type GenaralComponentProps<T extends ComponentType, P extends OptionalSer
 }
 
 export type EditableComponentProps<P extends EditableComponentProperties = EditableComponentProperties> = GenaralComponentProps<'editable', P> & {
+    onBlur: () => void
     onChangeProperties: (changes: Partial<P>) => void
+    error: ValidationRuleComponentError | null
+    isRequired: boolean
 }
 
 export type ContainerComponentProps<P extends ContainerComponentProperties = ContainerComponentProperties> = GenaralComponentProps<'container', P> & {
@@ -51,10 +56,13 @@ export type RepeaterComponentProps<P extends OptionalSerializableObject = Option
     rows?: ViewComponent['rows']
     onAddRow: () => void
     onRemoveRow: (props: { rowId: EntityId }) => void
+    error: ValidationRuleComponentError | null
 }
 
 export type UploaderComponentProps<P extends OptionalSerializableObject = OptionalSerializableObject> = GenaralComponentProps<'uploader', P> & {
     onChangeProperties: (changes: Partial<P>) => void
+    error: ValidationRuleComponentError | null
+    isRequired: boolean
 }
 
 export type StaticComponentProps<P extends OptionalSerializableObject = OptionalSerializableObject> = GenaralComponentProps<'static', P>

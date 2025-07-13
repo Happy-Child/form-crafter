@@ -9,41 +9,69 @@ import {
     CalcRelationsRulesPayload,
     ComponentsSchemasService,
     ComponentsSchemasServiceParams,
-    RulesOverridesCacheStore,
+    ReadyValidationsRules,
+    RulesOverridesCache,
     UpdateComponentPropertiesPayload,
+    ValidationRuleSchemas,
 } from './types'
-import { buildDepsResolutionOrder, extractComponentsDepsFromSchema } from './utils'
+import { buildDepsResolutionOrder, extractDepsFromSchema, getDepsPathsOptiondsBuilderRelationsRules } from './utils'
 
 export type { ComponentsSchemasService }
 
-export const createComponentsSchemasService = ({ initial, themeService }: ComponentsSchemasServiceParams): ComponentsSchemasService => {
+export const createComponentsSchemasService = ({ initial, themeService, schemaService }: ComponentsSchemasServiceParams): ComponentsSchemasService => {
     const $initialComponentsSchemas = createStore<ComponentsSchemas>(initial)
 
-    const $componentsDepsFromSchema = combine($initialComponentsSchemas, themeService.$depsPathsRulesComponents, extractComponentsDepsFromSchema)
-    const $depsResolutionOrder = combine($componentsDepsFromSchema, ({ depsGraph, reverseDepsGraph }) => buildDepsResolutionOrder(depsGraph, reverseDepsGraph))
+    const $readyConditionalValidationsRules = createStore<ReadyValidationsRules>({})
+
+    const $validationRuleSchemas = combine($initialComponentsSchemas, (componentsSchemas) =>
+        Object.entries(componentsSchemas).reduce<ValidationRuleSchemas>((map, [ownerComponentId, componentSchema]) => {
+            componentSchema?.validations?.options.forEach((validationSchema) => {
+                map[validationSchema.id] = {
+                    ownerComponentId,
+                    schema: validationSchema,
+                }
+            })
+            return map
+        }, {}),
+    )
 
     const calcRelationsRulesEvent = createEvent<CalcRelationsRulesPayload>('calcRelationsRulesEvent')
+    const $componentsSchemasModel = createStore<SchemaMap>(new Map())
+    const buildComponentsSchemasModel = (data: ComponentsSchemas) => {
+        const additionalTriggers = schemaService.$schema.getState().validations?.additionalTriggers || null
 
-    const componentsSchemasModel = (data: ComponentsSchemas) => {
-        const result = Object.entries(data).reduce<SchemaMap>((map, [componentId, componentSchema]) => {
-            const model = componentSchemaModel({ schema: componentSchema, calcRelationsRulesEvent })
+        return Object.entries(data).reduce<SchemaMap>((map, [componentId, componentSchema]) => {
+            const model = componentSchemaModel({
+                $componentsSchemasModel,
+                $readyConditionalValidationsRules,
+                schema: componentSchema,
+                calcRelationsRulesEvent,
+                additionalTriggers,
+                themeService,
+            })
             map.set(componentId, model)
             return map
         }, new Map())
-
-        const $model = createStore<SchemaMap>(result)
-
-        return $model
     }
-    const $componentsSchemasModel = componentsSchemasModel(initial)
+    const setComponentsSchemasModelEvent = createEvent<SchemaMap>()
+    $componentsSchemasModel.on(setComponentsSchemasModelEvent, (_, data) => data)
+    setComponentsSchemasModelEvent(buildComponentsSchemasModel(initial))
 
-    const $rulesOverridesCache = createStore<RulesOverridesCacheStore>({})
+    const $depsPathsOptiondsBuilderRelationsRules = combine(themeService.$relationsRules, getDepsPathsOptiondsBuilderRelationsRules)
+    const $rulesDepsFromSchema = combine($initialComponentsSchemas, $depsPathsOptiondsBuilderRelationsRules, extractDepsFromSchema)
+    const $depsResolutionOrder = combine($rulesDepsFromSchema, ({ relations: { schemaIdToDeps, schemaIdToDependents } }) =>
+        buildDepsResolutionOrder(schemaIdToDeps, schemaIdToDependents),
+    )
+
+    const $rulesOverridesCache = createStore<RulesOverridesCache>({})
 
     const $hiddenComponents = createStore<Set<EntityId>>(new Set())
 
-    const setRulesOverridesCacheEvent = createEvent<RulesOverridesCacheStore>('setRulesOverridesCacheEvent')
+    const setRulesOverridesCacheEvent = createEvent<RulesOverridesCache>('setRulesOverridesCacheEvent')
 
     const setHiddenComponentsEvent = createEvent<Set<EntityId>>('setHiddenComponentsEvent')
+
+    const setReadyConditionalValidationsRulesEvent = createEvent<ReadyValidationsRules>('setReadyConditionalValidationsRulesEvent')
 
     const baseComponentsSchemasModelFx = createEffect<
         {
@@ -76,29 +104,29 @@ export const createComponentsSchemasService = ({ initial, themeService }: Compon
 
     $hiddenComponents.on(setHiddenComponentsEvent, (_, newComponentsToHidden) => newComponentsToHidden)
 
+    $readyConditionalValidationsRules.on(setReadyConditionalValidationsRulesEvent, (_, newReadyRules) => newReadyRules)
+
     init({
         calcRelationsRulesEvent,
         setRulesOverridesCacheEvent,
         setHiddenComponentsEvent,
+        setReadyConditionalValidationsRulesEvent,
         updateComponentsSchemasModelFx,
         $hiddenComponents,
         $initialComponentsSchemas,
         $componentsSchemasModel,
         $rulesOverridesCache,
         $depsResolutionOrder,
-        $componentsDepsFromSchema,
+        $rulesDepsFromSchema,
+        $validationRuleSchemas,
+        $readyConditionalValidationsRules,
         $operatorsForConditions: themeService.$operatorsForConditions,
-        $relationsRulesMap: themeService.$relationsRulesMap,
+        $relationsRules: themeService.$relationsRules,
     })
 
-    console.log('depsPathsRulesComponents: ', themeService.$depsPathsRulesComponents.getState())
-    console.log('componentsDepsFromSchema: ', $componentsDepsFromSchema.getState())
+    console.log('depsPathsOptiondsBuilderRelationsRules: ', $depsPathsOptiondsBuilderRelationsRules.getState())
+    console.log('rulesDepsFromSchema: ', $rulesDepsFromSchema.getState())
     console.log('depsResolutionOrder: ', $depsResolutionOrder.getState())
-
-    // вроде бы так:
-    // 1. на событие onChangeProperties (if value can beed changed) или onAddGroup идём наружу?
-    // 2. для repeater хотел создать отдельную структуру, НО передумал и просто запускаю по id проход по всем компонентам
-    // 3. для editable/uploader по сути то же самое?
 
     // OLD BEGIN
     const updateComponentsSchemasEvent = createEvent<ComponentsSchemas>('updateComponentsSchemasEvent')

@@ -9,14 +9,14 @@ export type StaticSchemaModelParams = {
 }
 
 export const staticSchemaModel = ({ schema }: StaticSchemaModelParams): StaticSchemaModel => {
-    const $model = createStore<StaticComponentSchema>(schema)
+    const $schema = createStore<StaticComponentSchema>(schema)
 
     const setModelEvent = createEvent<OptionalSerializableObject>('setModelEvent')
 
-    $model.on(setModelEvent, (schema, newSchema) => ({
+    $schema.on(setModelEvent, (schema, newSchema) => ({
         ...schema,
         ...newSchema,
     }))
 
-    return { $model, setModelEvent }
+    return { $schema, setModelEvent }
 }

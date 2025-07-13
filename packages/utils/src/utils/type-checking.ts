@@ -38,6 +38,9 @@ export const isEmpty = <T>(value: Maybe<T>): value is Maybe<T> => {
     if (isString(value) || isArray(value)) {
         return value.length === 0
     }
+    if (value instanceof Map || value instanceof Set) {
+        return value.size === 0
+    }
     if (typeof value === 'object') {
         return Object.keys(value as object).length === 0
     }

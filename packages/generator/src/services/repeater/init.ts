@@ -11,7 +11,7 @@ export const init = ({ componentsSchemasService, viewsService, addChildEvent, re
         source: { views: viewsService.$views, schemasMap: componentsSchemasService.$schemasMap },
         clock: addChildEvent,
         fn: ({ views: currentViews, schemasMap }, { repeaterId }) => {
-            const { template } = schemasMap.get(repeaterId)!.$model.getState() as RepeaterComponentSchema
+            const { template } = schemasMap.get(repeaterId)!.$schema.getState() as RepeaterComponentSchema
 
             const { views: additionalViews, componentsSchemas: additionalComponentsSchemas, additionalRowId } = createViewsDefinitions(template, repeaterId)
 
@@ -45,7 +45,7 @@ export const init = ({ componentsSchemasService, viewsService, addChildEvent, re
         source: { views: viewsService.$views, componentsSchemas: componentsSchemasService.$schemasMap },
         clock: removeChildEvent,
         fn: ({ views: currentViews, componentsSchemas }, { rowId, repeaterId }) => {
-            const { template } = componentsSchemas.get(repeaterId)!.$model.getState() as RepeaterComponentSchema
+            const { template } = componentsSchemas.get(repeaterId)!.$schema.getState() as RepeaterComponentSchema
 
             const relevantViews = extractRelevantViews(currentViews, template.views)
             const { views: finalViews, componentsIdsToRemove } = removeViewRow(relevantViews, repeaterId, rowId)

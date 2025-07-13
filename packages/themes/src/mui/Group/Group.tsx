@@ -16,9 +16,9 @@ type ComponentProps = ContainerComponentProps<OptionsBuilderOutput<typeof option
 
 const Group = memo(
     forwardRef<HTMLDivElement, ComponentProps>(({ rows, properties, ...props }, ref) => {
-        const isTopLevelContainer = useIsRepeater(props.parentId)
+        const parentIsRepeater = useIsRepeater(props.parentId)
 
-        const header = isTopLevelContainer ? (
+        const header = parentIsRepeater ? (
             <TopLevelContainerHeader {...props} title={properties.title} />
         ) : (
             isNotEmpty(properties.title) && <Title id={props.id}>{properties.title}</Title>
@@ -39,6 +39,5 @@ export const groupModule = createContainerComponentModule({
     name: 'group',
     label: 'Group',
     optionsBuilder,
-    relationsRules: [],
     Component: Group,
 })

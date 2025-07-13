@@ -1,5 +1,6 @@
 import { createEditableComponentModule, EditableComponentProps, OptionsBuilderOutput } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
+import { isNotEmpty } from '@form-crafter/utils'
 import { TextField } from '@mui/material'
 import { forwardRef, memo } from 'react'
 
@@ -17,22 +18,28 @@ const optionsBuilder = builders.group({
 type ComponentProps = EditableComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Textarea = memo(
-    forwardRef<HTMLDivElement, ComponentProps>(({ meta, properties: { value, placeholder, label, disabled }, onChangeProperties }, ref) => {
-        return (
-            <TextField
-                ref={ref}
-                value={value}
-                multiline
-                name={meta.formKey}
-                disabled={disabled}
-                label={label}
-                placeholder={placeholder}
-                fullWidth
-                minRows={4}
-                onChange={(e) => onChangeProperties({ value: e.target.value })}
-            />
-        )
-    }),
+    forwardRef<HTMLDivElement, ComponentProps>(
+        ({ meta, properties: { value, placeholder, label, disabled }, onChangeProperties, isRequired, error, onBlur }, ref) => {
+            return (
+                <TextField
+                    ref={ref}
+                    value={value}
+                    multiline
+                    name={meta.formKey}
+                    disabled={disabled}
+                    label={label}
+                    placeholder={placeholder}
+                    fullWidth
+                    minRows={4}
+                    onChange={(e) => onChangeProperties({ value: e.target.value })}
+                    onBlur={onBlur}
+                    error={isNotEmpty(error?.message)}
+                    helperText={error?.message}
+                    required={isRequired}
+                />
+            )
+        },
+    ),
 )
 
 Textarea.displayName = 'Textarea'

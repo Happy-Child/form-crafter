@@ -1,5 +1,6 @@
 import { createEditableComponentModule, EditableComponentProps, OptionsBuilderOutput } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
+import { isNotEmpty } from '@form-crafter/utils'
 import { TextField } from '@mui/material'
 import { forwardRef, memo } from 'react'
 
@@ -17,19 +18,25 @@ const optionsBuilder = builders.group({
 type ComponentProps = EditableComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Email = memo(
-    forwardRef<HTMLDivElement, ComponentProps>(({ properties: { label, placeholder, disabled, value }, onChangeProperties }, ref) => {
-        return (
-            <TextField
-                inputRef={ref}
-                fullWidth
-                value={value}
-                disabled={disabled}
-                label={label}
-                placeholder={placeholder}
-                onChange={(e) => onChangeProperties({ value: e.target.value })}
-            />
-        )
-    }),
+    forwardRef<HTMLDivElement, ComponentProps>(
+        ({ properties: { label, placeholder, disabled, value }, onChangeProperties, onBlur, isRequired, error }, ref) => {
+            return (
+                <TextField
+                    inputRef={ref}
+                    fullWidth
+                    value={value}
+                    disabled={disabled}
+                    label={label}
+                    placeholder={placeholder}
+                    onChange={(e) => onChangeProperties({ value: e.target.value })}
+                    onBlur={onBlur}
+                    error={isNotEmpty(error?.message)}
+                    helperText={error?.message}
+                    required={isRequired}
+                />
+            )
+        },
+    ),
 )
 
 Email.displayName = 'Email'

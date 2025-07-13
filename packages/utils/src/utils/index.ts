@@ -1,5 +1,3 @@
-export * from './get-intersections-items'
-export * from './get-intersections-keys'
 export * from './remove-object-keys'
 export * from './toggle-arr-item'
 export * from './type-checking'

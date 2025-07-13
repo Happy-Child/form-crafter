@@ -1,5 +1,6 @@
 import { createEditableComponentModule, EditableComponentProps, OptionsBuilderOutput } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
+import { isNotEmpty } from '@form-crafter/utils'
 import { TextField as TextFieldBase } from '@mui/material'
 import { ChangeEvent, forwardRef, memo } from 'react'
 
@@ -17,21 +18,27 @@ const optionsBuilder = builders.group({
 type ComponentProps = EditableComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
 
 const TextField = memo(
-    forwardRef<HTMLInputElement, ComponentProps>(({ meta, properties: { value, placeholder, label, disabled }, onChangeProperties }, ref) => {
-        const finalValue = value || ''
-        return (
-            <TextFieldBase
-                inputRef={ref}
-                value={finalValue}
-                name={meta.formKey}
-                disabled={disabled}
-                label={label}
-                placeholder={placeholder}
-                onInput={(e: ChangeEvent<HTMLInputElement>) => onChangeProperties({ value: e.target.value })}
-                fullWidth
-            />
-        )
-    }),
+    forwardRef<HTMLInputElement, ComponentProps>(
+        ({ meta, onChangeProperties, onBlur, isRequired, error, properties: { value, placeholder, label, disabled } }, ref) => {
+            const finalValue = value || ''
+            return (
+                <TextFieldBase
+                    inputRef={ref}
+                    value={finalValue}
+                    name={meta.formKey}
+                    disabled={disabled}
+                    label={label}
+                    placeholder={placeholder}
+                    onInput={(e: ChangeEvent<HTMLInputElement>) => onChangeProperties({ value: e.target.value })}
+                    onBlur={onBlur}
+                    error={isNotEmpty(error?.message)}
+                    helperText={error?.message}
+                    required={isRequired}
+                    fullWidth
+                />
+            )
+        },
+    ),
 )
 
 TextField.displayName = 'TextField'

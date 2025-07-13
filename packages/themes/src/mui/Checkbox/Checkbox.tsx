@@ -1,7 +1,7 @@
 import { createEditableComponentModule, EditableComponentProps, OptionsBuilderOutput, SelectionOption } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
-import { toggleArrItem } from '@form-crafter/utils'
-import { Box, Checkbox as CheckboxBase, FormControl, FormControlLabel, FormLabel } from '@mui/material'
+import { isNotEmpty, toggleArrItem } from '@form-crafter/utils'
+import { Box, Checkbox as CheckboxBase, FormControl, FormControlLabel, FormHelperText, FormLabel } from '@mui/material'
 import { forwardRef, memo, useCallback } from 'react'
 
 import { componentsOperators } from '../../components-operators'
@@ -47,7 +47,7 @@ const optionsBuilder = builders.group({
 type ComponentProps = EditableComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Checkbox = memo(
-    forwardRef<HTMLDivElement, ComponentProps>(({ properties: { options, value, label, disabled }, onChangeProperties }, ref) => {
+    forwardRef<HTMLDivElement, ComponentProps>(({ properties: { options, value, label, disabled }, onChangeProperties, isRequired, error }, ref) => {
         const isChecked = useCallback((option: Pick<SelectionOption, 'value'>) => (value?.length ? value.includes(option.value) : false), [value])
 
         const hanleChange = useCallback(
@@ -59,12 +59,13 @@ const Checkbox = memo(
         )
 
         return (
-            <FormControl ref={ref} fullWidth>
+            <FormControl ref={ref} required={isRequired} fullWidth error={isNotEmpty(error?.message)}>
                 {label && <FormLabel>{label}</FormLabel>}
                 <Box sx={{ display: 'flex', gap: 1 }}>
                     {options.map((option) => (
                         <FormControlLabel
                             key={option.value}
+                            required={isRequired}
                             control={
                                 <CheckboxBase
                                     checked={isChecked(option)}
@@ -78,6 +79,7 @@ const Checkbox = memo(
                         />
                     ))}
                 </Box>
+                {isNotEmpty(error?.message) && <FormHelperText>{error.message}</FormHelperText>}
             </FormControl>
         )
     }),

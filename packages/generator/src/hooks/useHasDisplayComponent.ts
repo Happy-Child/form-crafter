@@ -10,7 +10,7 @@ export const useHasDisplayComponent = (id: EntityId): [boolean, FC] => {
     const meta = useComponentMeta(id)
     const { services } = useGeneratorContext()
 
-    const [theme] = useUnit([services.themeService.$theme])
+    const [theme] = useUnit([services.themeService.$componentsModules])
     const [PlaceholderComponent] = useUnit([services.themeService.$placeholderComponent])
 
     const module = useMemo(() => theme.find(({ name }) => name === meta.name), [theme, meta])

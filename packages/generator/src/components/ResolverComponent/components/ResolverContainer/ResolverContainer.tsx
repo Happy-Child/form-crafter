@@ -7,6 +7,7 @@ import { useComponentMeta, useComponentModel, useComponentProperties, useDisplay
 export const ResolverContainer: ResolverComponentType = memo(({ id, rowId }) => {
     const meta = useComponentMeta<'container'>(id)
     const properties = useComponentProperties<'container'>(id)
+
     const { onUpdatePropertiesEvent } = useComponentModel<'container'>(id)
 
     const { parentId, rows } = useViewComponentWithParent(id)
