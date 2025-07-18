@@ -19,8 +19,8 @@ const buildReverseDepsGraph = (depsGraph: Record<EntityId, EntityId[]>) =>
 export const extractDepsFromSchema = (componentsSchemas: ComponentsSchemas, depsPathsOptiondsBuilderRelationsRules: Record<EntityId, EntityId[][]>) => {
     const entriesMap: [EntityId, ComponentSchema][] = Object.entries(componentsSchemas)
 
-    const relationsSchemaIdToDeps: Record<EntityId, EntityId[]> = {}
-    const validationsSchemaIdToDeps: Record<string, EntityId[]> = {}
+    const relationsEntityIdToDeps: Record<EntityId, EntityId[]> = {}
+    const validationsEntityIdToDeps: Record<string, EntityId[]> = {}
 
     entriesMap.forEach(([componentId, { relations, validations, visability }]) => {
         const relationsRulesDeps: EntityId[] = []
@@ -47,7 +47,7 @@ export const extractDepsFromSchema = (componentsSchemas: ComponentsSchemas, deps
         }
 
         if (isNotEmpty(relationsRulesDeps)) {
-            relationsSchemaIdToDeps[componentId] = Array.from(new Set(relationsRulesDeps))
+            relationsEntityIdToDeps[componentId] = Array.from(new Set(relationsRulesDeps))
         }
 
         const validationsRulesUserOptions = validations?.options
@@ -58,15 +58,15 @@ export const extractDepsFromSchema = (componentsSchemas: ComponentsSchemas, deps
                 }
 
                 const deps = extractDepsFromConditions([], userOption.condition)
-                validationsSchemaIdToDeps[userOption.id] = deps
+                validationsEntityIdToDeps[userOption.id] = deps
             })
         }
     })
 
     return {
-        // schemaIdToDeps - ключ зависит от элементой массива значения
-        // schemaIdToDependents - от ключа зависят элемента массива значений
-        relations: { schemaIdToDeps: relationsSchemaIdToDeps, schemaIdToDependents: buildReverseDepsGraph(relationsSchemaIdToDeps) },
-        validations: { schemaIdToDeps: validationsSchemaIdToDeps, schemaIdToDependents: buildReverseDepsGraph(validationsSchemaIdToDeps) },
+        // entityIdToDeps - ключ зависит от элементой массива значения
+        // entityIdToDependents - от ключа зависят элемента массива значений
+        relations: { entityIdToDeps: relationsEntityIdToDeps, entityIdToDependents: buildReverseDepsGraph(relationsEntityIdToDeps) },
+        validations: { entityIdToDeps: validationsEntityIdToDeps, entityIdToDependents: buildReverseDepsGraph(validationsEntityIdToDeps) },
     }
 }

@@ -187,7 +187,14 @@ export const employeeFormSchema: Schema = {
                         id: genId(),
                         ruleName: 'duplicateValue',
                         options: { duplicateValueComponentId: 'input-first-name' },
-                        condition: { type: 'component', componentId: 'input-first-name', operatorName: 'isNotEmpty' },
+                        condition: {
+                            type: 'operator',
+                            operator: 'or',
+                            operands: [
+                                { type: 'component', componentId: 'country', operatorName: 'isNotEmpty' },
+                                { type: 'component', componentId: 'input-position', operatorName: 'isEmpty' },
+                            ],
+                        },
                     },
                 ],
             },
@@ -203,7 +210,7 @@ export const employeeFormSchema: Schema = {
             },
         },
         'date-birth': {
-            meta: { id: 'date-birth', type: 'editable', name: 'date-field' },
+            meta: { id: 'date-birth', type: 'editable', name: 'text-field' },
             properties: { label: 'Дата рождения', value: '25.10.2005' },
         },
         email: {
@@ -224,6 +231,12 @@ export const employeeFormSchema: Schema = {
                                 { type: 'component', componentId: 'input-salary', operatorName: 'isNotEmpty' },
                             ],
                         },
+                    },
+                    {
+                        id: genId(),
+                        ruleName: 'isEmail',
+                        options: { message: 'Ljkj;yj s,nm ' },
+                        condition: { type: 'component', componentId: 'email', operatorName: 'startsWith', options: { startsWith: 'egor' } },
                     },
                 ],
             },
@@ -251,6 +264,7 @@ export const employeeFormSchema: Schema = {
                     { label: 'Чили', value: 'chili' },
                 ],
             },
+            visability: { condition: { type: 'component', componentId: 'date-start', operatorName: 'isNotEmpty' } },
         },
         region: {
             meta: { id: 'region', type: 'editable', name: 'select' },

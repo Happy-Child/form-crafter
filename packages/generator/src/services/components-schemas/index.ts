@@ -14,7 +14,7 @@ import {
     UpdateComponentPropertiesPayload,
     ValidationRuleSchemas,
 } from './types'
-import { buildDepsResolutionOrder, extractDepsFromSchema, getDepsPathsOptiondsBuilderRelationsRules } from './utils'
+import { buildSortedDependents, extractDepsFromSchema, getDepsPathsOptiondsBuilderRelationsRules, topologicalSortDeps } from './utils'
 
 export type { ComponentsSchemasService }
 
@@ -35,7 +35,7 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
         }, {}),
     )
 
-    const calcRelationsRulesEvent = createEvent<CalcRelationsRulesPayload>('calcRelationsRulesEvent')
+    const runRelationsRulesOnUserActionsEvent = createEvent<CalcRelationsRulesPayload>('calcRelationsRulesEvent')
     const $componentsSchemasModel = createStore<SchemaMap>(new Map())
     const buildComponentsSchemasModel = (data: ComponentsSchemas) => {
         const additionalTriggers = schemaService.$schema.getState().validations?.additionalTriggers || null
@@ -45,7 +45,7 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
                 $componentsSchemasModel,
                 $readyConditionalValidationsRules,
                 schema: componentSchema,
-                calcRelationsRulesEvent,
+                runRelationsRulesEvent: runRelationsRulesOnUserActionsEvent,
                 additionalTriggers,
                 themeService,
             })
@@ -59,13 +59,20 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
 
     const $depsPathsOptiondsBuilderRelationsRules = combine(themeService.$relationsRules, getDepsPathsOptiondsBuilderRelationsRules)
     const $rulesDepsFromSchema = combine($initialComponentsSchemas, $depsPathsOptiondsBuilderRelationsRules, extractDepsFromSchema)
-    const $depsResolutionOrder = combine($rulesDepsFromSchema, ({ relations: { schemaIdToDeps, schemaIdToDependents } }) =>
-        buildDepsResolutionOrder(schemaIdToDeps, schemaIdToDependents),
+
+    const $sortedRelationsDependents = combine($rulesDepsFromSchema, ({ relations: { entityIdToDeps } }) => {
+        const componentsIdWithRelationsRules = Object.keys(entityIdToDeps)
+        return topologicalSortDeps(componentsIdWithRelationsRules, entityIdToDeps)
+    })
+    const $sortedRelationsDependentsByComponent = combine($rulesDepsFromSchema, ({ relations: { entityIdToDeps, entityIdToDependents } }) =>
+        buildSortedDependents(entityIdToDeps, entityIdToDependents),
     )
 
     const $rulesOverridesCache = createStore<RulesOverridesCache>({})
 
     const $hiddenComponents = createStore<Set<EntityId>>(new Set())
+
+    const initComponentSchemasEvent = createEvent('initComponentSchemasEvent')
 
     const setRulesOverridesCacheEvent = createEvent<RulesOverridesCache>('setRulesOverridesCacheEvent')
 
@@ -107,16 +114,18 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
     $readyConditionalValidationsRules.on(setReadyConditionalValidationsRulesEvent, (_, newReadyRules) => newReadyRules)
 
     init({
-        calcRelationsRulesEvent,
+        runRelationsRulesOnUserActionsEvent,
         setRulesOverridesCacheEvent,
         setHiddenComponentsEvent,
         setReadyConditionalValidationsRulesEvent,
+        initComponentSchemasEvent,
         updateComponentsSchemasModelFx,
         $hiddenComponents,
         $initialComponentsSchemas,
         $componentsSchemasModel,
         $rulesOverridesCache,
-        $depsResolutionOrder,
+        $sortedRelationsDependents,
+        $sortedRelationsDependentsByComponent,
         $rulesDepsFromSchema,
         $validationRuleSchemas,
         $readyConditionalValidationsRules,
@@ -126,7 +135,8 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
 
     console.log('depsPathsOptiondsBuilderRelationsRules: ', $depsPathsOptiondsBuilderRelationsRules.getState())
     console.log('rulesDepsFromSchema: ', $rulesDepsFromSchema.getState())
-    console.log('depsResolutionOrder: ', $depsResolutionOrder.getState())
+    console.log('sortedRelationsDependentsByComponent: ', $sortedRelationsDependentsByComponent.getState())
+    console.log('sortedRelationsDependents: ', $sortedRelationsDependents.getState())
 
     // OLD BEGIN
     const updateComponentsSchemasEvent = createEvent<ComponentsSchemas>('updateComponentsSchemasEvent')
@@ -159,5 +169,6 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
         updateComponentsSchemasEvent,
         updateComponentPropertiesEvent,
         removeComponentsSchemasByIdsEvent,
+        initComponentSchemasEvent,
     }
 }

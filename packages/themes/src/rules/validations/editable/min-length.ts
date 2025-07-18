@@ -8,7 +8,7 @@ const optionsBuilder = builders.group({
 })
 
 export const minLengthRule = createEditableValidationRule<OptionalSerializableValue, typeof optionsBuilder>({
-    ruleName: 'minLengthRule',
+    ruleName: 'minLength',
     displayName: 'Минимальная длина',
     optionsBuilder,
     validate: (value, params) => {

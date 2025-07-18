@@ -13,5 +13,5 @@ export type ComponentSchemaModelParams = {
     themeService: ThemeService
     schema: ComponentSchema
     additionalTriggers: ValidationsTriggers[] | null
-    calcRelationsRulesEvent: EventCallable<CalcRelationsRulesPayload>
+    runRelationsRulesEvent: EventCallable<CalcRelationsRulesPayload>
 }

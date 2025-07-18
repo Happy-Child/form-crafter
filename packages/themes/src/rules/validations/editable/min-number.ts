@@ -8,7 +8,7 @@ const optionsBuilder = builders.group({
 })
 
 export const minNumberRule = createEditableValidationRule<Maybe<number>, typeof optionsBuilder>({
-    ruleName: 'minNumberRule',
+    ruleName: 'minNumber',
     displayName: 'Мин. число',
     optionsBuilder,
     validate: (value, params) => {

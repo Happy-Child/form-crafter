@@ -14,12 +14,12 @@ export type RulesOverridesCache = Record<EntityId, OptionalSerializableObject | 
 
 export type RulesDepsFromSchema = {
     relations: {
-        schemaIdToDeps: Record<EntityId, EntityId[]>
-        schemaIdToDependents: Record<EntityId, EntityId[]>
+        entityIdToDeps: Record<EntityId, EntityId[]>
+        entityIdToDependents: Record<EntityId, EntityId[]>
     }
     validations: {
-        schemaIdToDeps: Record<string, EntityId[]>
-        schemaIdToDependents: Record<EntityId, string[]>
+        entityIdToDeps: Record<string, EntityId[]>
+        entityIdToDependents: Record<EntityId, string[]>
     }
 }
 
@@ -37,6 +37,7 @@ export type ComponentsSchemasService = {
     updateComponentsSchemasEvent: EventCallable<ComponentsSchemas>
     removeComponentsSchemasByIdsEvent: EventCallable<{ ids: EntityId[] }>
     updateComponentPropertiesEvent: EventCallable<UpdateComponentPropertiesPayload>
+    initComponentSchemasEvent: EventCallable<void>
 }
 
 export type ComponentsSchemasServiceParams = {

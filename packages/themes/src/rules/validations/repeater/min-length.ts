@@ -8,7 +8,7 @@ const optionsBuilder = builders.group({
 })
 
 export const minLengthRule = createRepeaterValidationRule<typeof optionsBuilder>({
-    ruleName: 'minLengthRule',
+    ruleName: 'minLength',
     displayName: 'Минимальное количество групп',
     optionsBuilder,
     validate: (componentId, { ctx, options }) => {

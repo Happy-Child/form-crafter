@@ -8,39 +8,22 @@ import { createViewsService } from './views'
 
 export const createRootServices = ({ schema, theme, PlaceholderComponent, onSubmit }: RootServicesParams): RootServices => {
     const themeService = createThemeService({ theme, PlaceholderComponent })
+
     const schemaService = createSchemaService(schema)
+
     const componentsSchemasService = createComponentsSchemasService({ initial: schema.componentsSchemas, themeService, schemaService })
+
     const viewsService = createViewsService({ initial: schema.views })
 
-    const formService = createFormService({ onSubmit, viewsService, componentsSchemasService })
     const repeaterService = createRepeaterService({ viewsService, componentsSchemasService })
 
-    // const setTestComponentHidden = createEvent<any>()
+    const formService = createFormService({ onSubmit, viewsService, componentsSchemasService })
 
-    // // Подписка на изменения схем
-    // sample({
-    //     clock: componentsSchemasService.$schemas,
-    //     fn: (schemas) => schemas['input-first-name'].properties.value === 'Поехали',
-    //     target: setTestComponentHidden,
-    // })
+    const bootstrap = () => {
+        componentsSchemasService.initComponentSchemasEvent()
+    }
 
-    // // Отдельно обновляем hidden, но только если значение реально поменялось
-    // sample({
-    //     clock: setTestComponentHidden,
-    //     source: componentsSchemasService.$schemas,
-    //     filter: (schemas, hidden) => {
-    //         console.log('cur:', schemas.testComp.hidden, 'new: ', hidden)
-    //         return schemas.testComp.hidden !== hidden
-    //     }, // Предотвращаем повторное обновление
-    //     fn: (schemas, hidden) => ({
-    //         ...schemas,
-    //         testComp: {
-    //             ...schemas.testComp,
-    //             hidden,
-    //         },
-    //     }),
-    //     target: componentsSchemasService.$schemas,
-    // })
+    bootstrap()
 
     return {
         schemaService,

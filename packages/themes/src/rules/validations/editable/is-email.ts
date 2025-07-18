@@ -7,7 +7,7 @@ const optionsBuilder = builders.group({
 })
 
 export const isEmailRule = createEditableValidationRule<Maybe<string>, typeof optionsBuilder>({
-    ruleName: 'isEmailRule',
+    ruleName: 'isEmail',
     displayName: 'Email',
     optionsBuilder,
     validate: (value, params) => {

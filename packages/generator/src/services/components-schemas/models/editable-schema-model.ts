@@ -26,7 +26,7 @@ export const editableSchemaModel = ({
     $readyConditionalValidationsRules,
     themeService,
     schema,
-    calcRelationsRulesEvent,
+    runRelationsRulesEvent,
     additionalTriggers,
 }: EditableSchemaModelParams): EditableSchemaModel => {
     const validationUserOptionsIsExists = isNotEmpty(schema.validations?.options)
@@ -103,7 +103,7 @@ export const editableSchemaModel = ({
         source: $schema,
         clock: updatePropertiesEvent,
         fn: ({ meta }, data) => ({ id: meta.id, data }),
-        target: calcRelationsRulesEvent,
+        target: runRelationsRulesEvent,
     })
 
     sample({
@@ -160,6 +160,7 @@ export const editableSchemaModel = ({
                     let validationResult: ValidationRuleComponentResult
 
                     const rule = componentsValidationsRules[ruleName]
+
                     if (isEditableValidationRule(rule) || isUploaderValidationRule(rule)) {
                         validationResult = rule.validate(value, { ctx: executorContext, options: options || {} })
                     } else {

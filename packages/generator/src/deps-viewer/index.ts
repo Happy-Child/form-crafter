@@ -15,13 +15,13 @@ const nodes = new DataSet<Node>([
 
 const edges = new DataSet<Edge>([
     { from: 'input-first-name', to: 'input-last-name' },
-    { from: 'input-salary', to: 'input-last-name' },
     { from: 'input-first-name', to: 'email' },
+    { from: 'input-first-name', to: 'select-department' },
+    { from: 'input-salary', to: 'input-last-name' },
+    { from: 'input-salary', to: 'select-department' },
     { from: 'date-birth', to: 'email', color: { color: 'red' } },
     { from: 'email', to: 'date-birth', color: { color: 'red' } },
-    { from: 'input-first-name', to: 'select-department' },
     { from: 'input-last-name', to: 'select-department' },
-    { from: 'input-salary', to: 'select-department' },
     { from: 'input-position', to: 'select-department' },
 ])
 

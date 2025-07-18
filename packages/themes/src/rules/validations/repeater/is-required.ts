@@ -1,4 +1,4 @@
-import { createRepeaterValidationRule } from '@form-crafter/core'
+import { createRepeaterValidationRule, validationRuleNames } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
 import { isEmpty } from '@form-crafter/utils'
 
@@ -7,7 +7,7 @@ const optionsBuilder = builders.group({
 })
 
 export const isRequiredRule = createRepeaterValidationRule<typeof optionsBuilder>({
-    ruleName: 'isRequired',
+    ruleName: validationRuleNames.isRequired,
     displayName: 'Обязательное поле',
     optionsBuilder,
     validate: (componentId, { ctx, options }) => {

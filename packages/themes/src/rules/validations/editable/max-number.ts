@@ -8,7 +8,7 @@ const optionsBuilder = builders.group({
 })
 
 export const maxNumberRule = createEditableValidationRule<Maybe<number>, typeof optionsBuilder>({
-    ruleName: 'maxNumberRule',
+    ruleName: 'maxNumber',
     displayName: 'Макс. число',
     optionsBuilder,
     validate: (value, params) => {

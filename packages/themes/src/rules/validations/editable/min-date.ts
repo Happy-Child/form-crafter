@@ -9,7 +9,7 @@ const optionsBuilder = builders.group({
 })
 
 export const minDateRule = createEditableValidationRule<Maybe<string | number>, typeof optionsBuilder>({
-    ruleName: 'minDateRule',
+    ruleName: 'minDate',
     displayName: 'Минимальная дата',
     optionsBuilder,
     validate: (value, params) => {

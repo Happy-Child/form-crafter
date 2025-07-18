@@ -1,7 +1,8 @@
 import { ComponentSchema, ComponentsSchemas, EntityId, isConditionSuccessful } from '@form-crafter/core'
 import { isEmpty, isNotEmpty } from '@form-crafter/utils'
-import { Effect, EventCallable, sample, Store, StoreValue, StoreWritable } from 'effector'
-import { cloneDeep, isEqual, pick } from 'lodash-es'
+import { createEvent, Effect, EventCallable, sample, Store, StoreValue, StoreWritable } from 'effector'
+import { cloneDeep, isEqual, merge, pick } from 'lodash-es'
+import { combineEvents } from 'patronum'
 
 import { SchemaMap } from '../../types'
 import { getComponentsSchemasFromModels } from '../../utils'
@@ -9,17 +10,36 @@ import { ThemeService } from '../theme'
 import { CalcRelationsRulesPayload, ReadyConditionalValidationsRules, RulesDepsFromSchema, RulesOverridesCache, ValidationRuleSchemas } from './types'
 import { buildExecutorContext } from './utils'
 
+const a = { a: { test: 1, props: { value: '2', disabled: true, visability: true } } }
+const b = { a: { props: { value: '2234', disabled: false, conditionas: [3, 4, 5] } } }
+
+console.log('merge: ', merge(a, b))
+
+type RunRelationsRulesPayload = {
+    componentsSchemas: ComponentsSchemas
+    newComponentsSchemas: ComponentsSchemas
+    relationsDependents: EntityId[]
+    componentsIdsToUpdate: EntityId[]
+}
+
+type CalcReadyConditionalValidationsRulesPayload = {
+    componentsSchemasToUpdate: ComponentsSchemas
+    skipIfValueUnchanged?: boolean
+}
+
 type Params = {
-    calcRelationsRulesEvent: EventCallable<CalcRelationsRulesPayload>
+    runRelationsRulesOnUserActionsEvent: EventCallable<CalcRelationsRulesPayload>
     setRulesOverridesCacheEvent: EventCallable<RulesOverridesCache>
     setHiddenComponentsEvent: EventCallable<Set<EntityId>>
     updateComponentsSchemasModelFx: Effect<ComponentsSchemas, SchemaMap, Error>
     setReadyConditionalValidationsRulesEvent: EventCallable<ReadyConditionalValidationsRules>
+    initComponentSchemasEvent: EventCallable<void>
     $hiddenComponents: StoreWritable<Set<EntityId>>
     $initialComponentsSchemas: StoreWritable<ComponentsSchemas>
     $componentsSchemasModel: StoreWritable<SchemaMap>
     $rulesOverridesCache: StoreWritable<RulesOverridesCache>
-    $depsResolutionOrder: Store<Record<EntityId, EntityId[]>>
+    $sortedRelationsDependents: Store<EntityId[]>
+    $sortedRelationsDependentsByComponent: Store<Record<EntityId, EntityId[]>>
     $rulesDepsFromSchema: Store<RulesDepsFromSchema>
     $validationRuleSchemas: Store<ValidationRuleSchemas>
     $readyConditionalValidationsRules: Store<ReadyConditionalValidationsRules>
@@ -28,58 +48,89 @@ type Params = {
 }
 
 export const init = ({
-    calcRelationsRulesEvent,
+    runRelationsRulesOnUserActionsEvent,
     setRulesOverridesCacheEvent,
     setHiddenComponentsEvent,
     setReadyConditionalValidationsRulesEvent,
+    initComponentSchemasEvent,
     updateComponentsSchemasModelFx,
     $hiddenComponents,
     $initialComponentsSchemas,
     $componentsSchemasModel,
     $rulesOverridesCache,
-    $depsResolutionOrder,
+    $sortedRelationsDependents,
+    $sortedRelationsDependentsByComponent,
     $rulesDepsFromSchema,
     $validationRuleSchemas,
     $operatorsForConditions,
     $relationsRules,
     $readyConditionalValidationsRules,
 }: Params) => {
-    const executeRelationsRulesEvent = sample({
+    const runRelationsRulesEvent = createEvent<RunRelationsRulesPayload>('runRelationsRulesEvent')
+
+    const calcReadyConditionalValidationsRulesEvent = createEvent<CalcReadyConditionalValidationsRulesPayload>('calcReadyConditionalValidationsRulesEvent')
+
+    sample({
+        source: {
+            componentsSchemasModel: $componentsSchemasModel,
+            sortedRelationsDependents: $sortedRelationsDependents,
+        },
+        clock: initComponentSchemasEvent,
+        fn: ({ componentsSchemasModel }) => {
+            const componentsSchemas = getComponentsSchemasFromModels(componentsSchemasModel)
+            return {
+                componentsSchemasToUpdate: componentsSchemas,
+                skipIfValueUnchanged: false,
+            }
+        },
+        target: calcReadyConditionalValidationsRulesEvent,
+    })
+
+    sample({
+        source: {
+            componentsSchemasModel: $componentsSchemasModel,
+            sortedRelationsDependentsByComponent: $sortedRelationsDependentsByComponent,
+        },
+        clock: runRelationsRulesOnUserActionsEvent,
+        fn: ({ componentsSchemasModel, sortedRelationsDependentsByComponent }, { id: componentIdToUpdate, data: propertiesToUpdate }) => {
+            const componentsSchemas = getComponentsSchemasFromModels(componentsSchemasModel)
+
+            const finalComponentsSchemas = cloneDeep(componentsSchemas)
+            finalComponentsSchemas[componentIdToUpdate].properties = {
+                ...finalComponentsSchemas[componentIdToUpdate].properties,
+                ...propertiesToUpdate,
+            }
+
+            const relationsDependents = sortedRelationsDependentsByComponent[componentIdToUpdate] || []
+
+            return {
+                componentsSchemas,
+                newComponentsSchemas: finalComponentsSchemas,
+                componentsIdsToUpdate: [componentIdToUpdate],
+                relationsDependents,
+            }
+        },
+        target: runRelationsRulesEvent,
+    })
+
+    const resultOfRunRelationsRulesEvent = sample({
         source: {
             initialComponentsSchemas: $initialComponentsSchemas,
-            componentsSchemasModel: $componentsSchemasModel,
             rulesOverridesCache: $rulesOverridesCache,
-            depsResolutionOrder: $depsResolutionOrder,
             rulesDepsFromSchema: $rulesDepsFromSchema,
             operatorsForConditions: $operatorsForConditions,
             relationsRules: $relationsRules,
             hiddenComponents: $hiddenComponents,
         },
-        clock: calcRelationsRulesEvent,
+        clock: runRelationsRulesEvent,
         fn: (
-            {
-                initialComponentsSchemas,
-                componentsSchemasModel,
-                rulesOverridesCache,
-                depsResolutionOrder,
-                rulesDepsFromSchema,
-                operatorsForConditions,
-                relationsRules,
-                hiddenComponents,
-            },
-            { id: componentIdToUpdate, data: propertiesToUpdate },
+            { initialComponentsSchemas, rulesOverridesCache, rulesDepsFromSchema, operatorsForConditions, relationsRules, hiddenComponents },
+            { componentsSchemas, newComponentsSchemas, componentsIdsToUpdate, relationsDependents },
         ) => {
-            const componentsSchemas = getComponentsSchemasFromModels(componentsSchemasModel)
-
-            const componentsIdsToUpdates: Set<EntityId> = new Set()
-            componentsIdsToUpdates.add(componentIdToUpdate)
+            const componentsIdsToUpdates: Set<EntityId> = new Set(componentsIdsToUpdate)
 
             const newRulesOverridesCache = cloneDeep(rulesOverridesCache)
-            const newComponentsSchemas = cloneDeep(componentsSchemas)
-            newComponentsSchemas[componentIdToUpdate].properties = {
-                ...newComponentsSchemas[componentIdToUpdate].properties,
-                ...propertiesToUpdate,
-            }
+            newComponentsSchemas = cloneDeep(newComponentsSchemas)
 
             const executorContext = buildExecutorContext({ componentsSchemas: newComponentsSchemas })
 
@@ -154,11 +205,11 @@ export const init = ({
             }
 
             const finalHiddenComponents: Set<EntityId> = new Set(hiddenComponents)
-            depsResolutionOrder[componentIdToUpdate]?.forEach((depComponentId) => {
+            relationsDependents.forEach((depComponentId) => {
                 // 1.1 Проверить есть ли не скрытые зависимости. Если есть - идём дальше. Если нет - выход.
                 // 1.2 Так же идём дальше если нет зависимостей вообще.
-                const deps = rulesDepsFromSchema.relations.schemaIdToDependents[depComponentId]
-                const existsVisibleDep = isNotEmpty(deps) ? deps.some((componentId) => !finalHiddenComponents.has(componentId)) : true
+                const dependents = rulesDepsFromSchema.relations.entityIdToDependents[depComponentId]
+                const existsVisibleDep = isNotEmpty(dependents) ? dependents.some((componentId) => !finalHiddenComponents.has(componentId)) : true
                 if (!existsVisibleDep) {
                     return
                 }
@@ -213,6 +264,7 @@ export const init = ({
                 .filter((componentId) => {
                     const isEqualProperties = isEqual(componentsSchemas[componentId].properties, newComponentsSchemas[componentId].properties)
                     const isEqualHidden = !!componentsSchemas[componentId].visability?.hidden === !!newComponentsSchemas[componentId].visability?.hidden
+
                     return !isEqualProperties || !isEqualHidden
                 })
                 .reduce<ComponentsSchemas>((obj, componentId) => ({ ...obj, [componentId]: newComponentsSchemas[componentId] }), {})
@@ -222,6 +274,18 @@ export const init = ({
     })
 
     sample({
+        clock: resultOfRunRelationsRulesEvent,
+        fn: ({ componentsSchemasToUpdate, hiddenComponents }) => {
+            const preparedSchema = Object.fromEntries(Object.entries(componentsSchemasToUpdate).filter(([componentId]) => !hiddenComponents.has(componentId)))
+
+            return {
+                componentsSchemasToUpdate: preparedSchema,
+            }
+        },
+        target: calcReadyConditionalValidationsRulesEvent,
+    })
+
+    const resultOfCalcReadyValidationsRulesEvent = sample({
         source: {
             validationRuleSchemas: $validationRuleSchemas,
             rulesDepsFromSchema: $rulesDepsFromSchema,
@@ -229,14 +293,15 @@ export const init = ({
             operatorsForConditions: $operatorsForConditions,
             readyConditionalValidationsRules: $readyConditionalValidationsRules,
         },
-        clock: executeRelationsRulesEvent,
+        clock: calcReadyConditionalValidationsRulesEvent,
         fn: (
             { validationRuleSchemas, rulesDepsFromSchema, componentsSchemasModel, operatorsForConditions, readyConditionalValidationsRules },
-            { componentsSchemasToUpdate, hiddenComponents },
+            { componentsSchemasToUpdate, skipIfValueUnchanged = true },
         ) => {
-            const componentsSchemas = getComponentsSchemasFromModels(componentsSchemasModel)
+            const oldComponentsSchemas = getComponentsSchemasFromModels(componentsSchemasModel)
+            const newComponentsSchemas = merge(cloneDeep(oldComponentsSchemas), componentsSchemasToUpdate)
 
-            const validationSchemaIdToDependents = rulesDepsFromSchema.validations.schemaIdToDependents
+            const validationSchemaIdToDependents = rulesDepsFromSchema.validations.entityIdToDependents
 
             const readyRules = cloneDeep(readyConditionalValidationsRules)
 
@@ -260,15 +325,11 @@ export const init = ({
             }
 
             Object.entries(componentsSchemasToUpdate).forEach(([componentId, componentSchema]) => {
-                if (hiddenComponents.has(componentId)) {
-                    return
-                }
-
-                const oldValue = componentsSchemas[componentId].properties.value
+                const oldValue = oldComponentsSchemas[componentId].properties.value
                 const newValue = componentSchema.properties.value
 
                 // TODO Если uploader компонент и в value объект - что делать? Сравнить файлы как объекты не получиться
-                if (isEqual(oldValue, newValue)) {
+                if (skipIfValueUnchanged && isEqual(oldValue, newValue)) {
                     return
                 }
 
@@ -277,7 +338,7 @@ export const init = ({
                     return
                 }
 
-                const executorContext = buildExecutorContext({ componentsSchemas })
+                const executorContext = buildExecutorContext({ componentsSchemas: newComponentsSchemas })
                 const evokedValidationsRules: Set<EntityId> = new Set()
 
                 dependentsValidations.forEach((validationSchemaId) => {
@@ -308,23 +369,46 @@ export const init = ({
 
             return readyRules
         },
+    })
+
+    sample({
+        clock: resultOfCalcReadyValidationsRulesEvent,
         target: setReadyConditionalValidationsRulesEvent,
     })
 
     sample({
-        clock: executeRelationsRulesEvent,
+        source: {
+            componentsSchemasModel: $componentsSchemasModel,
+            sortedRelationsDependents: $sortedRelationsDependents,
+        },
+        clock: combineEvents([initComponentSchemasEvent, resultOfCalcReadyValidationsRulesEvent]),
+        fn: ({ componentsSchemasModel, sortedRelationsDependents }) => {
+            const componentsSchemas = getComponentsSchemasFromModels(componentsSchemasModel)
+
+            return {
+                componentsSchemas,
+                newComponentsSchemas: componentsSchemas,
+                componentsIdsToUpdate: [],
+                relationsDependents: sortedRelationsDependents,
+            }
+        },
+        target: runRelationsRulesEvent,
+    })
+
+    sample({
+        clock: resultOfRunRelationsRulesEvent,
         fn: ({ componentsSchemasToUpdate }) => componentsSchemasToUpdate,
         target: updateComponentsSchemasModelFx,
     })
 
     sample({
-        clock: executeRelationsRulesEvent,
+        clock: resultOfRunRelationsRulesEvent,
         fn: ({ rulesOverridesCacheToUpdate }) => rulesOverridesCacheToUpdate,
         target: setRulesOverridesCacheEvent,
     })
 
     sample({
-        clock: executeRelationsRulesEvent,
+        clock: resultOfRunRelationsRulesEvent,
         fn: ({ hiddenComponents }) => hiddenComponents,
         target: setHiddenComponentsEvent,
     })

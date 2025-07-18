@@ -8,7 +8,7 @@ const optionsBuilder = builders.group({
 })
 
 export const maxLengthRule = createRepeaterValidationRule<typeof optionsBuilder>({
-    ruleName: 'maxLengthRule',
+    ruleName: 'maxLength',
     displayName: 'Минимальное количество групп',
     optionsBuilder,
     validate: (componentId, { ctx, options }) => {
