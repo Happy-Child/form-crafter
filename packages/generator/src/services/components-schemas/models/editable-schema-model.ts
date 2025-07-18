@@ -30,10 +30,8 @@ export const editableSchemaModel = ({
     additionalTriggers,
 }: EditableSchemaModelParams): EditableSchemaModel => {
     const validationUserOptionsIsExists = isNotEmpty(schema.validations?.options)
-    const { onBlurValidationTrigger, onChangeValidationTrigger } = {
-        onBlurValidationTrigger: additionalTriggers?.includes('onBlur'),
-        onChangeValidationTrigger: additionalTriggers?.includes('onChange'),
-    }
+    const validationOnChangeIsAvailable = validationUserOptionsIsExists && additionalTriggers?.includes('onChange')
+    const validationOnBlurIsAvailable = validationUserOptionsIsExists && additionalTriggers?.includes('onBlur')
 
     const $schema = createStore<EditableComponentSchema>(schema)
 
@@ -89,7 +87,7 @@ export const editableSchemaModel = ({
 
     const runOnChangeValidationEvent = createEvent('runOnChangeValidationEvent')
 
-    // const runOnBlurValidationEvent = createEvent('runOnBlurValidationEvent')
+    const runOnBlurValidationEvent = createEvent('runOnBlurValidationEvent')
 
     $schema.on(setPropertiesEvent, (schema, newProperties) => ({
         ...schema,
@@ -106,20 +104,39 @@ export const editableSchemaModel = ({
         target: runRelationsRulesEvent,
     })
 
-    sample({
-        source: $schema,
-        clock: setModelEvent,
-        filter: (curModel, newModel) => {
-            const oldValue = curModel.properties.value
-            const newValue = (newModel.properties as EditableComponentProperties).value
+    if (validationOnChangeIsAvailable) {
+        sample({
+            source: $schema,
+            clock: setModelEvent,
+            filter: (curModel, newModel) => {
+                const oldValue = curModel.properties.value
+                const newValue = (newModel.properties as EditableComponentProperties).value
 
-            // TODO Если uploader компонент и в value объект - что делать? Сравнить файлы как объекты не получиться
-            const isChangedValue = !isEqual(oldValue, newValue)
+                // TODO Если uploader компонент и в value объект - что делать? Сравнить файлы как объекты не получиться
+                const isChangedValue = !isEqual(oldValue, newValue)
 
-            return isChangedValue && (newModel as EditableComponentSchema).visability?.hidden !== true
-        },
-        target: runOnChangeValidationEvent,
-    })
+                return isChangedValue && (newModel as EditableComponentSchema).visability?.hidden !== true
+            },
+            target: runOnChangeValidationEvent,
+        })
+
+        sample({
+            clock: runOnChangeValidationEvent,
+            target: runValidationEvent,
+        })
+    }
+
+    if (validationOnBlurIsAvailable) {
+        sample({
+            clock: onBlurEvent,
+            target: runOnBlurValidationEvent,
+        })
+
+        sample({
+            clock: runOnBlurValidationEvent,
+            target: runValidationEvent,
+        })
+    }
 
     sample({
         source: $schema,
@@ -131,7 +148,7 @@ export const editableSchemaModel = ({
         target: $schema,
     })
 
-    if (validationUserOptionsIsExists && onChangeValidationTrigger) {
+    if (validationOnChangeIsAvailable || validationOnBlurIsAvailable) {
         const executeValidationOnChangeEvent = sample({
             source: {
                 model: $schema,
@@ -139,7 +156,7 @@ export const editableSchemaModel = ({
                 readyConditionalValidationsRules: $readyConditionalValidationsRules,
                 componentsValidationsRules: themeService.$componentsValidationsRules,
             },
-            clock: runOnChangeValidationEvent,
+            clock: runValidationEvent,
             fn: ({ model, componentsSchemasModel, readyConditionalValidationsRules, componentsValidationsRules }) => {
                 const componentsSchemas = getComponentsSchemasFromModels(componentsSchemasModel)
                 const executorContext = buildExecutorContext({ componentsSchemas })
@@ -184,21 +201,6 @@ export const editableSchemaModel = ({
             fn: ({ error }) => error,
             target: $error,
         })
-    }
-
-    if (validationUserOptionsIsExists && onBlurValidationTrigger) {
-        // sample({
-        //     clock: onBlurEvent,
-        //     target: runOnBlurValidationEvent,
-        // })
-        // sample({
-        //     source: $schema,
-        //     clock: runOnBlurValidationEvent,
-        //     fn: ({ validations }) => {
-        //         //
-        //     },
-        //     target: any,
-        // })
     }
 
     // ОТДЕЛЬНЯА ФАБРИКА НА ВАЛИДАЦИЮ

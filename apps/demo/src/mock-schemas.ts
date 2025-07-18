@@ -5,7 +5,7 @@ export const employeeFormSchema: Schema = {
     id: 'employee-form',
     version: '1.0',
     validations: {
-        additionalTriggers: ['onChange'],
+        additionalTriggers: ['onBlur'],
     },
     layout: {
         colsSpanPx: { default: 24 },
