@@ -17,7 +17,7 @@ export const minDateRule = createEditableValidationRule<Maybe<string | number>, 
         const errorMessage = message.replace('{minDate}', minDate.toString())
 
         if ((isString(value) || isNumber(value)) && dayjs(value).isBefore(minDate)) {
-            return { isValid: false, error: { message: errorMessage } }
+            return { isValid: false, message: errorMessage }
         }
 
         return { isValid: true }

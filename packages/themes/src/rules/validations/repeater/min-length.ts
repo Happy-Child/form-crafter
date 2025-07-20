@@ -18,7 +18,7 @@ export const minLengthRule = createRepeaterValidationRule<typeof optionsBuilder>
         const children = ctx.getRepeaterChildIds(componentId)
 
         if (isNotNull(children) && children.length < minLength) {
-            return { isValid: false, error: { message: errorMessage } }
+            return { isValid: false, message: errorMessage }
         }
 
         return { isValid: true }

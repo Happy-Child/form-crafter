@@ -17,7 +17,7 @@ export const maxDateRule = createEditableValidationRule<Maybe<string | number>, 
         const errorMessage = message.replace('{maxDate}', maxDate.toString())
 
         if ((isString(value) || isNumber(value)) && dayjs(value).isAfter(maxDate)) {
-            return { isValid: false, error: { message: errorMessage } }
+            return { isValid: false, message: errorMessage }
         }
 
         return { isValid: true }

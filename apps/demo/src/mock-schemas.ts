@@ -5,7 +5,7 @@ export const employeeFormSchema: Schema = {
     id: 'employee-form',
     version: '1.0',
     validations: {
-        additionalTriggers: ['onBlur'],
+        additionalTriggers: [],
     },
     layout: {
         colsSpanPx: { default: 24 },
@@ -205,6 +205,11 @@ export const employeeFormSchema: Schema = {
                         ruleName: 'isRequired',
                         options: { message: 'Обязательное поле' },
                         condition: { type: 'component', componentId: 'date-birth', operatorName: 'isNotEmpty' },
+                    },
+                    {
+                        id: genId(),
+                        ruleName: 'minLength',
+                        options: { message: 'Минимальная длинна {minLength}', minLength: 6 },
                     },
                 ],
             },

@@ -1,6 +1,6 @@
 import { OptionalSerializableValue, SerializableObject } from '@form-crafter/utils'
 
-import { ComponentsSchemas, ValidationRuleComponentError } from '../../components'
+import { ComponentsSchemas } from '../../components'
 import { OptionsBuilder, OptionsBuilderOutput } from '../../options-builder'
 import { EntityId } from '../../types'
 import { RuleExecuteParams, RuleExecuteParamsWithoutOptions } from '../types'
@@ -14,16 +14,16 @@ export type ValidationRuleFormParams<O extends OptionsBuilder<SerializableObject
     options: OptionsBuilderOutput<O>
 }
 
-export type ValidationRuleComponentResult =
+export type ComponentValidationResult =
     | {
           isValid: false
-          error: ValidationRuleComponentError
+          message: string
       }
     | {
           isValid: true
       }
 
-export type ValidationRuleFormReturn = Record<EntityId, ValidationRuleComponentResult>
+export type FormValidationResult = Record<EntityId, ComponentValidationResult>
 
 export type EditableValidationRule<
     V extends OptionalSerializableValue,
@@ -31,21 +31,21 @@ export type EditableValidationRule<
 > = GeneralValidationRule & {
     type: 'editable'
     optionsBuilder: O
-    validate: (value: V, params: RuleExecuteParams<O>) => ValidationRuleComponentResult
+    validate: (value: V, params: RuleExecuteParams<O>) => ComponentValidationResult
 }
 export type EditableValidationRuleWithoutOptions<V extends OptionalSerializableValue> = GeneralValidationRule & {
     type: 'editable'
-    validate: (value: V, params: RuleExecuteParamsWithoutOptions) => ValidationRuleComponentResult
+    validate: (value: V, params: RuleExecuteParamsWithoutOptions) => ComponentValidationResult
 }
 
 export type RepeaterValidationRule<O extends OptionsBuilder<SerializableObject> = OptionsBuilder<SerializableObject>> = GeneralValidationRule & {
     type: 'repeater'
     optionsBuilder: O
-    validate: (componentId: EntityId, params: RuleExecuteParams<O>) => ValidationRuleComponentResult
+    validate: (componentId: EntityId, params: RuleExecuteParams<O>) => ComponentValidationResult
 }
 export type RepeaterValidationRuleWithoutOptions = GeneralValidationRule & {
     type: 'repeater'
-    validate: (componentId: EntityId, params: RuleExecuteParamsWithoutOptions) => ValidationRuleComponentResult
+    validate: (componentId: EntityId, params: RuleExecuteParamsWithoutOptions) => ComponentValidationResult
 }
 
 // TODO fix generic type
@@ -55,11 +55,11 @@ export type UploaderValidationRule<
 > = GeneralValidationRule & {
     type: 'uploader'
     optionsBuilder: O
-    validate: (value: V, params: RuleExecuteParams<O>) => ValidationRuleComponentResult
+    validate: (value: V, params: RuleExecuteParams<O>) => ComponentValidationResult
 }
 export type UploaderValidationRuleWithoutOptions<V extends OptionalSerializableValue> = GeneralValidationRule & {
     type: 'uploader'
-    validate: (value: V, params: RuleExecuteParamsWithoutOptions) => ValidationRuleComponentResult
+    validate: (value: V, params: RuleExecuteParamsWithoutOptions) => ComponentValidationResult
 }
 
 export type ComponentValidationRule<T extends OptionalSerializableValue = OptionalSerializableValue> =
@@ -69,8 +69,8 @@ export type ComponentValidationRule<T extends OptionalSerializableValue = Option
 
 export type FormValidationRule<O extends OptionsBuilder<SerializableObject> = OptionsBuilder<SerializableObject>> = GeneralValidationRule & {
     optionsBuilder: O
-    validate: (componentsSchemas: ComponentsSchemas, params: RuleExecuteParams<O>) => ValidationRuleFormReturn
+    validate: (componentsSchemas: ComponentsSchemas, params: RuleExecuteParams<O>) => FormValidationResult
 }
 export type FormValidationRuleWithoutOptions = GeneralValidationRule & {
-    validate: (componentsSchemas: ComponentsSchemas, params: RuleExecuteParamsWithoutOptions) => ValidationRuleFormReturn
+    validate: (componentsSchemas: ComponentsSchemas, params: RuleExecuteParamsWithoutOptions) => FormValidationResult
 }

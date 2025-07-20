@@ -1,14 +1,17 @@
-import { ComponentsSchemas, EntityId } from '@form-crafter/core'
-import { isNotEmpty } from '@form-crafter/utils'
+import { ComponentsSchemas, ComponentValidationError, EntityId } from '@form-crafter/core'
+import { isNotEmpty, splitAllSettledResult } from '@form-crafter/utils'
 import { attach, combine, createEffect, createEvent, createStore } from 'effector'
+import { isEmpty } from 'lodash-es'
 
 import { SchemaMap } from '../../types'
 import { init } from './init'
-import { componentSchemaModel } from './models'
+import { componentSchemaModel, isValidableSchemaModel } from './models'
+import { RunValidationFxDone, RunValidationFxFail } from './models/types'
 import {
     CalcRelationsRulesPayload,
     ComponentsSchemasService,
     ComponentsSchemasServiceParams,
+    ComponentsValidationErrors,
     ReadyValidationsRules,
     RulesOverridesCache,
     UpdateComponentPropertiesPayload,
@@ -21,7 +24,17 @@ export type { ComponentsSchemasService }
 export const createComponentsSchemasService = ({ initial, themeService, schemaService }: ComponentsSchemasServiceParams): ComponentsSchemasService => {
     const $initialComponentsSchemas = createStore<ComponentsSchemas>(initial)
 
+    const updateComponentsValidationErrorsEvent = createEvent<{ componentId: EntityId; errors: ComponentValidationError[] }>(
+        'updateComponentsValidationErrorsEvent',
+    )
+    const removeComponentValidationErrorsEvent = createEvent<{ componentId: EntityId }>('removeComponentValidationErrorsEvent')
+    const $componentsValidationErrors = createStore<ComponentsValidationErrors>({})
+
     const $readyConditionalValidationsRules = createStore<ReadyValidationsRules>({})
+
+    const $isValidationComponentsPending = createStore<boolean>(false)
+
+    const $componentsIsValid = combine($componentsValidationErrors, (componentsValidationErrors) => isEmpty(Object.entries(componentsValidationErrors)))
 
     const $validationRuleSchemas = combine($initialComponentsSchemas, (componentsSchemas) =>
         Object.entries(componentsSchemas).reduce<ValidationRuleSchemas>((map, [ownerComponentId, componentSchema]) => {
@@ -44,10 +57,13 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
             const model = componentSchemaModel({
                 $componentsSchemasModel,
                 $readyConditionalValidationsRules,
+                $componentsValidationErrors,
                 schema: componentSchema,
-                runRelationsRulesEvent: runRelationsRulesOnUserActionsEvent,
                 additionalTriggers,
                 themeService,
+                runRelationsRulesEvent: runRelationsRulesOnUserActionsEvent,
+                updateComponentsValidationErrorsEvent,
+                removeComponentValidationErrorsEvent,
             })
             map.set(componentId, model)
             return map
@@ -85,19 +101,16 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
             componentsSchemasModel: SchemaMap
             componentsSchemasToUpdate: ComponentsSchemas
         },
-        SchemaMap
+        void
     >(({ componentsSchemasModel, componentsSchemasToUpdate }) => {
-        const newMap = Object.entries(componentsSchemasToUpdate).reduce((map, [componentId, schema]) => {
+        Object.entries(componentsSchemasToUpdate).reduce((map, [componentId, schema]) => {
             const model = map.get(componentId)
             if (isNotEmpty(model)) {
                 model.setModelEvent(schema)
             }
             return map
         }, new Map(componentsSchemasModel))
-
-        return newMap
     })
-
     const updateComponentsSchemasModelFx = attach({
         source: $componentsSchemasModel,
         mapParams: (componentsSchemasToUpdate: ComponentsSchemas, componentsSchemasModel: SchemaMap) => ({
@@ -106,6 +119,42 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
         }),
         effect: baseComponentsSchemasModelFx,
     })
+
+    const baseRunValidationAllComponentsFx = createEffect<SchemaMap, RunValidationFxDone[], RunValidationFxFail[]>(async (componentsSchemasModel) => {
+        const promises = []
+
+        for (const [, model] of componentsSchemasModel) {
+            if (isValidableSchemaModel(model)) {
+                promises.push(model.runValidationFx())
+            }
+        }
+
+        const [resolved, rejected] = await splitAllSettledResult<RunValidationFxDone, RunValidationFxFail>(promises)
+        if (isNotEmpty(rejected)) {
+            return Promise.reject(rejected)
+        }
+
+        return Promise.resolve(resolved)
+    })
+    const runValidationAllComponentsFx = attach({
+        source: $componentsSchemasModel,
+        effect: baseRunValidationAllComponentsFx,
+    })
+
+    $componentsValidationErrors.on(updateComponentsValidationErrorsEvent, (curErrors, { componentId, errors }) => {
+        if (isEmpty(errors)) {
+            delete curErrors[componentId]
+            return { ...curErrors }
+        }
+        return { ...curErrors, [componentId]: errors }
+    })
+    $componentsValidationErrors.on(removeComponentValidationErrorsEvent, (curErrors, { componentId }) => {
+        delete curErrors[componentId]
+        return { ...curErrors }
+    })
+
+    $isValidationComponentsPending.on(runValidationAllComponentsFx, () => true)
+    $isValidationComponentsPending.on(runValidationAllComponentsFx.finally, () => false)
 
     $rulesOverridesCache.on(setRulesOverridesCacheEvent, (_, newCache) => newCache)
 
@@ -165,10 +214,13 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
     // OLD END
 
     return {
-        $schemasMap: $componentsSchemasModel,
+        runValidationAllComponentsFx,
         updateComponentsSchemasEvent,
         updateComponentPropertiesEvent,
         removeComponentsSchemasByIdsEvent,
         initComponentSchemasEvent,
+        $schemasMap: $componentsSchemasModel,
+        $isValidationComponentsPending,
+        $componentsIsValid,
     }
 }

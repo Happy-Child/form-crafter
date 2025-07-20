@@ -16,7 +16,7 @@ export const minNumberRule = createEditableValidationRule<Maybe<number>, typeof 
         const errorMessage = message.replace('{minNumber}', minNumber.toString())
 
         if (isNotEmpty(value) && value < minNumber) {
-            return { isValid: false, error: { message: errorMessage } }
+            return { isValid: false, message: errorMessage }
         }
 
         return { isValid: true }

@@ -14,7 +14,7 @@ export const isEmailRule = createEditableValidationRule<Maybe<string>, typeof op
         const { message } = params.options
 
         if (!value?.includes('@')) {
-            return { isValid: false, error: { message } }
+            return { isValid: false, message }
         }
 
         return { isValid: true }

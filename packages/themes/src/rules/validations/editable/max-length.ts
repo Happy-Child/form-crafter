@@ -16,11 +16,11 @@ export const maxLengthRule = createEditableValidationRule<OptionalSerializableVa
         const errorMessage = message.replace('{maxLength}', maxLength.toString())
 
         if (isString(value) && value.trim().length > maxLength) {
-            return { isValid: false, error: { message: errorMessage } }
+            return { isValid: false, message: errorMessage }
         }
 
         if (isArray(value) && value.length > maxLength) {
-            return { isValid: false, error: { message: errorMessage } }
+            return { isValid: false, message: errorMessage }
         }
 
         return { isValid: true }

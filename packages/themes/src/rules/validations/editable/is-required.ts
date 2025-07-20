@@ -20,15 +20,15 @@ export const isRequiredRule = createEditableValidationRule<Maybe<UniversalValue 
         }
 
         if (withTrim && isString(value) && isEmpty(value.trim())) {
-            return { isValid: false, error: { message } }
+            return { isValid: false, message }
         }
 
         if (isBoolean(value) && !value) {
-            return { isValid: false, error: { message } }
+            return { isValid: false, message }
         }
 
         if (isEmpty(value)) {
-            return { isValid: false, error: { message } }
+            return { isValid: false, message }
         }
 
         return { isValid: true }

@@ -19,8 +19,11 @@ type ComponentProps = EditableComponentProps<OptionsBuilderOutput<typeof options
 
 const TextField = memo(
     forwardRef<HTMLInputElement, ComponentProps>(
-        ({ meta, onChangeProperties, onBlur, isRequired, error, properties: { value, placeholder, label, disabled } }, ref) => {
+        ({ meta, onChangeProperties, onBlur, isRequired, isValidationPending, error, properties: { value, placeholder, label, disabled } }, ref) => {
             const finalValue = value || ''
+
+            console.log('isValidationPending: ', isValidationPending)
+
             return (
                 <TextFieldBase
                     inputRef={ref}

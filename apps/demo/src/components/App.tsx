@@ -20,7 +20,11 @@ export const App: FC = () => {
                     theme={muiTheme}
                     PlaceholderComponent={PlaceholderComponent}
                     schema={employeeFormSchema}
-                    renderBottom={() => <Button type="submit">Send</Button>}
+                    renderBottom={({ isValidationPending }) => (
+                        <Button loading={isValidationPending} type="submit">
+                            Send
+                        </Button>
+                    )}
                 />
             </Paper>
         </Container>

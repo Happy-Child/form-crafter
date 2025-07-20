@@ -5,15 +5,10 @@ import { cloneDeep, isEqual, merge, pick } from 'lodash-es'
 import { combineEvents } from 'patronum'
 
 import { SchemaMap } from '../../types'
-import { getComponentsSchemasFromModels } from '../../utils'
+import { extractComponentsSchemasModels } from '../../utils'
 import { ThemeService } from '../theme'
 import { CalcRelationsRulesPayload, ReadyConditionalValidationsRules, RulesDepsFromSchema, RulesOverridesCache, ValidationRuleSchemas } from './types'
 import { buildExecutorContext } from './utils'
-
-const a = { a: { test: 1, props: { value: '2', disabled: true, visability: true } } }
-const b = { a: { props: { value: '2234', disabled: false, conditionas: [3, 4, 5] } } }
-
-console.log('merge: ', merge(a, b))
 
 type RunRelationsRulesPayload = {
     componentsSchemas: ComponentsSchemas
@@ -31,7 +26,7 @@ type Params = {
     runRelationsRulesOnUserActionsEvent: EventCallable<CalcRelationsRulesPayload>
     setRulesOverridesCacheEvent: EventCallable<RulesOverridesCache>
     setHiddenComponentsEvent: EventCallable<Set<EntityId>>
-    updateComponentsSchemasModelFx: Effect<ComponentsSchemas, SchemaMap, Error>
+    updateComponentsSchemasModelFx: Effect<ComponentsSchemas, void, Error>
     setReadyConditionalValidationsRulesEvent: EventCallable<ReadyConditionalValidationsRules>
     initComponentSchemasEvent: EventCallable<void>
     $hiddenComponents: StoreWritable<Set<EntityId>>
@@ -77,7 +72,7 @@ export const init = ({
         },
         clock: initComponentSchemasEvent,
         fn: ({ componentsSchemasModel }) => {
-            const componentsSchemas = getComponentsSchemasFromModels(componentsSchemasModel)
+            const componentsSchemas = extractComponentsSchemasModels(componentsSchemasModel)
             return {
                 componentsSchemasToUpdate: componentsSchemas,
                 skipIfValueUnchanged: false,
@@ -93,7 +88,7 @@ export const init = ({
         },
         clock: runRelationsRulesOnUserActionsEvent,
         fn: ({ componentsSchemasModel, sortedRelationsDependentsByComponent }, { id: componentIdToUpdate, data: propertiesToUpdate }) => {
-            const componentsSchemas = getComponentsSchemasFromModels(componentsSchemasModel)
+            const componentsSchemas = extractComponentsSchemasModels(componentsSchemasModel)
 
             const finalComponentsSchemas = cloneDeep(componentsSchemas)
             finalComponentsSchemas[componentIdToUpdate].properties = {
@@ -298,7 +293,7 @@ export const init = ({
             { validationRuleSchemas, rulesDepsFromSchema, componentsSchemasModel, operatorsForConditions, readyConditionalValidationsRules },
             { componentsSchemasToUpdate, skipIfValueUnchanged = true },
         ) => {
-            const oldComponentsSchemas = getComponentsSchemasFromModels(componentsSchemasModel)
+            const oldComponentsSchemas = extractComponentsSchemasModels(componentsSchemasModel)
             const newComponentsSchemas = merge(cloneDeep(oldComponentsSchemas), componentsSchemasToUpdate)
 
             const validationSchemaIdToDependents = rulesDepsFromSchema.validations.entityIdToDependents
@@ -383,7 +378,7 @@ export const init = ({
         },
         clock: combineEvents([initComponentSchemasEvent, resultOfCalcReadyValidationsRulesEvent]),
         fn: ({ componentsSchemasModel, sortedRelationsDependents }) => {
-            const componentsSchemas = getComponentsSchemasFromModels(componentsSchemasModel)
+            const componentsSchemas = extractComponentsSchemasModels(componentsSchemasModel)
 
             return {
                 componentsSchemas,

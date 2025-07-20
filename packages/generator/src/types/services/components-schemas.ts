@@ -1,5 +1,6 @@
 import {
     ComponentType,
+    ComponentValidationError,
     ContainerComponentProperties,
     ContainerComponentSchema,
     EditableComponentProperties,
@@ -9,20 +10,22 @@ import {
     StaticComponentSchema,
     UploaderComponentProperties,
     UploaderComponentSchema,
-    ValidationRuleComponentError,
 } from '@form-crafter/core'
 import { OptionalSerializableObject } from '@form-crafter/utils'
-import { EventCallable, Store, StoreWritable } from 'effector'
+import { Effect, EventCallable, Store, StoreWritable } from 'effector'
+
+import { RunValidationFxDone, RunValidationFxFail } from '../../services/components-schemas/models/types'
 
 export type EditableSchemaModel = {
     $schema: StoreWritable<EditableComponentSchema>
-    $error: StoreWritable<ValidationRuleComponentError | null>
+    $errors: Store<ComponentValidationError[] | null>
+    $error: Store<ComponentValidationError | null>
     $isRequired: Store<boolean>
+    $isValidationPending: StoreWritable<boolean>
     setModelEvent: EventCallable<OptionalSerializableObject>
     onUpdatePropertiesEvent: EventCallable<Partial<EditableComponentProperties>>
-    onSetPropertiesEvent: EventCallable<Partial<EditableComponentProperties>>
     onBlurEvent: EventCallable<void>
-    runValidationEvent: EventCallable<void>
+    runValidationFx: Effect<void, RunValidationFxDone, RunValidationFxFail>
 }
 
 export type ContainerSchemaModel = {
@@ -33,19 +36,23 @@ export type ContainerSchemaModel = {
 
 export type RepeaterSchemaModel = {
     $schema: StoreWritable<RepeaterComponentSchema>
-    $error: StoreWritable<ValidationRuleComponentError | null>
+    $errors: Store<ComponentValidationError[]>
+    $error: Store<ComponentValidationError | null>
+    $isValidationPending: StoreWritable<boolean>
     $isRequired: StoreWritable<boolean>
     setModelEvent: EventCallable<OptionalSerializableObject>
-    runValidationEvent: EventCallable<void>
+    runValidationFx: Effect<void, RunValidationFxDone, RunValidationFxFail>
 }
 
 export type UploaderSchemaModel = {
     $schema: StoreWritable<UploaderComponentSchema>
-    $error: StoreWritable<ValidationRuleComponentError | null>
+    $errors: Store<ComponentValidationError[]>
+    $error: Store<ComponentValidationError | null>
+    $isValidationPending: StoreWritable<boolean>
     $isRequired: StoreWritable<boolean>
     setModelEvent: EventCallable<OptionalSerializableObject>
     onUpdatePropertiesEvent: EventCallable<Partial<UploaderComponentProperties>>
-    runValidationEvent: EventCallable<void>
+    runValidationFx: Effect<void, RunValidationFxDone, RunValidationFxFail>
 }
 
 export type StaticSchemaModel = {

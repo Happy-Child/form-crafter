@@ -9,9 +9,8 @@ export const ResolverEditable: ResolverComponentType = memo(({ id, rowId }) => {
     const meta = useComponentMeta<'editable'>(id)
     const properties = useComponentProperties<'editable'>(id)
 
-    const { onUpdatePropertiesEvent, onBlurEvent, $error, $isRequired } = useComponentModel<'editable'>(id)
-
-    const [isRequired, error] = useUnit([$isRequired, $error])
+    const { onUpdatePropertiesEvent, onBlurEvent, $error, $errors, $isRequired, $isValidationPending } = useComponentModel<'editable'>(id)
+    const [isRequired, error, errors, isValidationPending] = useUnit([$isRequired, $error, $errors, $isValidationPending])
 
     const { parentId } = useViewComponentWithParent(id)
 
@@ -28,7 +27,9 @@ export const ResolverEditable: ResolverComponentType = memo(({ id, rowId }) => {
                 onChangeProperties={onUpdatePropertiesEvent}
                 onBlur={onBlurEvent}
                 error={error}
+                errors={errors}
                 isRequired={isRequired}
+                isValidationPending={isValidationPending}
             />
         </LayoutComponent>
     )

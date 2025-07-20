@@ -1,7 +1,7 @@
 import { Effect, EventCallable, sample } from 'effector'
 
 import { GeneratorProps } from '../../types'
-import { getComponentsSchemasFromModels } from '../../utils'
+import { extractComponentsSchemasModels } from '../../utils'
 import { FormServiceParams } from './types'
 
 type Params = Pick<FormServiceParams, 'componentsSchemasService' | 'viewsService'> & {
@@ -9,18 +9,27 @@ type Params = Pick<FormServiceParams, 'componentsSchemasService' | 'viewsService
     onFormSubmitEvent: EventCallable<void>
 }
 
-export const init = ({ onFormSubmitEvent, invokeUserSubmitHandlerFx, componentsSchemasService, viewsService }: Params) => {
+export const init = ({ onFormSubmitEvent, invokeUserSubmitHandlerFx, componentsSchemasService }: Params) => {
     sample({
-        source: { schemasMap: componentsSchemasService.$schemasMap, views: viewsService.$views },
         clock: onFormSubmitEvent,
-        fn: ({ views, schemasMap }) => {
-            const componentsSchemas = getComponentsSchemasFromModels(schemasMap)
-            // TODO преобразовать в { key: value by key }
+        target: componentsSchemasService.runValidationAllComponentsFx,
+    })
+
+    sample({
+        source: { componentsIsValid: componentsSchemasService.$componentsIsValid, schemasMap: componentsSchemasService.$schemasMap },
+        clock: componentsSchemasService.runValidationAllComponentsFx.done,
+        filter: ({ componentsIsValid }) => componentsIsValid,
+        fn: ({ schemasMap }) => {
+            const componentsSchemas = extractComponentsSchemasModels(schemasMap)
             return {
-                views,
                 componentsSchemas,
             }
         },
         target: invokeUserSubmitHandlerFx,
+    })
+
+    sample({
+        clock: componentsSchemasService.runValidationAllComponentsFx.fail,
+        fn: console.log,
     })
 }

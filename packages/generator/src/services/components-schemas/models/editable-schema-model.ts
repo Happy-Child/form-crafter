@@ -1,21 +1,30 @@
 import {
+    ComponentValidationError,
+    ComponentValidationResult,
     EditableComponentProperties,
     EditableComponentSchema,
     EntityId,
     isEditableValidationRule,
     isUploaderValidationRule,
-    ValidationRuleComponentError,
-    ValidationRuleComponentResult,
     validationRuleNames,
 } from '@form-crafter/core'
 import { isEmpty, isNotEmpty, OptionalSerializableObject } from '@form-crafter/utils'
-import { combine, createEvent, createStore, sample, UnitValue } from 'effector'
+import { attach, combine, createEffect, createEvent, createStore, sample, UnitValue } from 'effector'
 import { isEqual } from 'lodash-es'
 
 import { EditableSchemaModel } from '../../../types'
-import { getComponentsSchemasFromModels } from '../../../utils'
+import { extractComponentsSchemasModels } from '../../../utils'
+import { ThemeService } from '../../theme'
+import { ReadyValidationsRules } from '../types'
 import { buildExecutorContext } from '../utils'
-import { ComponentSchemaModelParams } from './types'
+import { ComponentSchemaModelParams, RunValidationFxDone, RunValidationFxFail } from './types'
+
+type RunValidationFxParams = {
+    schema: EditableComponentSchema
+    componentsSchemasModel: UnitValue<ComponentSchemaModelParams['$componentsSchemasModel']>
+    readyConditionalValidationsRules: ReadyValidationsRules[keyof ReadyValidationsRules] | null
+    componentsValidationsRules: UnitValue<ThemeService['$componentsValidationsRules']>
+}
 
 export type EditableSchemaModelParams = Omit<ComponentSchemaModelParams, 'schema'> & {
     schema: EditableComponentSchema
@@ -23,20 +32,38 @@ export type EditableSchemaModelParams = Omit<ComponentSchemaModelParams, 'schema
 
 export const editableSchemaModel = ({
     $componentsSchemasModel,
-    $readyConditionalValidationsRules,
+    $readyConditionalValidationsRules: $readyConditionalValidationsRulesAll,
+    $componentsValidationErrors,
     themeService,
     schema,
-    runRelationsRulesEvent,
     additionalTriggers,
+    runRelationsRulesEvent,
+    updateComponentsValidationErrorsEvent,
+    removeComponentValidationErrorsEvent,
 }: EditableSchemaModelParams): EditableSchemaModel => {
-    const validationUserOptionsIsExists = isNotEmpty(schema.validations?.options)
-    const validationOnChangeIsAvailable = validationUserOptionsIsExists && additionalTriggers?.includes('onChange')
-    const validationOnBlurIsAvailable = validationUserOptionsIsExists && additionalTriggers?.includes('onBlur')
+    const validationsUserOptionsIsExists = isNotEmpty(schema.validations?.options)
+    const validationOnChangeIsAvailable = validationsUserOptionsIsExists && additionalTriggers?.includes('onChange')
+    const validationOnBlurIsAvailable = validationsUserOptionsIsExists && additionalTriggers?.includes('onBlur')
 
     const $schema = createStore<EditableComponentSchema>(schema)
+    const $componentId = combine($schema, (schema) => schema.meta.id)
 
-    const $error = createStore<ValidationRuleComponentError | null>(null)
+    const $isValidationPending = createStore<boolean>(false)
 
+    const $errors = combine($componentsValidationErrors, $componentId, (componentsValidationErrors, componentId) => {
+        const errors = componentsValidationErrors[componentId]
+        return isNotEmpty(errors) ? errors : null
+    })
+    const $error = combine($errors, (errors) => (isNotEmpty(errors) ? errors[0] : null))
+
+    const $readyConditionalValidationsRules = combine(
+        $readyConditionalValidationsRulesAll,
+        $componentId,
+        (readyConditionalValidationsRulesAll, componentId) => {
+            const rules = readyConditionalValidationsRulesAll[componentId]
+            return isNotEmpty(rules) ? rules : null
+        },
+    )
     const $readyPermanentValidationsRules = combine($schema, (schema) => {
         const readyBySchemaId = new Set<EntityId>()
         const readyGroupedByRuleName: Record<string, Set<EntityId>> = {}
@@ -58,12 +85,11 @@ export const editableSchemaModel = ({
     })
 
     const $isRequired = combine(
-        $schema,
         $readyConditionalValidationsRules,
         $readyPermanentValidationsRules,
-        (schema, readyConditionalValidationsRules, readyPermanentValidationsRules) => {
+        (readyConditionalValidationsRules, readyPermanentValidationsRules) => {
             const readyByIsRequired = new Set([
-                ...(readyConditionalValidationsRules[schema.meta.id]?.readyGroupedByRuleName?.[validationRuleNames.isRequired] || new Set()),
+                ...(readyConditionalValidationsRules?.readyGroupedByRuleName?.[validationRuleNames.isRequired] || new Set()),
                 ...(readyPermanentValidationsRules?.readyGroupedByRuleName?.[validationRuleNames.isRequired] || new Set()),
             ])
 
@@ -75,31 +101,83 @@ export const editableSchemaModel = ({
         },
     )
 
-    const setPropertiesEvent = createEvent<Partial<EditableComponentProperties>>('setPropertiesEvent')
-
-    const updatePropertiesEvent = createEvent<Partial<EditableComponentProperties>>('updatePropertiesEvent')
+    const onUpdatePropertiesEvent = createEvent<Partial<EditableComponentProperties>>('onUpdatePropertiesEvent')
 
     const onBlurEvent = createEvent<void>('onBlurEvent')
 
     const setModelEvent = createEvent<OptionalSerializableObject>('setModelEvent')
 
-    const runValidationEvent = createEvent('runValidationEvent')
-
     const runOnChangeValidationEvent = createEvent('runOnChangeValidationEvent')
 
     const runOnBlurValidationEvent = createEvent('runOnBlurValidationEvent')
 
-    $schema.on(setPropertiesEvent, (schema, newProperties) => ({
-        ...schema,
-        properties: {
-            ...schema.properties,
-            ...newProperties,
+    const baseRunValidationFx = createEffect<RunValidationFxParams, RunValidationFxDone, RunValidationFxFail>(
+        async ({ schema, componentsSchemasModel, readyConditionalValidationsRules, componentsValidationsRules }) => {
+            if (!validationsUserOptionsIsExists) {
+                return Promise.resolve()
+            }
+
+            const componentId = schema.meta.id
+            const componentsSchemas = extractComponentsSchemasModels(componentsSchemasModel)
+            const executorContext = buildExecutorContext({ componentsSchemas })
+
+            const errors: ComponentValidationError[] = []
+
+            const value = schema.properties.value
+
+            for (const userValidationOption of schema.validations?.options || []) {
+                const { id: validaionSchemaId, ruleName, options, condition } = userValidationOption
+
+                const ruleIsReady = isNotEmpty(condition) ? readyConditionalValidationsRules?.readyBySchemaId?.has(validaionSchemaId) : true
+                if (!ruleIsReady) {
+                    continue
+                }
+
+                const rule = componentsValidationsRules[ruleName]
+
+                let validationResult: ComponentValidationResult
+
+                if (isEditableValidationRule(rule) || isUploaderValidationRule(rule)) {
+                    validationResult = rule.validate(value, { ctx: executorContext, options: options || {} })
+                } else {
+                    validationResult = rule.validate(componentId, { ctx: executorContext, options: options || {} })
+                }
+
+                if (!validationResult.isValid) {
+                    errors.push({ id: validaionSchemaId, ruleName, message: validationResult.message })
+                }
+            }
+
+            if (isNotEmpty(errors)) {
+                return Promise.reject({
+                    errors,
+                })
+            }
+
+            return Promise.resolve()
         },
-    }))
+    )
+    const runValidationFx = attach({
+        source: {
+            schema: $schema,
+            componentsSchemasModel: $componentsSchemasModel,
+            readyConditionalValidationsRules: $readyConditionalValidationsRules,
+            componentsValidationsRules: themeService.$componentsValidationsRules,
+        },
+        mapParams: (_: void, payload) => ({
+            ...payload,
+        }),
+        effect: baseRunValidationFx,
+    })
+
+    if (validationsUserOptionsIsExists) {
+        $isValidationPending.on(runValidationFx, () => true)
+        $isValidationPending.on(runValidationFx.finally, () => false)
+    }
 
     sample({
         source: $schema,
-        clock: updatePropertiesEvent,
+        clock: onUpdatePropertiesEvent,
         fn: ({ meta }, data) => ({ id: meta.id, data }),
         target: runRelationsRulesEvent,
     })
@@ -122,7 +200,7 @@ export const editableSchemaModel = ({
 
         sample({
             clock: runOnChangeValidationEvent,
-            target: runValidationEvent,
+            target: runValidationFx,
         })
     }
 
@@ -134,7 +212,7 @@ export const editableSchemaModel = ({
 
         sample({
             clock: runOnBlurValidationEvent,
-            target: runValidationEvent,
+            target: runValidationFx,
         })
     }
 
@@ -148,76 +226,30 @@ export const editableSchemaModel = ({
         target: $schema,
     })
 
-    if (validationOnChangeIsAvailable || validationOnBlurIsAvailable) {
-        const executeValidationOnChangeEvent = sample({
-            source: {
-                model: $schema,
-                componentsSchemasModel: $componentsSchemasModel,
-                readyConditionalValidationsRules: $readyConditionalValidationsRules,
-                componentsValidationsRules: themeService.$componentsValidationsRules,
-            },
-            clock: runValidationEvent,
-            fn: ({ model, componentsSchemasModel, readyConditionalValidationsRules, componentsValidationsRules }) => {
-                const componentsSchemas = getComponentsSchemasFromModels(componentsSchemasModel)
-                const executorContext = buildExecutorContext({ componentsSchemas })
-
-                let error: UnitValue<typeof $error> = null
-
-                const componentId = model.meta.id
-                const value = model.properties.value
-
-                for (const userOption of model.validations?.options || []) {
-                    const { id: validaionSchemaId, ruleName, options, condition } = userOption
-
-                    const ruleIsReady = isNotEmpty(condition) ? readyConditionalValidationsRules[model.meta.id]?.readyBySchemaId?.has(validaionSchemaId) : true
-                    if (!ruleIsReady) {
-                        continue
-                    }
-
-                    let validationResult: ValidationRuleComponentResult
-
-                    const rule = componentsValidationsRules[ruleName]
-
-                    if (isEditableValidationRule(rule) || isUploaderValidationRule(rule)) {
-                        validationResult = rule.validate(value, { ctx: executorContext, options: options || {} })
-                    } else {
-                        validationResult = rule.validate(componentId, { ctx: executorContext, options: options || {} })
-                    }
-
-                    if (!validationResult.isValid) {
-                        error = validationResult.error
-                        break
-                    }
-                }
-
-                return {
-                    error,
-                }
-            },
-        })
-
+    if (validationsUserOptionsIsExists) {
         sample({
-            clock: executeValidationOnChangeEvent,
-            fn: ({ error }) => error,
-            target: $error,
+            source: $componentId,
+            clock: runValidationFx.doneData,
+            fn: (componentId) => ({ componentId }),
+            target: removeComponentValidationErrorsEvent,
+        })
+        sample({
+            source: $componentId,
+            clock: runValidationFx.failData,
+            fn: (componentId, { errors }) => ({ componentId, errors }),
+            target: updateComponentsValidationErrorsEvent,
         })
     }
 
-    // ОТДЕЛЬНЯА ФАБРИКА НА ВАЛИДАЦИЮ
-    // Если не передат доп. триггеры onChange/onBlur - не нужно переренлеривать форму каждый раз изменяя состояние isValid.
-    // Когда RESET ERROR
-
-    // 1. Перед onSubmit валидацией сбросить ошибку поля
-    // 2. Перед onChange/blur валидацией сбросить ошибку поля
-
     return {
         $schema,
+        $errors,
         $error,
         $isRequired,
+        $isValidationPending,
         setModelEvent,
-        onUpdatePropertiesEvent: updatePropertiesEvent,
         onBlurEvent,
-        onSetPropertiesEvent: setPropertiesEvent,
-        runValidationEvent,
+        onUpdatePropertiesEvent,
+        runValidationFx,
     }
 }

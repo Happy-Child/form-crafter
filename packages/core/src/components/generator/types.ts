@@ -10,9 +10,11 @@ import {
     UploaderComponentProperties,
 } from '../../types'
 import { ViewComponent, ViewRowChild } from '../../views'
-import { ComponentMeta } from '../schemas'
+import { ComponentMeta, ValidationRuleSchema } from '../schemas'
 
-export type ValidationRuleComponentError = { message: string }
+export type ComponentValidationError = Pick<ValidationRuleSchema, 'id' | 'ruleName'> & {
+    message: string
+}
 
 export type HeaderContainerProps = {
     rows: ViewRowChild[]
@@ -43,8 +45,10 @@ export type GenaralComponentProps<T extends ComponentType, P extends OptionalSer
 export type EditableComponentProps<P extends EditableComponentProperties = EditableComponentProperties> = GenaralComponentProps<'editable', P> & {
     onBlur: () => void
     onChangeProperties: (changes: Partial<P>) => void
-    error: ValidationRuleComponentError | null
+    errors: ComponentValidationError[] | null
+    error: ComponentValidationError | null
     isRequired: boolean
+    isValidationPending: boolean
 }
 
 export type ContainerComponentProps<P extends ContainerComponentProperties = ContainerComponentProperties> = GenaralComponentProps<'container', P> & {
@@ -56,13 +60,18 @@ export type RepeaterComponentProps<P extends OptionalSerializableObject = Option
     rows?: ViewComponent['rows']
     onAddRow: () => void
     onRemoveRow: (props: { rowId: EntityId }) => void
-    error: ValidationRuleComponentError | null
+    errors: ComponentValidationError[] | null
+    error: ComponentValidationError | null
+    isRequired: boolean
+    isValidationPending: boolean
 }
 
 export type UploaderComponentProps<P extends OptionalSerializableObject = OptionalSerializableObject> = GenaralComponentProps<'uploader', P> & {
     onChangeProperties: (changes: Partial<P>) => void
-    error: ValidationRuleComponentError | null
+    errors: ComponentValidationError[] | null
+    error: ComponentValidationError | null
     isRequired: boolean
+    isValidationPending: boolean
 }
 
 export type StaticComponentProps<P extends OptionalSerializableObject = OptionalSerializableObject> = GenaralComponentProps<'static', P>

@@ -1,8 +1,9 @@
-import { UploaderComponentProperties, UploaderComponentSchema, ValidationRuleComponentError } from '@form-crafter/core'
+import { ComponentValidationError, UploaderComponentProperties, UploaderComponentSchema } from '@form-crafter/core'
 import { OptionalSerializableObject } from '@form-crafter/utils'
-import { createEvent, createStore } from 'effector'
+import { createEffect, createEvent, createStore } from 'effector'
 
 import { UploaderSchemaModel } from '../../../types'
+import { RunValidationFxDone, RunValidationFxFail } from './types'
 
 export type UploaderSchemaModelParams = {
     schema: UploaderComponentSchema
@@ -11,15 +12,23 @@ export type UploaderSchemaModelParams = {
 export const uploaderSchemaModel = ({ schema }: UploaderSchemaModelParams): UploaderSchemaModel => {
     const $schema = createStore<UploaderComponentSchema>(schema)
 
-    const $error = createStore<ValidationRuleComponentError | null>(null)
+    const $error = createStore<ComponentValidationError | null>(null)
+    const $errors = createStore<ComponentValidationError[]>([])
 
     const $isRequired = createStore<boolean>(false)
+
+    const $isValidationPending = createStore<boolean>(false)
 
     const updatePropertiesEvent = createEvent<Partial<UploaderComponentProperties>>('onUpdatePropertiesEvent')
 
     const setModelEvent = createEvent<OptionalSerializableObject>('setModelEvent')
 
-    const runValidationEvent = createEvent('runValidationEvent')
+    const runValidationFx = createEffect<void, RunValidationFxDone, RunValidationFxFail>(() => {
+        return { errors: [] }
+    })
+
+    $isValidationPending.on(runValidationFx, () => true)
+    $isValidationPending.on(runValidationFx.finally, () => false)
 
     $schema.on(setModelEvent, (schema, newSchema) => ({
         ...schema,
@@ -34,5 +43,5 @@ export const uploaderSchemaModel = ({ schema }: UploaderSchemaModelParams): Uplo
         },
     }))
 
-    return { $schema, $error, $isRequired, setModelEvent, onUpdatePropertiesEvent: updatePropertiesEvent, runValidationEvent }
+    return { $schema, $error, $errors, $isRequired, $isValidationPending, setModelEvent, onUpdatePropertiesEvent: updatePropertiesEvent, runValidationFx }
 }
