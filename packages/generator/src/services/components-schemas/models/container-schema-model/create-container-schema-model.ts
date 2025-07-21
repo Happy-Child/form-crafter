@@ -2,19 +2,19 @@ import { ContainerComponentProperties, ContainerComponentSchema } from '@form-cr
 import { OptionalSerializableObject } from '@form-crafter/utils'
 import { createEvent, createStore } from 'effector'
 
-import { ContainerSchemaModel } from '../../../types'
+import { ContainerSchemaModel } from '../../../../types'
 
 export type ContainerSchemaModelParams = {
     schema: ContainerComponentSchema
 }
 
-export const containerSchemaModel = ({ schema }: ContainerSchemaModelParams): ContainerSchemaModel => {
+export const createContainerSchemaModel = ({ schema }: ContainerSchemaModelParams): ContainerSchemaModel => {
     const $schema = createStore<ContainerComponentSchema>(schema)
 
     const updatePropertiesEvent = createEvent<Partial<ContainerComponentProperties>>('updatePropertiesEvent')
-    const setModelEvent = createEvent<OptionalSerializableObject>('setModelEvent')
+    const setSchemaEvent = createEvent<OptionalSerializableObject>('setSchemaEvent')
 
-    $schema.on(setModelEvent, (schema, newSchema) => ({
+    $schema.on(setSchemaEvent, (schema, newSchema) => ({
         ...schema,
         ...newSchema,
     }))
@@ -27,5 +27,5 @@ export const containerSchemaModel = ({ schema }: ContainerSchemaModelParams): Co
         },
     }))
 
-    return { $schema, setModelEvent, onUpdatePropertiesEvent: updatePropertiesEvent }
+    return { $schema, setSchemaEvent, onUpdatePropertiesEvent: updatePropertiesEvent }
 }

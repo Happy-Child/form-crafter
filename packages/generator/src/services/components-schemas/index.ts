@@ -5,7 +5,7 @@ import { isEmpty } from 'lodash-es'
 
 import { SchemaMap } from '../../types'
 import { init } from './init'
-import { componentSchemaModel, isValidableSchemaModel } from './models'
+import { createComponentSchemaModel, isValidableSchemaModel } from './models'
 import { RunValidationFxDone, RunValidationFxFail } from './models/types'
 import {
     CalcRelationsRulesPayload,
@@ -54,7 +54,7 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
         const additionalTriggers = schemaService.$schema.getState().validations?.additionalTriggers || null
 
         return Object.entries(data).reduce<SchemaMap>((map, [componentId, componentSchema]) => {
-            const model = componentSchemaModel({
+            const model = createComponentSchemaModel({
                 $componentsSchemasModel,
                 $readyConditionalValidationsRules,
                 $componentsValidationErrors,
@@ -106,7 +106,7 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
         Object.entries(componentsSchemasToUpdate).reduce((map, [componentId, schema]) => {
             const model = map.get(componentId)
             if (isNotEmpty(model)) {
-                model.setModelEvent(schema)
+                model.setSchemaEvent(schema)
             }
             return map
         }, new Map(componentsSchemasModel))

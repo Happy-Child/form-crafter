@@ -2,14 +2,14 @@ import { ComponentValidationError, RepeaterComponentSchema } from '@form-crafter
 import { OptionalSerializableObject } from '@form-crafter/utils'
 import { createEffect, createEvent, createStore } from 'effector'
 
-import { RepeaterSchemaModel } from '../../../types'
-import { RunValidationFxDone, RunValidationFxFail } from './types'
+import { RepeaterSchemaModel } from '../../../../types'
+import { RunValidationFxDone, RunValidationFxFail } from '../types'
 
 export type RepeaterSchemaModelParams = {
     schema: RepeaterComponentSchema
 }
 
-export const repeaterSchemaModel = ({ schema }: RepeaterSchemaModelParams): RepeaterSchemaModel => {
+export const createRepeaterSchemaModel = ({ schema }: RepeaterSchemaModelParams): RepeaterSchemaModel => {
     const $schema = createStore<RepeaterComponentSchema>(schema)
 
     const $error = createStore<ComponentValidationError | null>(null)
@@ -19,7 +19,7 @@ export const repeaterSchemaModel = ({ schema }: RepeaterSchemaModelParams): Repe
 
     const $isValidationPending = createStore<boolean>(false)
 
-    const setModelEvent = createEvent<OptionalSerializableObject>('setModelEvent')
+    const setSchemaEvent = createEvent<OptionalSerializableObject>('setSchemaEvent')
 
     const runValidationFx = createEffect<void, RunValidationFxDone, RunValidationFxFail>(() => {
         return { errors: [] }
@@ -28,10 +28,10 @@ export const repeaterSchemaModel = ({ schema }: RepeaterSchemaModelParams): Repe
     $isValidationPending.on(runValidationFx, () => true)
     $isValidationPending.on(runValidationFx.finally, () => false)
 
-    $schema.on(setModelEvent, (schema, newSchema) => ({
+    $schema.on(setSchemaEvent, (schema, newSchema) => ({
         ...schema,
         ...newSchema,
     }))
 
-    return { $schema, $isRequired, $error, $errors, $isValidationPending, setModelEvent, runValidationFx }
+    return { $schema, $isRequired, $error, $errors, $isValidationPending, setSchemaEvent, runValidationFx }
 }

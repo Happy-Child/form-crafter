@@ -22,7 +22,7 @@ export type EditableSchemaModel = {
     $error: Store<ComponentValidationError | null>
     $isRequired: Store<boolean>
     $isValidationPending: StoreWritable<boolean>
-    setModelEvent: EventCallable<OptionalSerializableObject>
+    setSchemaEvent: EventCallable<OptionalSerializableObject>
     onUpdatePropertiesEvent: EventCallable<Partial<EditableComponentProperties>>
     onBlurEvent: EventCallable<void>
     runValidationFx: Effect<void, RunValidationFxDone, RunValidationFxFail>
@@ -30,7 +30,7 @@ export type EditableSchemaModel = {
 
 export type ContainerSchemaModel = {
     $schema: StoreWritable<ContainerComponentSchema>
-    setModelEvent: EventCallable<OptionalSerializableObject>
+    setSchemaEvent: EventCallable<OptionalSerializableObject>
     onUpdatePropertiesEvent: EventCallable<Partial<ContainerComponentProperties>>
 }
 
@@ -40,7 +40,7 @@ export type RepeaterSchemaModel = {
     $error: Store<ComponentValidationError | null>
     $isValidationPending: StoreWritable<boolean>
     $isRequired: StoreWritable<boolean>
-    setModelEvent: EventCallable<OptionalSerializableObject>
+    setSchemaEvent: EventCallable<OptionalSerializableObject>
     runValidationFx: Effect<void, RunValidationFxDone, RunValidationFxFail>
 }
 
@@ -50,14 +50,14 @@ export type UploaderSchemaModel = {
     $error: Store<ComponentValidationError | null>
     $isValidationPending: StoreWritable<boolean>
     $isRequired: StoreWritable<boolean>
-    setModelEvent: EventCallable<OptionalSerializableObject>
+    setSchemaEvent: EventCallable<OptionalSerializableObject>
     onUpdatePropertiesEvent: EventCallable<Partial<UploaderComponentProperties>>
     runValidationFx: Effect<void, RunValidationFxDone, RunValidationFxFail>
 }
 
 export type StaticSchemaModel = {
     $schema: StoreWritable<StaticComponentSchema>
-    setModelEvent: EventCallable<OptionalSerializableObject>
+    setSchemaEvent: EventCallable<OptionalSerializableObject>
 }
 
 export type ComponentSchemaModel = EditableSchemaModel | ContainerSchemaModel | RepeaterSchemaModel | UploaderSchemaModel | StaticSchemaModel

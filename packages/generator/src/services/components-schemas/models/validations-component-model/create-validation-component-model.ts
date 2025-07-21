@@ -1,53 +1,38 @@
 import {
+    ComponentSchema,
     ComponentValidationError,
     ComponentValidationResult,
-    EditableComponentProperties,
-    EditableComponentSchema,
     EntityId,
     isEditableValidationRule,
     isUploaderValidationRule,
     validationRuleNames,
 } from '@form-crafter/core'
-import { isEmpty, isNotEmpty, OptionalSerializableObject } from '@form-crafter/utils'
-import { attach, combine, createEffect, createEvent, createStore, sample, UnitValue } from 'effector'
-import { isEqual } from 'lodash-es'
+import { isEmpty, isNotEmpty } from '@form-crafter/utils'
+import { attach, combine, createEffect, createStore, Store, StoreWritable } from 'effector'
 
-import { EditableSchemaModel } from '../../../types'
-import { extractComponentsSchemasModels } from '../../../utils'
-import { ThemeService } from '../../theme'
-import { ReadyValidationsRules } from '../types'
-import { buildExecutorContext } from '../utils'
-import { ComponentSchemaModelParams, RunValidationFxDone, RunValidationFxFail } from './types'
+import { extractComponentsSchemasModels } from '../../../../utils'
+import { buildExecutorContext } from '../../utils'
+import { ComponentSchemaModelParams, RunValidationFxDone, RunValidationFxFail } from '../types'
+import { RunValidationFxParams } from './types'
 
-type RunValidationFxParams = {
-    schema: EditableComponentSchema
-    componentsSchemasModel: UnitValue<ComponentSchemaModelParams['$componentsSchemasModel']>
-    readyConditionalValidationsRules: ReadyValidationsRules[keyof ReadyValidationsRules] | null
-    componentsValidationsRules: UnitValue<ThemeService['$componentsValidationsRules']>
+type ValidationComponentModelParams<S extends ComponentSchema> = Pick<
+    ComponentSchemaModelParams,
+    '$componentsSchemasModel' | '$readyConditionalValidationsRules' | '$componentsValidationErrors' | 'themeService'
+> & {
+    $componentId: Store<EntityId>
+    $schema: StoreWritable<S>
+    validationIsAvailable: boolean
 }
 
-export type EditableSchemaModelParams = Omit<ComponentSchemaModelParams, 'schema'> & {
-    schema: EditableComponentSchema
-}
-
-export const editableSchemaModel = ({
+export const createValidationComponentModel = <S extends ComponentSchema>({
     $componentsSchemasModel,
     $readyConditionalValidationsRules: $readyConditionalValidationsRulesAll,
     $componentsValidationErrors,
+    $componentId,
+    $schema,
     themeService,
-    schema,
-    additionalTriggers,
-    runRelationsRulesEvent,
-    updateComponentsValidationErrorsEvent,
-    removeComponentValidationErrorsEvent,
-}: EditableSchemaModelParams): EditableSchemaModel => {
-    const validationsUserOptionsIsExists = isNotEmpty(schema.validations?.options)
-    const validationOnChangeIsAvailable = validationsUserOptionsIsExists && additionalTriggers?.includes('onChange')
-    const validationOnBlurIsAvailable = validationsUserOptionsIsExists && additionalTriggers?.includes('onBlur')
-
-    const $schema = createStore<EditableComponentSchema>(schema)
-    const $componentId = combine($schema, (schema) => schema.meta.id)
-
+    validationIsAvailable,
+}: ValidationComponentModelParams<S>) => {
     const $isValidationPending = createStore<boolean>(false)
 
     const $errors = combine($componentsValidationErrors, $componentId, (componentsValidationErrors, componentId) => {
@@ -101,19 +86,9 @@ export const editableSchemaModel = ({
         },
     )
 
-    const onUpdatePropertiesEvent = createEvent<Partial<EditableComponentProperties>>('onUpdatePropertiesEvent')
-
-    const onBlurEvent = createEvent<void>('onBlurEvent')
-
-    const setModelEvent = createEvent<OptionalSerializableObject>('setModelEvent')
-
-    const runOnChangeValidationEvent = createEvent('runOnChangeValidationEvent')
-
-    const runOnBlurValidationEvent = createEvent('runOnBlurValidationEvent')
-
-    const baseRunValidationFx = createEffect<RunValidationFxParams, RunValidationFxDone, RunValidationFxFail>(
+    const baseRunValidationFx = createEffect<RunValidationFxParams<S>, RunValidationFxDone, RunValidationFxFail>(
         async ({ schema, componentsSchemasModel, readyConditionalValidationsRules, componentsValidationsRules }) => {
-            if (!validationsUserOptionsIsExists) {
+            if (!validationIsAvailable) {
                 return Promise.resolve()
             }
 
@@ -170,86 +145,17 @@ export const editableSchemaModel = ({
         effect: baseRunValidationFx,
     })
 
-    if (validationsUserOptionsIsExists) {
+    if (validationIsAvailable) {
         $isValidationPending.on(runValidationFx, () => true)
         $isValidationPending.on(runValidationFx.finally, () => false)
     }
 
-    sample({
-        source: $schema,
-        clock: onUpdatePropertiesEvent,
-        fn: ({ meta }, data) => ({ id: meta.id, data }),
-        target: runRelationsRulesEvent,
-    })
-
-    if (validationOnChangeIsAvailable) {
-        sample({
-            source: $schema,
-            clock: setModelEvent,
-            filter: (curModel, newModel) => {
-                const oldValue = curModel.properties.value
-                const newValue = (newModel.properties as EditableComponentProperties).value
-
-                // TODO Если uploader компонент и в value объект - что делать? Сравнить файлы как объекты не получиться
-                const isChangedValue = !isEqual(oldValue, newValue)
-
-                return isChangedValue && (newModel as EditableComponentSchema).visability?.hidden !== true
-            },
-            target: runOnChangeValidationEvent,
-        })
-
-        sample({
-            clock: runOnChangeValidationEvent,
-            target: runValidationFx,
-        })
-    }
-
-    if (validationOnBlurIsAvailable) {
-        sample({
-            clock: onBlurEvent,
-            target: runOnBlurValidationEvent,
-        })
-
-        sample({
-            clock: runOnBlurValidationEvent,
-            target: runValidationFx,
-        })
-    }
-
-    sample({
-        source: $schema,
-        clock: setModelEvent,
-        fn: (schema, newSchema) => ({
-            ...schema,
-            ...newSchema,
-        }),
-        target: $schema,
-    })
-
-    if (validationsUserOptionsIsExists) {
-        sample({
-            source: $componentId,
-            clock: runValidationFx.doneData,
-            fn: (componentId) => ({ componentId }),
-            target: removeComponentValidationErrorsEvent,
-        })
-        sample({
-            source: $componentId,
-            clock: runValidationFx.failData,
-            fn: (componentId, { errors }) => ({ componentId, errors }),
-            target: updateComponentsValidationErrorsEvent,
-        })
-    }
-
     return {
-        $schema,
+        runValidationFx,
         $errors,
         $error,
         $isRequired,
         $isValidationPending,
-        setModelEvent,
-        onBlurEvent,
-        onUpdatePropertiesEvent,
-        runValidationFx,
+        validationIsAvailable,
     }
 }

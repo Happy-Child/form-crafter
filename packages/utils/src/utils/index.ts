@@ -1,3 +1,6 @@
+export * from './is-file'
+export * from './is-files-list'
+export * from './is-optional-serializable-object'
 export * from './remove-object-keys'
 export * from './split-all-settled-result'
 export * from './toggle-arr-item'

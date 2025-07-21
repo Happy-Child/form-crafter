@@ -1,8 +1,7 @@
-import { ComponentSchemaModel, EditableSchemaModel, RepeaterSchemaModel, UploaderSchemaModel } from 'packages/generator/src/types'
-
-import { isEditableSchemaModel } from './is-editable-schema-model'
-import { isRepeaterSchemaModel } from './is-repeater-schema-model'
-import { isUploaderSchemaModel } from './is-uploader-schema-model'
+import { ComponentSchemaModel, EditableSchemaModel, RepeaterSchemaModel, UploaderSchemaModel } from '../../../../types'
+import { isEditableSchemaModel } from '../editable-schema-model'
+import { isRepeaterSchemaModel } from '../repeater-schema-model'
+import { isUploaderSchemaModel } from '../uploader-schema-model'
 
 export const isValidableSchemaModel = (model: ComponentSchemaModel): model is EditableSchemaModel | RepeaterSchemaModel | UploaderSchemaModel =>
     isEditableSchemaModel(model) || isRepeaterSchemaModel(model) || isUploaderSchemaModel(model)
