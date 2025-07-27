@@ -7,32 +7,32 @@ import {
     isUploaderValidationRule,
     validationRuleNames,
 } from '@form-crafter/core'
-import { isEmpty, isNotEmpty } from '@form-crafter/utils'
+import { isNotEmpty } from '@form-crafter/utils'
 import { attach, combine, createEffect, createStore, Store, StoreWritable } from 'effector'
 
 import { extractComponentsSchemasModels } from '../../../../utils'
-import { buildExecutorContext } from '../../utils'
-import { ComponentSchemaModelParams, RunValidationFxDone, RunValidationFxFail } from '../types'
-import { RunValidationFxParams } from './types'
+import { buildExecutorContext, getPermanentValidationsSchemas } from '../../utils'
+import { ComponentSchemaModelParams, RunComponentValidationFxDone, RunComponentValidationFxFail } from '../types'
+import { RunComponentValidationFxParams } from './types'
 
-type ValidationComponentModelParams<S extends ComponentSchema> = Pick<
+type ComponentValidationModelParams<S extends ComponentSchema> = Pick<
     ComponentSchemaModelParams,
-    '$componentsSchemasModel' | '$readyConditionalValidationsRules' | '$componentsValidationErrors' | 'themeService'
+    '$componentsSchemasModel' | '$readyConditionalComponentsValidationRules' | '$componentsValidationErrors' | 'themeService'
 > & {
     $componentId: Store<EntityId>
     $schema: StoreWritable<S>
     validationIsAvailable: boolean
 }
 
-export const createValidationComponentModel = <S extends ComponentSchema>({
+export const createComponentValidationModel = <S extends ComponentSchema>({
     $componentsSchemasModel,
-    $readyConditionalValidationsRules: $readyConditionalValidationsRulesAll,
+    $readyConditionalComponentsValidationRules,
     $componentsValidationErrors,
     $componentId,
     $schema,
     themeService,
     validationIsAvailable,
-}: ValidationComponentModelParams<S>) => {
+}: ComponentValidationModelParams<S>) => {
     const $isValidationPending = createStore<boolean>(false)
 
     const $errors = combine($componentsValidationErrors, $componentId, (componentsValidationErrors, componentId) => {
@@ -41,40 +41,22 @@ export const createValidationComponentModel = <S extends ComponentSchema>({
     })
     const $error = combine($errors, (errors) => (isNotEmpty(errors) ? errors[0] : null))
 
-    const $readyConditionalValidationsRules = combine(
-        $readyConditionalValidationsRulesAll,
+    const $readyConditionalValidationRules = combine(
+        $readyConditionalComponentsValidationRules,
         $componentId,
         (readyConditionalValidationsRulesAll, componentId) => {
             const rules = readyConditionalValidationsRulesAll[componentId]
             return isNotEmpty(rules) ? rules : null
         },
     )
-    const $readyPermanentValidationsRules = combine($schema, (schema) => {
-        const readyBySchemaId = new Set<EntityId>()
-        const readyGroupedByRuleName: Record<string, Set<EntityId>> = {}
-
-        if (isNotEmpty(schema.validations?.options)) {
-            for (const validation of schema.validations.options) {
-                if (isEmpty(validation.condition)) {
-                    readyBySchemaId.add(validation.id)
-
-                    if (!readyGroupedByRuleName[validation.ruleName]) {
-                        readyGroupedByRuleName[validation.ruleName] = new Set()
-                    }
-                    readyGroupedByRuleName[validation.ruleName].add(validation.id)
-                }
-            }
-        }
-
-        return { readyBySchemaId, readyGroupedByRuleName }
-    })
+    const $readyPermanentValidationsRules = combine($schema, (schema) => getPermanentValidationsSchemas(schema.validations?.schemas || []))
 
     const $isRequired = combine(
-        $readyConditionalValidationsRules,
+        $readyConditionalValidationRules,
         $readyPermanentValidationsRules,
-        (readyConditionalValidationsRules, readyPermanentValidationsRules) => {
+        (readyConditionalValidationRules, readyPermanentValidationsRules) => {
             const readyByIsRequired = new Set([
-                ...(readyConditionalValidationsRules?.readyGroupedByRuleName?.[validationRuleNames.isRequired] || new Set()),
+                ...(readyConditionalValidationRules?.readyGroupedByRuleName?.[validationRuleNames.isRequired] || new Set()),
                 ...(readyPermanentValidationsRules?.readyGroupedByRuleName?.[validationRuleNames.isRequired] || new Set()),
             ])
 
@@ -86,24 +68,24 @@ export const createValidationComponentModel = <S extends ComponentSchema>({
         },
     )
 
-    const baseRunValidationFx = createEffect<RunValidationFxParams<S>, RunValidationFxDone, RunValidationFxFail>(
-        async ({ schema, componentsSchemasModel, readyConditionalValidationsRules, componentsValidationsRules }) => {
+    const baseRunValidationFx = createEffect<RunComponentValidationFxParams<S>, RunComponentValidationFxDone, RunComponentValidationFxFail>(
+        async ({ schema, componentsSchemasModel, readyConditionalValidationRules, componentsValidationsRules }) => {
             if (!validationIsAvailable) {
                 return Promise.resolve()
             }
 
+            const value = schema.properties.value
             const componentId = schema.meta.id
+
             const componentsSchemas = extractComponentsSchemasModels(componentsSchemasModel)
             const executorContext = buildExecutorContext({ componentsSchemas })
 
             const errors: ComponentValidationError[] = []
 
-            const value = schema.properties.value
+            for (const validationSchema of schema.validations?.schemas || []) {
+                const { id: validaionSchemaId, ruleName, options, condition } = validationSchema
 
-            for (const userValidationOption of schema.validations?.options || []) {
-                const { id: validaionSchemaId, ruleName, options, condition } = userValidationOption
-
-                const ruleIsReady = isNotEmpty(condition) ? readyConditionalValidationsRules?.readyBySchemaId?.has(validaionSchemaId) : true
+                const ruleIsReady = isNotEmpty(condition) ? readyConditionalValidationRules?.readyBySchemaId?.has(validaionSchemaId) : true
                 if (!ruleIsReady) {
                     continue
                 }
@@ -136,7 +118,7 @@ export const createValidationComponentModel = <S extends ComponentSchema>({
         source: {
             schema: $schema,
             componentsSchemasModel: $componentsSchemasModel,
-            readyConditionalValidationsRules: $readyConditionalValidationsRules,
+            readyConditionalValidationRules: $readyConditionalValidationRules,
             componentsValidationsRules: themeService.$componentsValidationsRules,
         },
         mapParams: (_: void, payload) => ({

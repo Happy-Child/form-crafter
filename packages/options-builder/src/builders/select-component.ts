@@ -12,6 +12,8 @@ type Properties = {
     readonly: Undefinable<boolean>
     placeholder: Undefinable<string>
     helpText: Undefinable<string>
+    withTemplates: Undefinable<boolean>
+    onlyTemplates: Undefinable<boolean>
 }
 
 const getInitialProperties: () => Properties = () => ({
@@ -22,6 +24,8 @@ const getInitialProperties: () => Properties = () => ({
     readonly: undefined,
     placeholder: undefined,
     helpText: undefined,
+    withTemplates: undefined,
+    onlyTemplates: undefined,
 })
 
 export class SelectComponentBuilder<Output extends Maybe<Properties['value']> = Properties['value']> extends GeneralOptionBuilder<Output, Properties> {
@@ -61,6 +65,16 @@ export class SelectComponentBuilder<Output extends Maybe<Properties['value']> = 
 
     public helpText(value: Properties['helpText']) {
         this.properties.helpText = value
+        return this
+    }
+
+    public withTemplates(value: Properties['withTemplates']) {
+        this.properties.withTemplates = value
+        return this
+    }
+
+    public onlyTemplates(value: Properties['onlyTemplates']) {
+        this.properties.onlyTemplates = value
         return this
     }
 

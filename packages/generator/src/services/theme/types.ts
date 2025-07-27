@@ -4,7 +4,7 @@ import {
     ComponentModule,
     ComponentValidationRule,
     FormCrafterTheme,
-    FormValidationRule,
+    GroupValidationRule,
     RelationRule,
 } from '@form-crafter/core'
 import { OptionalSerializableObject } from '@form-crafter/utils'
@@ -17,9 +17,9 @@ export type ThemeService = {
     $componentsModules: Store<ComponentModule[]>
     $componentsModulesMap: Store<Record<string, ComponentModule>>
     $componentsValidationsRules: Store<Record<string, ComponentValidationRule>>
-    $formValidationsRules: Store<FormValidationRule[] | null>
+    $groupValidationRules: Store<Record<string, GroupValidationRule>>
     $operatorsForConditions: OperatorsForConditionsStore
-    $relationsRules: Store<Record<string, RelationRule<OptionalSerializableObject>>>
+    $relationRules: Store<Record<string, RelationRule<OptionalSerializableObject>>>
     $placeholderComponent: Store<FC>
 }
 

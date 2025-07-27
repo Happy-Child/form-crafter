@@ -3,9 +3,9 @@ import { isNotEmpty, OptionalSerializableObject } from '@form-crafter/utils'
 import { combine, createEvent, createStore, sample } from 'effector'
 
 import { EditableSchemaModel } from '../../../../types'
+import { createComponentValidationModel } from '../component-validation-model'
 import { ComponentSchemaModelParams } from '../types'
 import { isChangedValue } from '../utils'
-import { createValidationComponentModel } from '../validations-component-model'
 
 export type EditableSchemaModelParams = Omit<ComponentSchemaModelParams, 'schema'> & {
     schema: EditableComponentSchema
@@ -14,12 +14,12 @@ export type EditableSchemaModelParams = Omit<ComponentSchemaModelParams, 'schema
 export const createEditableSchemaModel = ({
     schema,
     additionalTriggers,
-    runRelationsRulesEvent,
-    updateComponentsValidationErrorsEvent,
+    runRelationRulesEvent,
+    updateComponentValidationErrorsEvent,
     removeComponentValidationErrorsEvent,
     ...params
 }: EditableSchemaModelParams): EditableSchemaModel => {
-    const validationIsAvailable = isNotEmpty(schema.validations?.options)
+    const validationIsAvailable = isNotEmpty(schema.validations?.schemas)
     const validationOnChangeIsAvailable = validationIsAvailable && additionalTriggers?.includes('onChange')
     const validationOnBlurIsAvailable = validationIsAvailable && additionalTriggers?.includes('onBlur')
 
@@ -36,13 +36,13 @@ export const createEditableSchemaModel = ({
 
     const runOnBlurValidationEvent = createEvent('runOnBlurValidationEvent')
 
-    const validationComponentModel = createValidationComponentModel<EditableComponentSchema>({ ...params, $schema, $componentId, validationIsAvailable })
+    const validationComponentModel = createComponentValidationModel<EditableComponentSchema>({ ...params, $schema, $componentId, validationIsAvailable })
 
     sample({
         source: $schema,
         clock: onUpdatePropertiesEvent,
         fn: ({ meta }, data) => ({ id: meta.id, data }),
-        target: runRelationsRulesEvent,
+        target: runRelationRulesEvent,
     })
 
     if (validationOnChangeIsAvailable) {
@@ -96,7 +96,7 @@ export const createEditableSchemaModel = ({
             source: $componentId,
             clock: validationComponentModel.runValidationFx.failData,
             fn: (componentId, { errors }) => ({ componentId, errors }),
-            target: updateComponentsValidationErrorsEvent,
+            target: updateComponentValidationErrorsEvent,
         })
     }
 

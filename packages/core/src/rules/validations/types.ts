@@ -1,6 +1,5 @@
 import { OptionalSerializableValue, SerializableObject } from '@form-crafter/utils'
 
-import { ComponentsSchemas } from '../../components'
 import { OptionsBuilder, OptionsBuilderOutput } from '../../options-builder'
 import { EntityId } from '../../types'
 import { RuleExecuteParams, RuleExecuteParamsWithoutOptions } from '../types'
@@ -23,7 +22,15 @@ export type ComponentValidationResult =
           isValid: true
       }
 
-export type FormValidationResult = Record<EntityId, ComponentValidationResult>
+export type GroupValidationResult =
+    | {
+          isValid: false
+          message?: string
+          componentsErrors?: { componentId: EntityId; message: string }[]
+      }
+    | {
+          isValid: true
+      }
 
 export type EditableValidationRule<
     V extends OptionalSerializableValue,
@@ -67,10 +74,12 @@ export type ComponentValidationRule<T extends OptionalSerializableValue = Option
     | RepeaterValidationRule
     | UploaderValidationRule<T>
 
-export type FormValidationRule<O extends OptionsBuilder<SerializableObject> = OptionsBuilder<SerializableObject>> = GeneralValidationRule & {
+export type GroupValidationRule<O extends OptionsBuilder<SerializableObject> = OptionsBuilder<SerializableObject>> = GeneralValidationRule & {
+    type: 'group'
     optionsBuilder: O
-    validate: (componentsSchemas: ComponentsSchemas, params: RuleExecuteParams<O>) => FormValidationResult
+    validate: (params: RuleExecuteParams<O>) => GroupValidationResult
 }
-export type FormValidationRuleWithoutOptions = GeneralValidationRule & {
-    validate: (componentsSchemas: ComponentsSchemas, params: RuleExecuteParamsWithoutOptions) => FormValidationResult
+export type GroupValidationRuleWithoutOptions = GeneralValidationRule & {
+    type: 'group'
+    validate: (params: RuleExecuteParamsWithoutOptions) => GroupValidationResult
 }

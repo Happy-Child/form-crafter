@@ -1,3 +1,5 @@
+import { FormCrafterTheme } from '@form-crafter/core'
+
 import { rules } from '../rules'
 import { buttonModule } from './Button'
 import { checkboxModule } from './Checkbox'
@@ -13,7 +15,7 @@ import { textareaModule } from './Textarea'
 import { textFieldModule } from './TextField'
 import { timeFieldModule } from './TimeField'
 
-export const muiTheme = {
+export const muiTheme: FormCrafterTheme = {
     componentsModules: [
         buttonModule,
         checkboxModule,
@@ -29,5 +31,5 @@ export const muiTheme = {
         textareaModule,
         timeFieldModule,
     ],
-    formValidationRules: [rules.validations.form.oneOfNotEmptyRule],
+    groupValidationRules: [rules.validations.group.oneOfNotEmptyRule],
 }

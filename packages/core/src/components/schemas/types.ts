@@ -27,18 +27,18 @@ export type ValidationsConfigs = {
     disableChildren?: boolean
 }
 
-export type ComponentValidationsSchema = {
+export type ComponentValidations = {
     configs?: ValidationsConfigs
-    options: ValidationRuleSchema[]
+    schemas: ValidationRuleSchema[]
 }
 
 export type ComponentRelations = {
-    options: RelationRuleUserOptions[]
+    schemas: RelationRuleUserOptions[]
 }
 
 export type GeneralComponentSchema = {
     visability?: ComponentVisability
-    validations?: ComponentValidationsSchema
+    validations?: ComponentValidations
     relations?: ComponentRelations
 }
 

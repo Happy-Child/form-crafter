@@ -14,7 +14,7 @@ import {
 import { OptionalSerializableObject } from '@form-crafter/utils'
 import { Effect, EventCallable, Store, StoreWritable } from 'effector'
 
-import { RunValidationFxDone, RunValidationFxFail } from '../../services/components-schemas/models/types'
+import { RunComponentValidationFxDone, RunComponentValidationFxFail } from '../../services/components-schemas/models/types'
 
 export type EditableSchemaModel = {
     $schema: StoreWritable<EditableComponentSchema>
@@ -25,7 +25,7 @@ export type EditableSchemaModel = {
     setSchemaEvent: EventCallable<OptionalSerializableObject>
     onUpdatePropertiesEvent: EventCallable<Partial<EditableComponentProperties>>
     onBlurEvent: EventCallable<void>
-    runValidationFx: Effect<void, RunValidationFxDone, RunValidationFxFail>
+    runValidationFx: Effect<void, RunComponentValidationFxDone, RunComponentValidationFxFail>
 }
 
 export type ContainerSchemaModel = {
@@ -41,7 +41,7 @@ export type RepeaterSchemaModel = {
     $isValidationPending: StoreWritable<boolean>
     $isRequired: StoreWritable<boolean>
     setSchemaEvent: EventCallable<OptionalSerializableObject>
-    runValidationFx: Effect<void, RunValidationFxDone, RunValidationFxFail>
+    runValidationFx: Effect<void, RunComponentValidationFxDone, RunComponentValidationFxFail>
 }
 
 export type UploaderSchemaModel = {
@@ -52,7 +52,7 @@ export type UploaderSchemaModel = {
     $isRequired: StoreWritable<boolean>
     setSchemaEvent: EventCallable<OptionalSerializableObject>
     onUpdatePropertiesEvent: EventCallable<Partial<UploaderComponentProperties>>
-    runValidationFx: Effect<void, RunValidationFxDone, RunValidationFxFail>
+    runValidationFx: Effect<void, RunComponentValidationFxDone, RunComponentValidationFxFail>
 }
 
 export type StaticSchemaModel = {

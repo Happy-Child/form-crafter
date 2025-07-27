@@ -5,7 +5,7 @@ export const mockComponentSchema: ComponentsSchemas = {
         meta: { id: 'input-last-name', type: 'editable', name: 'text-field' },
         properties: { label: 'Фамилия', value: '' },
         relations: {
-            options: [
+            schemas: [
                 {
                     id: 'id1',
                     ruleName: 'duplicateValue',
@@ -23,7 +23,7 @@ export const mockComponentSchema: ComponentsSchemas = {
         meta: { id: 'email', type: 'editable', name: 'email' },
         properties: { label: 'Email', value: undefined },
         relations: {
-            options: [
+            schemas: [
                 {
                     id: 'id3',
                     ruleName: 'hidden',
@@ -51,7 +51,7 @@ export const mockComponentSchema: ComponentsSchemas = {
             ],
         },
         relations: {
-            options: [
+            schemas: [
                 {
                     id: 'id4',
                     ruleName: 'changeSelectOptions',

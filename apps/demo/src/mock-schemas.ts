@@ -5,7 +5,26 @@ export const employeeFormSchema: Schema = {
     id: 'employee-form',
     version: '1.0',
     validations: {
-        additionalTriggers: [],
+        additionalTriggers: ['onBlur'],
+        schemas: [
+            {
+                id: genId(),
+                ruleName: 'oneOfNotEmpty',
+                options: {
+                    componentMessage: 'Одно из полей обязательно',
+                    formMessage: 'Одно из полей {componentLabels} должно быть заполнено',
+                    oneOfFields: ['input-first-name', 'date-birth', 'input-last-name', 'select-department'],
+                },
+                condition: {
+                    type: 'operator',
+                    operator: 'and',
+                    operands: [
+                        { type: 'component', componentId: 'email', operatorName: 'isEmpty' },
+                        { type: 'component', componentId: 'input-position', operatorName: 'isEmpty' },
+                    ],
+                },
+            },
+        ],
     },
     layout: {
         colsSpanPx: { default: 24 },
@@ -168,7 +187,7 @@ export const employeeFormSchema: Schema = {
             meta: { id: 'input-first-name', type: 'editable', name: 'text-field' },
             properties: { label: 'Имя', value: '' },
             validations: {
-                options: [
+                schemas: [
                     {
                         id: genId(),
                         ruleName: 'isRequired',
@@ -182,7 +201,7 @@ export const employeeFormSchema: Schema = {
             visability: { condition: { type: 'component', componentId: 'input-salary', operatorName: 'isNotEmpty' } },
             properties: { label: 'Фамилия', value: '' },
             relations: {
-                options: [
+                schemas: [
                     {
                         id: genId(),
                         ruleName: 'duplicateValue',
@@ -198,21 +217,21 @@ export const employeeFormSchema: Schema = {
                     },
                 ],
             },
-            validations: {
-                options: [
-                    {
-                        id: genId(),
-                        ruleName: 'isRequired',
-                        options: { message: 'Обязательное поле' },
-                        condition: { type: 'component', componentId: 'date-birth', operatorName: 'isNotEmpty' },
-                    },
-                    {
-                        id: genId(),
-                        ruleName: 'minLength',
-                        options: { message: 'Минимальная длинна {minLength}', minLength: 6 },
-                    },
-                ],
-            },
+            // validations: {
+            //     schemas: [
+            //         {
+            //             id: genId(),
+            //             ruleName: 'isRequired',
+            //             options: { message: 'Обязательное поле' },
+            //             condition: { type: 'component', componentId: 'date-birth', operatorName: 'isNotEmpty' },
+            //         },
+            //         {
+            //             id: genId(),
+            //             ruleName: 'minLength',
+            //             options: { message: 'Минимальная длинна {minLength}', minLength: 6 },
+            //         },
+            //     ],
+            // },
         },
         'date-birth': {
             meta: { id: 'date-birth', type: 'editable', name: 'text-field' },
@@ -223,7 +242,7 @@ export const employeeFormSchema: Schema = {
             visability: { condition: { type: 'component', componentId: 'input-first-name', operatorName: 'isNotEmpty' } },
             properties: { label: 'Email', value: '' },
             validations: {
-                options: [
+                schemas: [
                     {
                         id: genId(),
                         ruleName: 'isRequired',
@@ -279,7 +298,7 @@ export const employeeFormSchema: Schema = {
                 options: [],
             },
             relations: {
-                options: [
+                schemas: [
                     {
                         id: genId(),
                         ruleName: 'changeSelectOptions',
@@ -365,7 +384,7 @@ export const employeeFormSchema: Schema = {
                 ],
             },
             relations: {
-                options: [
+                schemas: [
                     {
                         id: genId(),
                         ruleName: 'changeSelectOptions',

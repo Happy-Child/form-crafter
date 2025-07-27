@@ -3,7 +3,7 @@ import { OptionalSerializableObject } from '@form-crafter/utils'
 import { createEffect, createEvent, createStore } from 'effector'
 
 import { UploaderSchemaModel } from '../../../../types'
-import { RunValidationFxDone, RunValidationFxFail } from '../types'
+import { RunComponentValidationFxDone, RunComponentValidationFxFail } from '../types'
 
 export type UploaderSchemaModelParams = {
     schema: UploaderComponentSchema
@@ -23,7 +23,7 @@ export const createUploaderSchemaModel = ({ schema }: UploaderSchemaModelParams)
 
     const setSchemaEvent = createEvent<OptionalSerializableObject>('setSchemaEvent')
 
-    const runValidationFx = createEffect<void, RunValidationFxDone, RunValidationFxFail>(() => {
+    const runValidationFx = createEffect<void, RunComponentValidationFxDone, RunComponentValidationFxFail>(() => {
         return { errors: [] }
     })
 

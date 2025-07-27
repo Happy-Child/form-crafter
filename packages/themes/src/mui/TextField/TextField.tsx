@@ -22,8 +22,6 @@ const TextField = memo(
         ({ meta, onChangeProperties, onBlur, isRequired, isValidationPending, error, properties: { value, placeholder, label, disabled } }, ref) => {
             const finalValue = value || ''
 
-            console.log('isValidationPending: ', isValidationPending)
-
             return (
                 <TextFieldBase
                     inputRef={ref}

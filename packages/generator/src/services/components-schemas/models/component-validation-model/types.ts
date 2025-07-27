@@ -5,9 +5,9 @@ import { ThemeService } from '../../../theme'
 import { ReadyValidationsRules } from '../../types'
 import { ComponentSchemaModelParams } from '../types'
 
-export type RunValidationFxParams<S extends ComponentSchema> = {
+export type RunComponentValidationFxParams<S extends ComponentSchema> = {
     schema: S
     componentsSchemasModel: UnitValue<ComponentSchemaModelParams['$componentsSchemasModel']>
-    readyConditionalValidationsRules: ReadyValidationsRules[keyof ReadyValidationsRules] | null
+    readyConditionalValidationRules: ReadyValidationsRules[keyof ReadyValidationsRules] | null
     componentsValidationsRules: UnitValue<ThemeService['$componentsValidationsRules']>
 }

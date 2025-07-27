@@ -12,12 +12,12 @@ type Params = Pick<FormServiceParams, 'componentsSchemasService' | 'viewsService
 export const init = ({ onFormSubmitEvent, invokeUserSubmitHandlerFx, componentsSchemasService }: Params) => {
     sample({
         clock: onFormSubmitEvent,
-        target: componentsSchemasService.runValidationAllComponentsFx,
+        target: componentsSchemasService.runFormValidationFx,
     })
 
     sample({
         source: { componentsIsValid: componentsSchemasService.$componentsIsValid, schemasMap: componentsSchemasService.$schemasMap },
-        clock: componentsSchemasService.runValidationAllComponentsFx.done,
+        clock: componentsSchemasService.runFormValidationFx.done,
         filter: ({ componentsIsValid }) => componentsIsValid,
         fn: ({ schemasMap }) => {
             const componentsSchemas = extractComponentsSchemasModels(schemasMap)
@@ -29,7 +29,7 @@ export const init = ({ onFormSubmitEvent, invokeUserSubmitHandlerFx, componentsS
     })
 
     sample({
-        clock: componentsSchemasService.runValidationAllComponentsFx.fail,
+        clock: componentsSchemasService.runFormValidationFx.fail,
         fn: console.log,
     })
 }

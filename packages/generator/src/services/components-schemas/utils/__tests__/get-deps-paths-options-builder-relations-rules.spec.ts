@@ -1,11 +1,11 @@
 import { mockComponentsModules, mockEmptyRulesComponentsModules } from '../../../theme/utils/__tests__/mocks'
 import { extractRelationsRules } from '../../../theme/utils/extract-relations-rules'
-import { getDepsPathsOptiondsBuilderRelationsRules } from '../get-deps-paths-options-builder-relations-rules'
+import { getDepsPathsOptionsBuilderRelationRules } from '../get-deps-paths-options-builder-relation-rules'
 
-describe('getDepsPathsOptiondsBuilderRelationsRules', () => {
+describe('getDepsPathsOptionsBuilderRelationRules', () => {
     it('should get paths from components relations rules', () => {
         const relationsRules = extractRelationsRules(mockComponentsModules)
-        const result = getDepsPathsOptiondsBuilderRelationsRules(relationsRules)
+        const result = getDepsPathsOptionsBuilderRelationRules(relationsRules)
 
         expect(result).toEqual({
             rule2: [['field1'], ['field2']],
@@ -21,7 +21,7 @@ describe('getDepsPathsOptiondsBuilderRelationsRules', () => {
 
     it('should return empty paths from components relations rules', () => {
         const relationsRules = extractRelationsRules(mockEmptyRulesComponentsModules)
-        const result = getDepsPathsOptiondsBuilderRelationsRules(relationsRules)
+        const result = getDepsPathsOptionsBuilderRelationRules(relationsRules)
 
         expect(result).toEqual({})
     })

@@ -1,4 +1,5 @@
-import { ComponentValidationRule, FormCrafterTheme, isComponentModuleWithValidations } from '@form-crafter/core'
+import { ComponentValidationRule, FormCrafterTheme, GroupValidationRule, isComponentModuleWithValidations } from '@form-crafter/core'
+import { isNotEmpty } from '@form-crafter/utils'
 import { combine, createStore } from 'effector'
 import { FC } from 'react'
 
@@ -14,9 +15,17 @@ export const createThemeService = ({ theme, PlaceholderComponent }: ThemeService
 
     const $componentsModules = $theme.map(({ componentsModules }) => componentsModules)
     const $componentsModulesMap = $theme.map(({ componentsModules }) => componentsModules.reduce((map, module) => ({ ...map, [module.name]: module }), {}))
-    const $relationsRules = combine($componentsModules, extractRelationsRules)
+    const $relationRules = combine($componentsModules, extractRelationsRules)
 
-    const $formValidationsRules = $theme.map(({ formValidationsRules }) => formValidationsRules || null)
+    const $groupValidationRules = $theme.map(({ groupValidationRules }) =>
+        isNotEmpty(groupValidationRules)
+            ? groupValidationRules.reduce<Record<string, GroupValidationRule>>((map, rule) => {
+                  map[rule.ruleName] = rule
+                  return map
+              }, {})
+            : {},
+    )
+
     const $componentsValidationsRules = $componentsModules.map((modules) => {
         const rules = modules.flatMap((module) => {
             if (isComponentModuleWithValidations(module)) {
@@ -41,9 +50,9 @@ export const createThemeService = ({ theme, PlaceholderComponent }: ThemeService
         $componentsModules,
         $componentsModulesMap,
         $componentsValidationsRules,
-        $formValidationsRules,
+        $groupValidationRules,
         $operatorsForConditions,
-        $relationsRules,
+        $relationRules,
         $placeholderComponent,
     }
 }

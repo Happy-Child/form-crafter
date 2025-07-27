@@ -1,5 +1,5 @@
 import { oneOfNotEmptyRule } from './one-of-not-empty'
 
-export const form = {
+export const group = {
     oneOfNotEmptyRule,
 }

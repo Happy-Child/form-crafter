@@ -4,8 +4,8 @@ import { OptionsBuilder } from '../../options-builder'
 import {
     EditableValidationRule,
     EditableValidationRuleWithoutOptions,
-    FormValidationRule,
-    FormValidationRuleWithoutOptions,
+    GroupValidationRule,
+    GroupValidationRuleWithoutOptions,
     RepeaterValidationRule,
     RepeaterValidationRuleWithoutOptions,
     UploaderValidationRule,
@@ -46,10 +46,10 @@ export function createUploaderValidationRule<V extends OptionalSerializableValue
     return { ...params, type: 'uploader' }
 }
 
-export function createFormValidationRule<O extends OptionsBuilder<SerializableObject>>(params: FormValidationRule<O>): FormValidationRule<O>
-export function createFormValidationRule(params: FormValidationRuleWithoutOptions): FormValidationRuleWithoutOptions
-export function createFormValidationRule<O extends OptionsBuilder<SerializableObject>>(
-    params: FormValidationRule<O> | FormValidationRuleWithoutOptions,
-): FormValidationRule<O> | FormValidationRuleWithoutOptions {
-    return params
+export function createGroupValidationRule<O extends OptionsBuilder<SerializableObject>>(params: Omit<GroupValidationRule<O>, 'type'>): GroupValidationRule<O>
+export function createGroupValidationRule(params: Omit<GroupValidationRuleWithoutOptions, 'type'>): GroupValidationRuleWithoutOptions
+export function createGroupValidationRule<O extends OptionsBuilder<SerializableObject>>(
+    params: Omit<GroupValidationRule<O>, 'type'> | Omit<GroupValidationRuleWithoutOptions, 'type'>,
+): GroupValidationRule<O> | GroupValidationRuleWithoutOptions {
+    return { ...params, type: 'group' }
 }

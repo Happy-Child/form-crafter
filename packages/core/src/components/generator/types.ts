@@ -16,6 +16,8 @@ export type ComponentValidationError = Pick<ValidationRuleSchema, 'id' | 'ruleNa
     message: string
 }
 
+export type GroupValidationError = ComponentValidationError
+
 export type HeaderContainerProps = {
     rows: ViewRowChild[]
 }

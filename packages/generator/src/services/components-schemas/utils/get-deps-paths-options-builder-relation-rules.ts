@@ -3,7 +3,7 @@ import { isNotEmpty, OptionalSerializableObject } from '@form-crafter/utils'
 
 import { extractPathsOptionsBuilderStructDeps } from './extract-paths-options-builder-struct-deps'
 
-export const getDepsPathsOptiondsBuilderRelationsRules = (
+export const getDepsPathsOptionsBuilderRelationRules = (
     rulationsRules: Record<string, RelationRule<OptionalSerializableObject>>,
 ): Record<string, string[][]> => {
     const rulesOptionsBuilders = Object.entries(rulationsRules).reduce<Record<string, GroupOptionsBuilder<OptionalSerializableObject>>>(

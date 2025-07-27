@@ -14,10 +14,11 @@ export const useGeneratorStylesVars = () => {
 export const useRenderBottomProps = (): RenderBottomProps => {
     const { services } = useGeneratorContext()
 
-    const [isValid, isValidationPending] = useUnit([
+    const [isValid, isValidationPending, groupValidationErrors] = useUnit([
         services.componentsSchemasService.$componentsIsValid,
-        services.componentsSchemasService.$isValidationComponentsPending,
+        services.componentsSchemasService.$isValidationPending,
+        services.componentsSchemasService.$groupValidationErrors,
     ])
 
-    return { isValid, isValidationPending }
+    return { isValid, isValidationPending, groupValidationErrors }
 }

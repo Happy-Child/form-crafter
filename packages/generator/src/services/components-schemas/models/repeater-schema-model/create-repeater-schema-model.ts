@@ -3,7 +3,7 @@ import { OptionalSerializableObject } from '@form-crafter/utils'
 import { createEffect, createEvent, createStore } from 'effector'
 
 import { RepeaterSchemaModel } from '../../../../types'
-import { RunValidationFxDone, RunValidationFxFail } from '../types'
+import { RunComponentValidationFxDone, RunComponentValidationFxFail } from '../types'
 
 export type RepeaterSchemaModelParams = {
     schema: RepeaterComponentSchema
@@ -21,7 +21,7 @@ export const createRepeaterSchemaModel = ({ schema }: RepeaterSchemaModelParams)
 
     const setSchemaEvent = createEvent<OptionalSerializableObject>('setSchemaEvent')
 
-    const runValidationFx = createEffect<void, RunValidationFxDone, RunValidationFxFail>(() => {
+    const runValidationFx = createEffect<void, RunComponentValidationFxDone, RunComponentValidationFxFail>(() => {
         return { errors: [] }
     })
 

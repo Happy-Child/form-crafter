@@ -3,22 +3,22 @@ import { EventCallable, StoreWritable } from 'effector'
 
 import { SchemaMap } from '../../../types'
 import { ThemeService } from '../../theme'
-import { CalcRelationsRulesPayload, ComponentsValidationErrors, ReadyConditionalValidationsRules } from '../types'
+import { CalcRelationRulesPayload, ComponentsValidationErrors, ReadyValidationsRules, UpdateComponentValidationErrorsPayload } from '../types'
 
-export type RunValidationFxDone = {}
+export type RunComponentValidationFxDone = {}
 
-export type RunValidationFxFail = { errors: ComponentValidationError[] }
+export type RunComponentValidationFxFail = { errors: ComponentValidationError[] }
 
 export type GeneralSchemaModelParams = {}
 
 export type ComponentSchemaModelParams = {
     $componentsSchemasModel: StoreWritable<SchemaMap>
-    $readyConditionalValidationsRules: StoreWritable<ReadyConditionalValidationsRules>
+    $readyConditionalComponentsValidationRules: StoreWritable<ReadyValidationsRules>
     $componentsValidationErrors: StoreWritable<ComponentsValidationErrors>
     themeService: ThemeService
     schema: ComponentSchema
     additionalTriggers: ValidationsTriggers[] | null
-    runRelationsRulesEvent: EventCallable<CalcRelationsRulesPayload>
-    updateComponentsValidationErrorsEvent: EventCallable<{ componentId: EntityId; errors: ComponentValidationError[] }>
+    runRelationRulesEvent: EventCallable<CalcRelationRulesPayload>
+    updateComponentValidationErrorsEvent: EventCallable<UpdateComponentValidationErrorsPayload>
     removeComponentValidationErrorsEvent: EventCallable<{ componentId: EntityId }>
 }
