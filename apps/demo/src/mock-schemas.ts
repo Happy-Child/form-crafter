@@ -5,7 +5,7 @@ export const employeeFormSchema: Schema = {
     id: 'employee-form',
     version: '1.0',
     validations: {
-        additionalTriggers: ['onBlur'],
+        additionalTriggers: ['onChange'],
         schemas: [
             {
                 id: genId(),
@@ -186,15 +186,15 @@ export const employeeFormSchema: Schema = {
         'input-first-name': {
             meta: { id: 'input-first-name', type: 'editable', name: 'text-field' },
             properties: { label: 'Имя', value: '' },
-            validations: {
-                schemas: [
-                    {
-                        id: genId(),
-                        ruleName: 'isRequired',
-                        options: { message: 'Обязательное поле' },
-                    },
-                ],
-            },
+            // validations: {
+            //     schemas: [
+            //         {
+            //             id: genId(),
+            //             ruleName: 'isRequired',
+            //             options: { message: 'Обязательное поле' },
+            //         },
+            //     ],
+            // },
         },
         'input-last-name': {
             meta: { id: 'input-last-name', type: 'editable', name: 'text-field' },
@@ -217,29 +217,28 @@ export const employeeFormSchema: Schema = {
                     },
                 ],
             },
-            // validations: {
-            //     schemas: [
-            //         {
-            //             id: genId(),
-            //             ruleName: 'isRequired',
-            //             options: { message: 'Обязательное поле' },
-            //             condition: { type: 'component', componentId: 'date-birth', operatorName: 'isNotEmpty' },
-            //         },
-            //         {
-            //             id: genId(),
-            //             ruleName: 'minLength',
-            //             options: { message: 'Минимальная длинна {minLength}', minLength: 6 },
-            //         },
-            //     ],
-            // },
+            validations: {
+                schemas: [
+                    {
+                        id: genId(),
+                        ruleName: 'isRequired',
+                        options: { message: 'Обязательное поле' },
+                        condition: { type: 'component', componentId: 'date-birth', operatorName: 'isNotEmpty' },
+                    },
+                    // {
+                    //     id: genId(),
+                    //     ruleName: 'minLength',
+                    //     options: { message: 'Минимальная длинна {minLength}', minLength: 6 },
+                    // },
+                ],
+            },
         },
         'date-birth': {
-            meta: { id: 'date-birth', type: 'editable', name: 'text-field' },
+            meta: { id: 'date-birth', type: 'editable', name: 'date-field' },
             properties: { label: 'Дата рождения', value: '25.10.2005' },
         },
         email: {
-            meta: { id: 'email', type: 'editable', name: 'email' },
-            visability: { condition: { type: 'component', componentId: 'input-first-name', operatorName: 'isNotEmpty' } },
+            meta: { id: 'email', type: 'editable', name: 'text-field' },
             properties: { label: 'Email', value: '' },
             validations: {
                 schemas: [
@@ -259,8 +258,8 @@ export const employeeFormSchema: Schema = {
                     {
                         id: genId(),
                         ruleName: 'isEmail',
-                        options: { message: 'Ljkj;yj s,nm ' },
-                        condition: { type: 'component', componentId: 'email', operatorName: 'startsWith', options: { startsWith: 'egor' } },
+                        options: { message: 'Неверный формат поты' },
+                        condition: { type: 'component', componentId: 'input-first-name', operatorName: 'startsWith', options: { startsWith: 'egor' } },
                     },
                 ],
             },

@@ -19,7 +19,7 @@ type ComponentProps = EditableComponentProps<OptionsBuilderOutput<typeof options
 
 const TextField = memo(
     forwardRef<HTMLInputElement, ComponentProps>(
-        ({ meta, onChangeProperties, onBlur, isRequired, isValidationPending, error, properties: { value, placeholder, label, disabled } }, ref) => {
+        ({ meta, onChangeProperties, onBlur, isRequired, firstError, properties: { value, placeholder, label, disabled } }, ref) => {
             const finalValue = value || ''
 
             return (
@@ -32,8 +32,8 @@ const TextField = memo(
                     placeholder={placeholder}
                     onInput={(e: ChangeEvent<HTMLInputElement>) => onChangeProperties({ value: e.target.value })}
                     onBlur={onBlur}
-                    error={isNotEmpty(error?.message)}
-                    helperText={error?.message}
+                    error={isNotEmpty(firstError?.message)}
+                    helperText={firstError?.message}
                     required={isRequired}
                     fullWidth
                 />
@@ -55,6 +55,11 @@ export const textFieldModule = createEditableComponentModule({
         componentsOperators.startsWithOperator,
     ],
     relationsRules: [rules.relations.duplicateValueRule],
-    validationsRules: [rules.validations.editable.isRequiredRule, rules.validations.editable.minLengthRule, rules.validations.editable.maxLengthRule],
+    validationsRules: [
+        rules.validations.editable.isRequiredRule,
+        rules.validations.editable.isEmailRule,
+        rules.validations.editable.minLengthRule,
+        rules.validations.editable.maxLengthRule,
+    ],
     Component: TextField,
 })

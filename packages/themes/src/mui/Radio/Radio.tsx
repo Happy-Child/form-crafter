@@ -47,9 +47,9 @@ const optionsBuilder = builders.group({
 type ComponentProps = EditableComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Radio = memo(
-    forwardRef<HTMLDivElement, ComponentProps>(({ meta, properties: { options, value, label, disabled }, isRequired, error, onChangeProperties }, ref) => {
+    forwardRef<HTMLDivElement, ComponentProps>(({ meta, properties: { options, value, label, disabled }, isRequired, firstError, onChangeProperties }, ref) => {
         return (
-            <FormControl ref={ref} required={isRequired} fullWidth error={isNotEmpty(error)}>
+            <FormControl ref={ref} required={isRequired} fullWidth error={isNotEmpty(firstError)}>
                 {label && <FormLabel>{label}</FormLabel>}
                 <Box sx={{ display: 'flex', gap: 1 }}>
                     {options.map((option) => (
@@ -69,7 +69,7 @@ const Radio = memo(
                         />
                     ))}
                 </Box>
-                {isNotEmpty(error?.message) && <FormHelperText error>{error.message}</FormHelperText>}
+                {isNotEmpty(firstError?.message) && <FormHelperText error>{firstError.message}</FormHelperText>}
             </FormControl>
         )
     }),

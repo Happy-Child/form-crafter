@@ -1,6 +1,6 @@
 import { createGroupValidationRule } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
-import { isEmpty, isNotEmpty } from '@form-crafter/utils'
+import { isNotEmpty } from '@form-crafter/utils'
 
 const optionsBuilder = builders.group({
     // TODO добавить .relations() на связь formMessage и componentMessage - одно из них обязательно.

@@ -4,20 +4,6 @@
     "sourceRoot": "packages/utils/src",
     "projectType": "library",
     "tags": [],
-    "targets": {
-        "nx-release-publish": {
-            "options": {
-                "packageRoot": "dist/{projectRoot}"
-            }
-        }
-    },
-    "release": {
-        "version": {
-            "generatorOptions": {
-                "packageRoot": "dist/{projectRoot}",
-                "currentVersionResolver": "git-tag",
-                "fallbackCurrentVersionResolver": "disk"
-            }
-        }
-    }
+    "// targets": "to see all targets run: nx show project utils --web",
+    "targets": {}
 }

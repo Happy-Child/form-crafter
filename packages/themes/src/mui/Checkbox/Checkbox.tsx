@@ -47,7 +47,7 @@ const optionsBuilder = builders.group({
 type ComponentProps = EditableComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Checkbox = memo(
-    forwardRef<HTMLDivElement, ComponentProps>(({ properties: { options, value, label, disabled }, onChangeProperties, isRequired, error }, ref) => {
+    forwardRef<HTMLDivElement, ComponentProps>(({ properties: { options, value, label, disabled }, onChangeProperties, isRequired, firstError }, ref) => {
         const isChecked = useCallback((option: Pick<SelectionOption, 'value'>) => (value?.length ? value.includes(option.value) : false), [value])
 
         const hanleChange = useCallback(
@@ -59,7 +59,7 @@ const Checkbox = memo(
         )
 
         return (
-            <FormControl ref={ref} required={isRequired} fullWidth error={isNotEmpty(error?.message)}>
+            <FormControl ref={ref} required={isRequired} fullWidth error={isNotEmpty(firstError?.message)}>
                 {label && <FormLabel>{label}</FormLabel>}
                 <Box sx={{ display: 'flex', gap: 1 }}>
                     {options.map((option) => (
@@ -79,7 +79,7 @@ const Checkbox = memo(
                         />
                     ))}
                 </Box>
-                {isNotEmpty(error?.message) && <FormHelperText>{error.message}</FormHelperText>}
+                {isNotEmpty(firstError?.message) && <FormHelperText>{firstError.message}</FormHelperText>}
             </FormControl>
         )
     }),

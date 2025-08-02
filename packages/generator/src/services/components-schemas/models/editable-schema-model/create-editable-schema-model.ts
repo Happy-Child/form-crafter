@@ -15,7 +15,7 @@ export const createEditableSchemaModel = ({
     schema,
     additionalTriggers,
     runRelationRulesEvent,
-    updateComponentValidationErrorsEvent,
+    setComponentValidationErrorsEvent,
     removeComponentValidationErrorsEvent,
     ...params
 }: EditableSchemaModelParams): EditableSchemaModel => {
@@ -56,22 +56,12 @@ export const createEditableSchemaModel = ({
             },
             target: runOnChangeValidationEvent,
         })
-
-        sample({
-            clock: runOnChangeValidationEvent,
-            target: validationComponentModel.runValidationFx,
-        })
     }
 
     if (validationOnBlurIsAvailable) {
         sample({
             clock: onBlurEvent,
             target: runOnBlurValidationEvent,
-        })
-
-        sample({
-            clock: runOnBlurValidationEvent,
-            target: validationComponentModel.runValidationFx,
         })
     }
 
@@ -85,18 +75,34 @@ export const createEditableSchemaModel = ({
         target: $schema,
     })
 
+    if (validationOnChangeIsAvailable) {
+        // TODO вызывается ли гарантированно после вышестоящего sample?
+        // Если нет, то combineEvents runOnChangeValidationEvent + $schema.update решит проблему?
+        sample({
+            clock: runOnChangeValidationEvent,
+            target: validationComponentModel.runValidationFx,
+        })
+    }
+
+    if (validationOnBlurIsAvailable) {
+        sample({
+            clock: runOnBlurValidationEvent,
+            target: validationComponentModel.runValidationFx,
+        })
+    }
+
     if (validationIsAvailable) {
         sample({
             source: $componentId,
             clock: validationComponentModel.runValidationFx.doneData,
-            fn: (componentId) => ({ componentId }),
+            fn: (componentId) => componentId,
             target: removeComponentValidationErrorsEvent,
         })
         sample({
             source: $componentId,
             clock: validationComponentModel.runValidationFx.failData,
             fn: (componentId, { errors }) => ({ componentId, errors }),
-            target: updateComponentValidationErrorsEvent,
+            target: setComponentValidationErrorsEvent,
         })
     }
 

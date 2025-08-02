@@ -1,3 +1,4 @@
+export * from './difference-set'
 export * from './is-file'
 export * from './is-files-list'
 export * from './is-optional-serializable-object'

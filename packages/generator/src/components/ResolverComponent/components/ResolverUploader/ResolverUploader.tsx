@@ -9,8 +9,8 @@ export const ResolverUploader: ResolverComponentType = memo(({ id, rowId }) => {
     const meta = useComponentMeta<'uploader'>(id)
     const properties = useComponentProperties<'uploader'>(id)
 
-    const { onUpdatePropertiesEvent, $isRequired, $error, $errors, $isValidationPending } = useComponentModel<'uploader'>(id)
-    const [isRequired, error, errors, isValidationPending] = useUnit([$isRequired, $error, $errors, $isValidationPending])
+    const { onUpdatePropertiesEvent, $isRequired, $firstError, $errors } = useComponentModel<'uploader'>(id)
+    const [isRequired, firstError, errors] = useUnit([$isRequired, $firstError, $errors])
 
     const { parentId } = useViewComponentWithParent(id)
 
@@ -25,10 +25,9 @@ export const ResolverUploader: ResolverComponentType = memo(({ id, rowId }) => {
                 meta={meta}
                 properties={properties}
                 onChangeProperties={onUpdatePropertiesEvent}
-                error={error}
+                firstError={firstError}
                 errors={errors}
                 isRequired={isRequired}
-                isValidationPending={isValidationPending}
             />
         </LayoutComponent>
     )

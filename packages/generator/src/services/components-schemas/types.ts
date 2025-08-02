@@ -6,7 +6,9 @@ import { SchemaMap } from '../../types'
 import { SchemaService } from '../schema'
 import { ThemeService } from '../theme'
 
-export type ReadyValidationsRules = Record<EntityId, { readyBySchemaId: Set<EntityId>; readyGroupedByRuleName: Record<string, Set<EntityId>> }>
+export type ReadyValidationsRules = Record<EntityId, Set<EntityId>>
+
+export type ReadyValidationsRulesByRuleName = Record<EntityId, Record<string, Set<EntityId>>>
 
 export type RulesOverridesCache = Record<EntityId, OptionalSerializableObject | null>
 
@@ -20,8 +22,6 @@ export type DepsComponentRuleSchemas = {
     validations: DepsRuleSchema
 }
 
-export type ComponentsValidationErrors = Record<EntityId, ComponentValidationError[]>
-
 export type UpdateComponentPropertiesPayload = {
     id: EntityId
     data: Partial<ComponentSchema['properties']>
@@ -29,9 +29,11 @@ export type UpdateComponentPropertiesPayload = {
 
 export type CalcRelationRulesPayload = { id: EntityId; data: OptionalSerializableObject }
 
-export type UpdateComponentValidationErrorsPayload = { componentId: EntityId; errors: ComponentValidationError[] }
+export type ComponentsValidationErrors = Record<EntityId, Map<EntityId, ComponentValidationError>>
 
-export type UpdateGroupComponentsValidationErrorsPayload = { errors: ComponentsValidationErrors }
+export type SetComponentValidationErrorsPayload = { componentId: EntityId; errors: ComponentsValidationErrors[keyof ComponentsValidationErrors] }
+
+export type RemoveComponentsValidationErrorsPayload = Record<EntityId, Set<EntityId>>
 
 export type ComponentsSchemasService = {
     runFormValidationFx: Effect<void, void>
@@ -41,7 +43,7 @@ export type ComponentsSchemasService = {
     initComponentSchemasEvent: EventCallable<void>
     $schemasMap: StoreWritable<SchemaMap>
     $isValidationPending: Store<boolean>
-    $groupValidationErrors: StoreWritable<GroupValidationError[]>
+    $groupValidationErrors: Store<GroupValidationError[]>
     $componentsIsValid: Store<boolean>
 }
 

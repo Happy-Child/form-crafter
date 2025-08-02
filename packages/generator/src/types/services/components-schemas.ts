@@ -19,7 +19,7 @@ import { RunComponentValidationFxDone, RunComponentValidationFxFail } from '../.
 export type EditableSchemaModel = {
     $schema: StoreWritable<EditableComponentSchema>
     $errors: Store<ComponentValidationError[] | null>
-    $error: Store<ComponentValidationError | null>
+    $firstError: Store<ComponentValidationError | null>
     $isRequired: Store<boolean>
     $isValidationPending: StoreWritable<boolean>
     setSchemaEvent: EventCallable<OptionalSerializableObject>
@@ -37,7 +37,7 @@ export type ContainerSchemaModel = {
 export type RepeaterSchemaModel = {
     $schema: StoreWritable<RepeaterComponentSchema>
     $errors: Store<ComponentValidationError[]>
-    $error: Store<ComponentValidationError | null>
+    $firstError: Store<ComponentValidationError | null>
     $isValidationPending: StoreWritable<boolean>
     $isRequired: StoreWritable<boolean>
     setSchemaEvent: EventCallable<OptionalSerializableObject>
@@ -47,7 +47,7 @@ export type RepeaterSchemaModel = {
 export type UploaderSchemaModel = {
     $schema: StoreWritable<UploaderComponentSchema>
     $errors: Store<ComponentValidationError[]>
-    $error: Store<ComponentValidationError | null>
+    $firstError: Store<ComponentValidationError | null>
     $isValidationPending: StoreWritable<boolean>
     $isRequired: StoreWritable<boolean>
     setSchemaEvent: EventCallable<OptionalSerializableObject>

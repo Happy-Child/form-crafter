@@ -19,7 +19,7 @@ type ComponentProps = EditableComponentProps<OptionsBuilderOutput<typeof options
 
 const Textarea = memo(
     forwardRef<HTMLDivElement, ComponentProps>(
-        ({ meta, properties: { value, placeholder, label, disabled }, onChangeProperties, isRequired, error, onBlur }, ref) => {
+        ({ meta, properties: { value, placeholder, label, disabled }, onChangeProperties, isRequired, firstError, onBlur }, ref) => {
             return (
                 <TextField
                     ref={ref}
@@ -33,8 +33,8 @@ const Textarea = memo(
                     minRows={4}
                     onChange={(e) => onChangeProperties({ value: e.target.value })}
                     onBlur={onBlur}
-                    error={isNotEmpty(error?.message)}
-                    helperText={error?.message}
+                    error={isNotEmpty(firstError?.message)}
+                    helperText={firstError?.message}
                     required={isRequired}
                 />
             )

@@ -18,7 +18,7 @@ const optionsBuilder = builders.group({
 type ComponentProps = RepeaterComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
 
 const Multifield = memo(
-    forwardRef<HTMLDivElement, ComponentProps>(({ id, rows, onAddRow, properties: { title, addButtonText }, error }, ref) => {
+    forwardRef<HTMLDivElement, ComponentProps>(({ id, rows, onAddRow, properties: { title, addButtonText }, firstError }, ref) => {
         const finalAddButtonText = addButtonText || initialAddButtonText
 
         return (
@@ -28,7 +28,7 @@ const Multifield = memo(
                     <Button onClick={onAddRow}>{finalAddButtonText}</Button>
                 </Box>
                 {isNotEmpty(rows) && <RowsList rows={rows} />}
-                {isNotEmpty(error?.message) && <FormHelperText error>{error.message}</FormHelperText>}
+                {isNotEmpty(firstError?.message) && <FormHelperText error>{firstError.message}</FormHelperText>}
             </Box>
         )
     }),

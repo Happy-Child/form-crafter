@@ -49,7 +49,7 @@ type ComponentProps = EditableComponentProps<OptionsBuilderOutput<typeof options
 
 const Select = memo(
     forwardRef<HTMLDivElement, ComponentProps>(
-        ({ meta, properties: { options, value, label, disabled }, onChangeProperties, isRequired, error, onBlur }, ref) => {
+        ({ meta, properties: { options, value, label, disabled }, onChangeProperties, isRequired, firstError, onBlur }, ref) => {
             const handleChange = useCallback<Required<SelectInputProps<string[]>>['onChange']>(
                 ({ target: { value } }) => {
                     const finalValues = Array.isArray(value) ? value : [value]
@@ -59,7 +59,7 @@ const Select = memo(
             )
 
             return (
-                <FormControl ref={ref} fullWidth>
+                <FormControl ref={ref} fullWidth error={isNotEmpty(firstError?.message)}>
                     {label && <InputLabel>{label}</InputLabel>}
                     <SelectBase
                         multiple
@@ -70,7 +70,7 @@ const Select = memo(
                         label={label}
                         onChange={handleChange}
                         onBlur={onBlur}
-                        error={isNotEmpty(error?.message)}
+                        error={isNotEmpty(firstError?.message)}
                         required={isRequired}
                     >
                         {options.map((option) => (
@@ -79,7 +79,7 @@ const Select = memo(
                             </MenuItem>
                         ))}
                     </SelectBase>
-                    {isNotEmpty(error?.message) && <FormHelperText>{error.message}</FormHelperText>}
+                    {isNotEmpty(firstError?.message) && <FormHelperText>{firstError.message}</FormHelperText>}
                 </FormControl>
             )
         },

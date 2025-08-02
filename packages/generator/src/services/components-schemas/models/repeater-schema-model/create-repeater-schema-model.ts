@@ -12,7 +12,7 @@ export type RepeaterSchemaModelParams = {
 export const createRepeaterSchemaModel = ({ schema }: RepeaterSchemaModelParams): RepeaterSchemaModel => {
     const $schema = createStore<RepeaterComponentSchema>(schema)
 
-    const $error = createStore<ComponentValidationError | null>(null)
+    const $firstError = createStore<ComponentValidationError | null>(null)
     const $errors = createStore<ComponentValidationError[]>([])
 
     const $isRequired = createStore<boolean>(false)
@@ -33,5 +33,5 @@ export const createRepeaterSchemaModel = ({ schema }: RepeaterSchemaModelParams)
         ...newSchema,
     }))
 
-    return { $schema, $isRequired, $error, $errors, $isValidationPending, setSchemaEvent, runValidationFx }
+    return { $schema, $isRequired, $firstError, $errors, $isValidationPending, setSchemaEvent, runValidationFx }
 }

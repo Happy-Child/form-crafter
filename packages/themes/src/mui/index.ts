@@ -4,7 +4,6 @@ import { rules } from '../rules'
 import { buttonModule } from './Button'
 import { checkboxModule } from './Checkbox'
 import { dateFieldModule } from './DateField'
-import { emailModule } from './Email'
 import { groupModule } from './Group'
 import { multifieldModule } from './Multifield'
 import { numberFieldModule } from './NumberField'
@@ -20,7 +19,6 @@ export const muiTheme: FormCrafterTheme = {
         buttonModule,
         checkboxModule,
         dateFieldModule,
-        emailModule,
         groupModule,
         textFieldModule,
         numberFieldModule,

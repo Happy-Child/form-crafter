@@ -13,8 +13,8 @@ export const ResolverRepeater: ResolverComponentType = memo(({ id, rowId }) => {
 
     const { parentId, rows } = useViewComponentWithParent(id)
 
-    const { $error, $errors, $isRequired, $isValidationPending } = useComponentModel<'repeater'>(id)
-    const [error, errors, isRequired, isValidationPending] = useUnit([$error, $errors, $isRequired, $isValidationPending])
+    const { $firstError, $errors, $isRequired } = useComponentModel<'repeater'>(id)
+    const [firstError, errors, isRequired] = useUnit([$firstError, $errors, $isRequired])
 
     const events = useRepeaterEvents(id)
 
@@ -31,10 +31,9 @@ export const ResolverRepeater: ResolverComponentType = memo(({ id, rowId }) => {
                     meta={meta}
                     properties={properties}
                     rows={rows}
-                    error={error}
+                    firstError={firstError}
                     errors={errors}
                     isRequired={isRequired}
-                    isValidationPending={isValidationPending}
                 />
             </RepeaterProvider>
         </LayoutComponent>

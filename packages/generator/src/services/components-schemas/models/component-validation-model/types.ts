@@ -8,6 +8,6 @@ import { ComponentSchemaModelParams } from '../types'
 export type RunComponentValidationFxParams<S extends ComponentSchema> = {
     schema: S
     componentsSchemasModel: UnitValue<ComponentSchemaModelParams['$componentsSchemasModel']>
-    readyConditionalValidationRules: ReadyValidationsRules[keyof ReadyValidationsRules] | null
+    readyComponentConditionalValidationRules: ReadyValidationsRules[keyof ReadyValidationsRules] | null
     componentsValidationsRules: UnitValue<ThemeService['$componentsValidationsRules']>
 }

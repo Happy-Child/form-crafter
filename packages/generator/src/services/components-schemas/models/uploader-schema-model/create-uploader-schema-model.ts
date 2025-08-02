@@ -12,7 +12,7 @@ export type UploaderSchemaModelParams = {
 export const createUploaderSchemaModel = ({ schema }: UploaderSchemaModelParams): UploaderSchemaModel => {
     const $schema = createStore<UploaderComponentSchema>(schema)
 
-    const $error = createStore<ComponentValidationError | null>(null)
+    const $firstError = createStore<ComponentValidationError | null>(null)
     const $errors = createStore<ComponentValidationError[]>([])
 
     const $isRequired = createStore<boolean>(false)
@@ -43,5 +43,5 @@ export const createUploaderSchemaModel = ({ schema }: UploaderSchemaModelParams)
         },
     }))
 
-    return { $schema, $error, $errors, $isRequired, $isValidationPending, setSchemaEvent, onUpdatePropertiesEvent: updatePropertiesEvent, runValidationFx }
+    return { $schema, $firstError, $errors, $isRequired, $isValidationPending, setSchemaEvent, onUpdatePropertiesEvent: updatePropertiesEvent, runValidationFx }
 }

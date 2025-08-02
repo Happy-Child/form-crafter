@@ -8,7 +8,14 @@ import { SchemaMap } from '../../types'
 import { extractComponentsSchemasModels } from '../../utils'
 import { SchemaService } from '../schema/types'
 import { ThemeService } from '../theme'
-import { CalcRelationRulesPayload, DepsComponentRuleSchemas, DepsRuleSchema, ReadyValidationsRules, RulesOverridesCache } from './types'
+import {
+    CalcRelationRulesPayload,
+    DepsComponentRuleSchemas,
+    DepsRuleSchema,
+    ReadyValidationsRules,
+    ReadyValidationsRulesByRuleName,
+    RulesOverridesCache,
+} from './types'
 import { buildExecutorContext } from './utils'
 
 type RunrelationRulesPayload = {
@@ -29,9 +36,13 @@ type Params = {
     setRulesOverridesCacheEvent: EventCallable<RulesOverridesCache>
     setHiddenComponentsEvent: EventCallable<Set<EntityId>>
     updateComponentsSchemasModelFx: Effect<ComponentsSchemas, void, Error>
-    setReadyConditionalComponentsValidationRulesEvent: EventCallable<ReadyValidationsRules>
+    setReadyConditionalValidationRulesEvent: EventCallable<ReadyValidationsRules>
+    setReadyConditionalValidationRulesByRuleNameEvent: EventCallable<ReadyValidationsRulesByRuleName>
     setReadyConditionalGroupValidationRulesEvent: EventCallable<ReadyValidationsRules[keyof ReadyValidationsRules]>
+    setReadyConditionalGroupValidationRulesByRuleNameEvent: EventCallable<ReadyValidationsRulesByRuleName[keyof ReadyValidationsRulesByRuleName]>
     initComponentSchemasEvent: EventCallable<void>
+    filterComponentsValidationErrorsEvent: EventCallable<Set<EntityId>>
+    filterGroupsValidationErrorsEvent: EventCallable<Set<EntityId>>
     $hiddenComponents: StoreWritable<Set<EntityId>>
     $componentsSchemasModel: StoreWritable<SchemaMap>
     $rulesOverridesCache: StoreWritable<RulesOverridesCache>
@@ -39,8 +50,11 @@ type Params = {
     $sortedRelationsDependentsByComponent: Store<Record<EntityId, EntityId[]>>
     $depsComponentRuleSchemas: Store<DepsComponentRuleSchemas>
     $depsGroupValidationRuleSchemas: Store<DepsRuleSchema>
-    $readyConditionalComponentsValidationRules: Store<ReadyValidationsRules>
+    $readyConditionalValidationRules: Store<ReadyValidationsRules>
+    $readyConditionalValidationRulesByRuleName: Store<ReadyValidationsRulesByRuleName>
+    $readyConditionalValidationRulesIds: Store<ReadyValidationsRules[keyof ReadyValidationsRules]>
     $readyConditionalGroupValidationRules: Store<ReadyValidationsRules[keyof ReadyValidationsRules]>
+    $readyConditionalGroupValidationRulesByRuleName: Store<ReadyValidationsRulesByRuleName[keyof ReadyValidationsRulesByRuleName]>
     $operatorsForConditions: ThemeService['$operatorsForConditions']
     $relationRules: ThemeService['$relationRules']
 }
@@ -50,9 +64,13 @@ export const init = ({
     runRelationRulesOnUserActionsEvent,
     setRulesOverridesCacheEvent,
     setHiddenComponentsEvent,
-    setReadyConditionalComponentsValidationRulesEvent,
+    setReadyConditionalValidationRulesEvent,
+    setReadyConditionalValidationRulesByRuleNameEvent,
     setReadyConditionalGroupValidationRulesEvent,
+    setReadyConditionalGroupValidationRulesByRuleNameEvent,
     initComponentSchemasEvent,
+    filterComponentsValidationErrorsEvent,
+    filterGroupsValidationErrorsEvent,
     updateComponentsSchemasModelFx,
     $hiddenComponents,
     $componentsSchemasModel,
@@ -61,8 +79,11 @@ export const init = ({
     $sortedRelationsDependentsByComponent,
     $depsComponentRuleSchemas,
     $depsGroupValidationRuleSchemas,
-    $readyConditionalComponentsValidationRules,
+    $readyConditionalValidationRules,
+    $readyConditionalValidationRulesByRuleName,
+    $readyConditionalValidationRulesIds,
     $readyConditionalGroupValidationRules,
+    $readyConditionalGroupValidationRulesByRuleName,
     $operatorsForConditions,
     $relationRules,
 }: Params) => {
@@ -288,8 +309,11 @@ export const init = ({
             depsGroupValidationRuleSchemas: $depsGroupValidationRuleSchemas,
             componentsSchemasModel: $componentsSchemasModel,
             operatorsForConditions: $operatorsForConditions,
-            readyConditionalComponentsValidationRules: $readyConditionalComponentsValidationRules,
+            readyConditionalValidationRules: $readyConditionalValidationRules,
+            readyConditionalValidationRulesByRuleName: $readyConditionalValidationRulesByRuleName,
+            readyConditionalValidationRulesIds: $readyConditionalValidationRulesIds,
             readyConditionalGroupValidationRules: $readyConditionalGroupValidationRules,
+            readyConditionalGroupValidationRulesByRuleName: $readyConditionalGroupValidationRulesByRuleName,
         },
         clock: calcReadyConditionalValidationRulesEvent,
         fn: (
@@ -300,8 +324,11 @@ export const init = ({
                 depsGroupValidationRuleSchemas,
                 componentsSchemasModel,
                 operatorsForConditions,
-                readyConditionalComponentsValidationRules,
+                readyConditionalValidationRules,
+                readyConditionalValidationRulesByRuleName,
+                readyConditionalValidationRulesIds,
                 readyConditionalGroupValidationRules,
+                readyConditionalGroupValidationRulesByRuleName,
             },
             { componentsSchemasToUpdate, skipIfValueUnchanged = true },
         ) => {
@@ -310,9 +337,13 @@ export const init = ({
 
             const executorContext = buildExecutorContext({ componentsSchemas: newComponentsSchemas })
 
-            // Calc of ready components validation rules
-            const readyComponentsRules = cloneDeep(readyConditionalComponentsValidationRules)
+            const readyRules = cloneDeep(readyConditionalValidationRules)
+            const readyRulesByRuleName = cloneDeep(readyConditionalValidationRulesByRuleName)
+
             const readyGroupRules = cloneDeep(readyConditionalGroupValidationRules)
+            const readyGroupRulesByRuleName = cloneDeep(readyConditionalGroupValidationRulesByRuleName)
+
+            const rulesToInactive: Set<EntityId> = new Set()
 
             const canBeContinueValidation = (componentId: EntityId, componentSchema: ComponentSchema) => {
                 const oldValue = oldComponentsSchemas[componentId].properties.value
@@ -325,37 +356,28 @@ export const init = ({
                 return true
             }
 
-            const getAndInitReadyComponentsRules = (ownerComponentId: EntityId, ruleName: string) => {
-                // TODO НАХУЯ ЭТА ХУЕТА!!! И нужна ли в form rules init
-                readyComponentsRules[ownerComponentId] = {
-                    readyBySchemaId: new Set(),
-                    readyGroupedByRuleName: {},
-                }
-                //
-
-                const currentReadyByComponent = readyComponentsRules[ownerComponentId]
-                if (!(ruleName in currentReadyByComponent.readyGroupedByRuleName)) {
-                    currentReadyByComponent.readyGroupedByRuleName[ruleName] = new Set()
+            const initReadyRules = (ownerComponentId: EntityId, ruleName: string) => {
+                if (!(ownerComponentId in readyRules)) {
+                    readyRules[ownerComponentId] = new Set()
                 }
 
-                return {
-                    readyBySchemaId: currentReadyByComponent.readyBySchemaId,
-                    readyGroupedByRuleName: currentReadyByComponent.readyGroupedByRuleName[ruleName],
+                if (!(ownerComponentId in readyRulesByRuleName)) {
+                    readyRulesByRuleName[ownerComponentId] = {}
+                }
+
+                const currentReadyByRuleName = readyRulesByRuleName[ownerComponentId]
+                if (!(ruleName in currentReadyByRuleName)) {
+                    currentReadyByRuleName[ruleName] = new Set()
                 }
             }
 
-            const getAndInitReadyGroupRules = (ruleName: string) => {
-                if (!(ruleName in readyGroupRules.readyGroupedByRuleName)) {
-                    readyGroupRules.readyGroupedByRuleName[ruleName] = new Set()
-                }
-
-                return {
-                    readyBySchemaId: readyGroupRules.readyBySchemaId,
-                    readyGroupedByRuleName: readyGroupRules.readyGroupedByRuleName[ruleName],
+            const initReadyGroupRules = (ruleName: string) => {
+                if (!(ruleName in readyGroupRulesByRuleName)) {
+                    readyGroupRulesByRuleName[ruleName] = new Set()
                 }
             }
 
-            const calcReadyComponentsRules = (componentId: EntityId, componentSchema: ComponentSchema) => {
+            const calcReadyRules = (componentId: EntityId, componentSchema: ComponentSchema) => {
                 const canBeContinue = canBeContinueValidation(componentId, componentSchema)
                 if (!canBeContinue) {
                     return
@@ -380,16 +402,21 @@ export const init = ({
                         operators: operatorsForConditions,
                     })
 
-                    const { readyBySchemaId, readyGroupedByRuleName } = getAndInitReadyComponentsRules(ownerComponentId, validationRuleSchema.ruleName)
+                    const isReadyRuleNow = readyConditionalValidationRulesIds.has(validationSchemaId)
+                    if (!ruleIsReady && isReadyRuleNow) {
+                        rulesToInactive.add(validationSchemaId)
+                    }
+
+                    initReadyRules(ownerComponentId, validationRuleSchema.ruleName)
 
                     if (ruleIsReady) {
-                        readyBySchemaId.add(validationSchemaId)
-                        readyGroupedByRuleName.add(validationSchemaId)
+                        readyRules[ownerComponentId].add(validationSchemaId)
+                        readyRulesByRuleName[ownerComponentId][validationRuleSchema.ruleName].add(validationSchemaId)
 
                         evokedValidationsRules.add(validationSchemaId)
                     } else {
-                        readyBySchemaId.delete(validationSchemaId)
-                        readyGroupedByRuleName.delete(validationSchemaId)
+                        readyRules[ownerComponentId].delete(validationSchemaId)
+                        readyRulesByRuleName[ownerComponentId][validationRuleSchema.ruleName].delete(validationSchemaId)
                     }
                 })
             }
@@ -420,42 +447,74 @@ export const init = ({
                         operators: operatorsForConditions,
                     })
 
-                    const { readyBySchemaId, readyGroupedByRuleName } = getAndInitReadyGroupRules(validationRuleSchema.ruleName)
+                    const isReadyRuleNow = readyConditionalGroupValidationRules.has(validationSchemaId)
+                    if (!ruleIsReady && isReadyRuleNow) {
+                        rulesToInactive.add(validationSchemaId)
+                    }
+
+                    initReadyGroupRules(validationRuleSchema.ruleName)
 
                     if (ruleIsReady) {
-                        readyBySchemaId.add(validationSchemaId)
-                        readyGroupedByRuleName.add(validationSchemaId)
+                        readyGroupRules.add(validationSchemaId)
+                        readyGroupRulesByRuleName[validationRuleSchema.ruleName].add(validationSchemaId)
 
                         evokedValidationsRules.add(validationSchemaId)
                     } else {
-                        readyBySchemaId.delete(validationSchemaId)
-                        readyGroupedByRuleName.delete(validationSchemaId)
+                        readyGroupRules.delete(validationSchemaId)
+                        readyGroupRulesByRuleName[validationRuleSchema.ruleName].delete(validationSchemaId)
                     }
                 })
             }
 
             Object.entries(componentsSchemasToUpdate).forEach(([componentId, componentSchema]) => {
-                calcReadyComponentsRules(componentId, componentSchema)
+                calcReadyRules(componentId, componentSchema)
                 calcReadyGroupRules(componentId, componentSchema)
             })
 
-            return { readyComponentsRules, readyGroupRules }
+            return {
+                readyRules,
+                readyRulesByRuleName,
+                readyGroupRules,
+                readyGroupRulesByRuleName,
+                rulesToInactive,
+            }
         },
     })
 
     sample({
         clock: resultCalcOfReadyValidationRulesEvent,
-        fn: ({ readyComponentsRules }) => readyComponentsRules,
-        target: setReadyConditionalComponentsValidationRulesEvent,
+        filter: ({ readyRules }) => isNotEmpty(readyRules),
+        fn: ({ readyRules }) => readyRules,
+        target: setReadyConditionalValidationRulesEvent,
     })
 
     sample({
         clock: resultCalcOfReadyValidationRulesEvent,
+        filter: ({ readyRulesByRuleName }) => isNotEmpty(readyRulesByRuleName),
+        fn: ({ readyRulesByRuleName }) => readyRulesByRuleName,
+        target: setReadyConditionalValidationRulesByRuleNameEvent,
+    })
+
+    sample({
+        clock: resultCalcOfReadyValidationRulesEvent,
+        filter: ({ readyGroupRules }) => isNotEmpty(readyGroupRules),
         fn: ({ readyGroupRules }) => readyGroupRules,
         target: setReadyConditionalGroupValidationRulesEvent,
     })
 
-    // RESET VALIDATIONS ERRORS, COMPONENTS AND GROUPS
+    sample({
+        clock: resultCalcOfReadyValidationRulesEvent,
+        filter: ({ readyGroupRulesByRuleName }) => isNotEmpty(readyGroupRulesByRuleName),
+        fn: ({ readyGroupRulesByRuleName }) => readyGroupRulesByRuleName,
+        target: setReadyConditionalGroupValidationRulesByRuleNameEvent,
+    })
+
+    sample({
+        clock: resultCalcOfReadyValidationRulesEvent,
+        filter: ({ rulesToInactive }) => isNotEmpty(rulesToInactive),
+        fn: ({ rulesToInactive }) => rulesToInactive,
+        target: [filterComponentsValidationErrorsEvent, filterGroupsValidationErrorsEvent],
+    })
 
     sample({
         source: {

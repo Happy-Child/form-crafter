@@ -48,9 +48,8 @@ export type EditableComponentProps<P extends EditableComponentProperties = Edita
     onBlur: () => void
     onChangeProperties: (changes: Partial<P>) => void
     errors: ComponentValidationError[] | null
-    error: ComponentValidationError | null
+    firstError: ComponentValidationError | null
     isRequired: boolean
-    isValidationPending: boolean
 }
 
 export type ContainerComponentProps<P extends ContainerComponentProperties = ContainerComponentProperties> = GenaralComponentProps<'container', P> & {
@@ -63,17 +62,15 @@ export type RepeaterComponentProps<P extends OptionalSerializableObject = Option
     onAddRow: () => void
     onRemoveRow: (props: { rowId: EntityId }) => void
     errors: ComponentValidationError[] | null
-    error: ComponentValidationError | null
+    firstError: ComponentValidationError | null
     isRequired: boolean
-    isValidationPending: boolean
 }
 
 export type UploaderComponentProps<P extends OptionalSerializableObject = OptionalSerializableObject> = GenaralComponentProps<'uploader', P> & {
     onChangeProperties: (changes: Partial<P>) => void
     errors: ComponentValidationError[] | null
-    error: ComponentValidationError | null
+    firstError: ComponentValidationError | null
     isRequired: boolean
-    isValidationPending: boolean
 }
 
 export type StaticComponentProps<P extends OptionalSerializableObject = OptionalSerializableObject> = GenaralComponentProps<'static', P>
