@@ -10,7 +10,7 @@ export const useIsRepeater = (id: EntityId): boolean => {
     const { services } = useGeneratorContext()
 
     const data = useStoreMap({
-        store: services.componentsSchemasService.$schemasMap,
+        store: services.componentsSchemasService.$componentsSchemasModel,
         keys: [id],
         fn: (map, [id]) => map.get(id),
     })

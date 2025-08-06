@@ -5,7 +5,7 @@ export const employeeFormSchema: Schema = {
     id: 'employee-form',
     version: '1.0',
     validations: {
-        additionalTriggers: ['onChange'],
+        additionalTriggers: ['onBlur'],
         schemas: [
             {
                 id: genId(),
@@ -68,7 +68,6 @@ export const employeeFormSchema: Schema = {
                         children: [{ id: 'date-start' }],
                     },
                 },
-
                 components: {
                     [rootComponentId]: {
                         id: rootComponentId,
@@ -186,15 +185,15 @@ export const employeeFormSchema: Schema = {
         'input-first-name': {
             meta: { id: 'input-first-name', type: 'editable', name: 'text-field' },
             properties: { label: 'Имя', value: '' },
-            // validations: {
-            //     schemas: [
-            //         {
-            //             id: genId(),
-            //             ruleName: 'isRequired',
-            //             options: { message: 'Обязательное поле' },
-            //         },
-            //     ],
-            // },
+            validations: {
+                schemas: [
+                    {
+                        id: genId(),
+                        ruleName: 'minLength',
+                        options: { message: 'Минимальная длинна {minLength}', minLength: 4 },
+                    },
+                ],
+            },
         },
         'input-last-name': {
             meta: { id: 'input-last-name', type: 'editable', name: 'text-field' },
@@ -225,11 +224,11 @@ export const employeeFormSchema: Schema = {
                         options: { message: 'Обязательное поле' },
                         condition: { type: 'component', componentId: 'date-birth', operatorName: 'isNotEmpty' },
                     },
-                    // {
-                    //     id: genId(),
-                    //     ruleName: 'minLength',
-                    //     options: { message: 'Минимальная длинна {minLength}', minLength: 6 },
-                    // },
+                    {
+                        id: genId(),
+                        ruleName: 'minLength',
+                        options: { message: 'Минимальная длинна {minLength}', minLength: 6 },
+                    },
                 ],
             },
         },

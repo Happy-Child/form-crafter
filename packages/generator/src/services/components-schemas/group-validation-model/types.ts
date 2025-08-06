@@ -1,14 +1,15 @@
 import { EntityId, GroupValidationError } from '@form-crafter/core'
 import { UnitValue } from 'effector'
 
-import { SchemaMap } from '../../../types'
 import { SchemaService } from '../../schema'
 import { ThemeService } from '../../theme'
-import { ComponentsValidationErrors, ReadyValidationsRules } from '../types'
+import { ComponentsSchemasModel } from '../components-models'
+import { ReadyValidationsRules } from '../types'
+import { ComponentsValidationErrors } from '../validations-errors-model'
 
 export type RunGroupValidationFxParams = {
-    componentsValidationErrors: ComponentsValidationErrors
-    componentsSchemasModel: SchemaMap
+    componentsGroupsValidationErrors: ComponentsValidationErrors
+    componentsSchemasModel: ComponentsSchemasModel
     groupValidationRules: UnitValue<ThemeService['$groupValidationRules']>
     groupValidationSchemas: UnitValue<SchemaService['$groupValidationSchemas']>
     readyConditionalValidationRules: ReadyValidationsRules[keyof ReadyValidationsRules]

@@ -2,27 +2,27 @@ import { EntityId, GroupValidationError } from '@form-crafter/core'
 import { isNotEmpty } from '@form-crafter/utils'
 import { attach, createEffect, createEvent, createStore, EventCallable, sample, StoreWritable, UnitValue } from 'effector'
 
-import { SchemaMap } from '../../../types'
-import { extractComponentsSchemasModels } from '../../../utils'
 import { SchemaService } from '../../schema'
 import { ThemeService } from '../../theme'
-import { ComponentsValidationErrors, ReadyValidationsRules } from '../types'
+import { ComponentsSchemasModel, extractComponentsSchemasModels } from '../components-models'
+import { ReadyValidationsRules } from '../types'
 import { buildExecutorContext } from '../utils'
+import { ComponentsValidationErrors } from '../validations-errors-model'
 import { RunGroupValidationFxDone, RunGroupValidationFxFail, RunGroupValidationFxParams } from './types'
 
 type GroupValidationModelParams = Pick<ThemeService, '$groupValidationRules'> &
     Pick<SchemaService, '$groupValidationSchemas'> & {
-        setComponentsValidationErrorsEvent: EventCallable<ComponentsValidationErrors>
-        filterComponentsValidationErrorsEvent: EventCallable<Set<EntityId>>
-        $componentsValidationErrors: StoreWritable<ComponentsValidationErrors>
-        $componentsSchemasModel: StoreWritable<SchemaMap>
+        setComponentsGroupsValidationErrorsEvent: EventCallable<ComponentsValidationErrors>
+        clearComponentsGroupsValidationErrorsEvent: EventCallable<void>
+        $componentsGroupsValidationErrors: StoreWritable<ComponentsValidationErrors>
+        $componentsSchemasModel: StoreWritable<ComponentsSchemasModel>
         $readyConditionalGroupValidationRules: StoreWritable<ReadyValidationsRules[keyof ReadyValidationsRules]>
     }
 
 export const createGroupValidationModel = ({
-    setComponentsValidationErrorsEvent,
-    filterComponentsValidationErrorsEvent,
-    $componentsValidationErrors,
+    setComponentsGroupsValidationErrorsEvent,
+    clearComponentsGroupsValidationErrorsEvent,
+    $componentsGroupsValidationErrors,
     $componentsSchemasModel,
     $groupValidationRules,
     $groupValidationSchemas,
@@ -34,10 +34,8 @@ export const createGroupValidationModel = ({
 
     const $errors = createStore<Map<EntityId, GroupValidationError>>(new Map())
 
-    const $failedComponentsByGroupValidationId = createStore<Record<EntityId, EntityId[]>>({})
-
     const baseRunGroupValidationsFx = createEffect<RunGroupValidationFxParams, RunGroupValidationFxDone, RunGroupValidationFxFail>(
-        async ({ componentsValidationErrors, componentsSchemasModel, groupValidationRules, groupValidationSchemas, readyConditionalValidationRules }) => {
+        async ({ componentsGroupsValidationErrors, componentsSchemasModel, groupValidationRules, groupValidationSchemas, readyConditionalValidationRules }) => {
             if (!validationIsAvailable) {
                 return Promise.resolve()
             }
@@ -66,7 +64,7 @@ export const createGroupValidationModel = ({
 
                     if (isNotEmpty(validationResult?.componentsErrors)) {
                         validationResult?.componentsErrors?.forEach((componentError) => {
-                            const componentCurErrors = componentsValidationErrors[componentError.componentId]
+                            const componentCurErrors = componentsGroupsValidationErrors[componentError.componentId]
 
                             const thisErrorExists = componentCurErrors?.has(validationSchemaId)
                             const isNewErrorMessage = componentCurErrors?.get(validationSchemaId)?.message !== componentError.message
@@ -85,7 +83,6 @@ export const createGroupValidationModel = ({
                             })
                         })
                     }
-                } else {
                 }
             }
 
@@ -101,7 +98,7 @@ export const createGroupValidationModel = ({
     )
     const runGroupValidationsFx = attach({
         source: {
-            componentsValidationErrors: $componentsValidationErrors,
+            componentsGroupsValidationErrors: $componentsGroupsValidationErrors,
             componentsSchemasModel: $componentsSchemasModel,
             groupValidationRules: $groupValidationRules,
             groupValidationSchemas: $groupValidationSchemas,
@@ -115,12 +112,6 @@ export const createGroupValidationModel = ({
     const clearErrorsEvent = createEvent('clearErrorsEvent')
 
     const filterErrorsEvent = createEvent<Set<EntityId>>('filterErrorsEvent')
-
-    const setFailedComponentsEvent = createEvent<UnitValue<typeof $failedComponentsByGroupValidationId>>('setFailedComponentsEvent')
-
-    const removeFailedComponentsEvent = createEvent<EntityId[]>('removeFailedComponentsEvent')
-
-    const clearFailedComponentsEvent = createEvent('clearFailedComponentsEvent')
 
     if (validationIsAvailable) {
         $isValidationPending.on(runGroupValidationsFx, () => true)
@@ -136,39 +127,11 @@ export const createGroupValidationModel = ({
             return newErrors
         })
 
-        $failedComponentsByGroupValidationId.on(setFailedComponentsEvent, (_, newData) => newData)
-        $failedComponentsByGroupValidationId.on(removeFailedComponentsEvent, (failedComponents, validationSchemaIdsToDelete) => {
-            validationSchemaIdsToDelete.forEach((id) => {
-                delete failedComponents[id]
-            })
-            return { ...failedComponents }
-        })
-        $failedComponentsByGroupValidationId.on(clearFailedComponentsEvent, () => ({}))
-
         sample({
             clock: runGroupValidationsFx.failData,
             filter: ({ componentsErrors }) => isNotEmpty(componentsErrors),
             fn: ({ componentsErrors }) => componentsErrors!,
-            target: setComponentsValidationErrorsEvent,
-        })
-
-        sample({
-            source: $errors,
-            clock: runGroupValidationsFx.failData,
-            filter: (_, { groupsErrors }) => isNotEmpty(groupsErrors),
-            fn: (curErrors, { groupsErrors: newErrors }) => {
-                const errorsToRemove = new Set<EntityId>()
-
-                for (const [validationSchemaId] of curErrors) {
-                    if (newErrors!.has(validationSchemaId)) {
-                        continue
-                    }
-                    errorsToRemove.add(validationSchemaId)
-                }
-
-                return errorsToRemove
-            },
-            target: filterComponentsValidationErrorsEvent,
+            target: setComponentsGroupsValidationErrorsEvent,
         })
 
         sample({
@@ -179,38 +142,14 @@ export const createGroupValidationModel = ({
         })
 
         sample({
-            clock: runGroupValidationsFx.failData,
-            filter: ({ componentsErrors }) => isNotEmpty(componentsErrors),
-            fn: ({ componentsErrors }) =>
-                Object.entries(componentsErrors!).reduce<UnitValue<typeof $failedComponentsByGroupValidationId>>((result, [componentId, errors]) => {
-                    errors.forEach((error) => {
-                        if (!(error.id in result)) {
-                            result[error.id] = []
-                        }
-                        result[error.id].push(componentId)
-                    })
-                    return result
-                }, {}),
-            target: setFailedComponentsEvent,
-        })
-
-        sample({
-            source: $errors,
             clock: runGroupValidationsFx.doneData,
-            fn: (curErrors) => new Set(Array.from(curErrors.keys())),
-            target: filterComponentsValidationErrorsEvent,
-        })
-
-        sample({
-            clock: runGroupValidationsFx.doneData,
-            target: [clearErrorsEvent, clearFailedComponentsEvent],
+            target: [clearComponentsGroupsValidationErrorsEvent, clearErrorsEvent],
         })
     }
 
     return {
         runGroupValidationsFx,
         filterErrorsEvent,
-        removeFailedComponentsEvent,
         $errors,
         $isValidationPending,
     }

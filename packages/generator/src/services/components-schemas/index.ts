@@ -3,23 +3,25 @@ import { differenceSet, isNotEmpty, splitAllSettledResult } from '@form-crafter/
 import { attach, combine, createEffect, createEvent, createStore, UnitValue } from 'effector'
 import { isEmpty } from 'lodash-es'
 
-import { SchemaMap } from '../../types'
 import { GroupValidationRuleSchemas } from '../schema/types'
+import {
+    canBeValidateSchemaModel,
+    ComponentsSchemasModel,
+    createComponentSchemaModel,
+    isValidableSchemaModel,
+    type RunComponentValidationFxDone,
+    type RunComponentValidationFxFail,
+} from './components-models'
 import { createGroupValidationModel } from './group-validation-model'
 import { init } from './init'
-import { createComponentSchemaModel, isValidableSchemaModel } from './models'
-import { RunComponentValidationFxDone, RunComponentValidationFxFail } from './models/types'
 import {
     CalcRelationRulesPayload,
     ComponentsSchemasService,
     ComponentsSchemasServiceParams,
-    ComponentsValidationErrors,
     DepsRuleSchema,
     ReadyValidationsRules,
     ReadyValidationsRulesByRuleName,
-    RemoveComponentsValidationErrorsPayload,
     RulesOverridesCache,
-    SetComponentValidationErrorsPayload,
     UpdateComponentPropertiesPayload,
 } from './types'
 import {
@@ -31,15 +33,23 @@ import {
     removeReadyValidationRules,
     topologicalSortDeps,
 } from './utils'
+import { createValidationsErrorsModel } from './validations-errors-model'
 
 export type { ComponentsSchemasService }
 
 export const createComponentsSchemasService = ({ initial, themeService, schemaService }: ComponentsSchemasServiceParams): ComponentsSchemasService => {
     const initialComponentsSchemas = schemaService.$initialComponentsSchemas.getState()
 
-    console.log('initialComponentsSchemas: ', initialComponentsSchemas)
-
-    const $componentsValidationErrors = createStore<ComponentsValidationErrors>({})
+    const {
+        setComponentValidationErrorsEvent,
+        setComponentsGroupsValidationErrorsEvent,
+        removeValidationErrorsEvent,
+        filterValidationErrorsEvent,
+        clearComponentsGroupsValidationErrorsEvent,
+        $componentsGroupsValidationErrors,
+        $componentsValidationErrors,
+        $validationErrors,
+    } = createValidationsErrorsModel()
 
     const $readyConditionalValidationRules = createStore<ReadyValidationsRules>({})
     const $readyConditionalValidationRulesByRuleName = createStore<ReadyValidationsRulesByRuleName>({})
@@ -54,41 +64,34 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
     const $readyConditionalGroupValidationRulesByRuleName = createStore<ReadyValidationsRulesByRuleName[keyof ReadyValidationsRulesByRuleName]>({})
 
     const $isComponentsValidationPending = createStore<boolean>(false)
-    const $componentsIsValid = combine($componentsValidationErrors, (componentsValidationErrors) => isEmpty(Object.entries(componentsValidationErrors)))
 
     const $rulesOverridesCache = createStore<RulesOverridesCache>({})
 
     const $hiddenComponents = createStore<Set<EntityId>>(new Set())
 
-    const setComponentValidationErrorsEvent = createEvent<SetComponentValidationErrorsPayload>('setComponentValidationErrorsEvent')
-    const setComponentsValidationErrorsEvent = createEvent<ComponentsValidationErrors>('setComponentsValidationErrorsEvent')
-    const removeComponentValidationErrorsEvent = createEvent<EntityId>('removeComponentValidationErrorsEvent')
-    const removeComponentsValidationErrorsEvent = createEvent<RemoveComponentsValidationErrorsPayload>('removeComponentsValidationErrorsEvent')
-    const filterComponentsValidationErrorsEvent = createEvent<Set<EntityId>>('filterComponentsValidationErrorsEvent')
-
     const runRelationRulesOnUserActionsEvent = createEvent<CalcRelationRulesPayload>('runRelationRulesOnUserActionsEvent')
-    const $componentsSchemasModel = createStore<SchemaMap>(new Map())
+    const $componentsSchemasModel = createStore<ComponentsSchemasModel>(new Map())
     const buildComponentsSchemasModel = (data: ComponentsSchemas) => {
         const additionalTriggers = schemaService.$schema.getState().validations?.additionalTriggers || null
 
-        return Object.entries(data).reduce<SchemaMap>((map, [componentId, componentSchema]) => {
+        return Object.entries(data).reduce<ComponentsSchemasModel>((map, [componentId, componentSchema]) => {
             const model = createComponentSchemaModel({
                 $componentsSchemasModel,
                 $readyConditionalValidationRules,
                 $readyConditionalValidationRulesByRuleName,
-                $componentsValidationErrors,
+                $validationErrors,
                 schema: componentSchema,
                 additionalTriggers,
                 themeService,
                 runRelationRulesEvent: runRelationRulesOnUserActionsEvent,
                 setComponentValidationErrorsEvent,
-                removeComponentValidationErrorsEvent,
+                removeValidationErrorsEvent,
             })
             map.set(componentId, model)
             return map
         }, new Map())
     }
-    const setComponentsSchemasModelEvent = createEvent<SchemaMap>()
+    const setComponentsSchemasModelEvent = createEvent<ComponentsSchemasModel>()
     $componentsSchemasModel.on(setComponentsSchemasModelEvent, (_, data) => data)
     setComponentsSchemasModelEvent(buildComponentsSchemasModel(initial))
 
@@ -138,7 +141,7 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
 
     const baseComponentsSchemasModelFx = createEffect<
         {
-            componentsSchemasModel: SchemaMap
+            componentsSchemasModel: ComponentsSchemasModel
             componentsSchemasToUpdate: ComponentsSchemas
         },
         void
@@ -153,19 +156,19 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
     })
     const updateComponentsSchemasModelFx = attach({
         source: $componentsSchemasModel,
-        mapParams: (componentsSchemasToUpdate: ComponentsSchemas, componentsSchemasModel: SchemaMap) => ({
+        mapParams: (componentsSchemasToUpdate: ComponentsSchemas, componentsSchemasModel: ComponentsSchemasModel) => ({
             componentsSchemasModel,
             componentsSchemasToUpdate,
         }),
         effect: baseComponentsSchemasModelFx,
     })
 
-    const baseRunComponentsValidationsFx = createEffect<SchemaMap, RunComponentValidationFxDone[], RunComponentValidationFxFail[]>(
+    const baseRunComponentsValidationsFx = createEffect<ComponentsSchemasModel, RunComponentValidationFxDone[], RunComponentValidationFxFail[]>(
         async (componentsSchemasModel) => {
             const promises = []
 
             for (const [, model] of componentsSchemasModel) {
-                if (isValidableSchemaModel(model)) {
+                if (isValidableSchemaModel(model) && canBeValidateSchemaModel(model)) {
                     promises.push(model.runValidationFx())
                 }
             }
@@ -189,9 +192,9 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
         $errors: $groupValidationErrors,
         $isValidationPending: $isGroupsValidationPending,
     } = createGroupValidationModel({
-        setComponentsValidationErrorsEvent,
-        filterComponentsValidationErrorsEvent,
-        $componentsValidationErrors,
+        setComponentsGroupsValidationErrorsEvent,
+        clearComponentsGroupsValidationErrorsEvent,
+        $componentsGroupsValidationErrors,
         $componentsSchemasModel,
         $groupValidationRules: themeService.$groupValidationRules,
         $groupValidationSchemas: schemaService.$groupValidationSchemas,
@@ -222,55 +225,18 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
 
     const $groupValidationErrorsArr = combine($groupValidationErrors, (groupValidationErrors) => Array.from(groupValidationErrors.values()))
 
+    const $formIsValid = combine(
+        $componentsGroupsValidationErrors,
+        $componentsValidationErrors,
+        $groupValidationErrors,
+        (componentsGroupsValidationErrors, componentsValidationErrors, groupValidationErrors) =>
+            isEmpty(Object.entries(componentsValidationErrors)) && isEmpty(Object.entries(componentsGroupsValidationErrors)) && isEmpty(groupValidationErrors),
+    )
+
     const $isValidationPending = combine(
         $isGroupsValidationPending,
         $isComponentsValidationPending,
         (groupsValidationPending, componentsValidationPending) => groupsValidationPending || componentsValidationPending,
-    )
-
-    $componentsValidationErrors.on(setComponentValidationErrorsEvent, (curErrors, { componentId, errors }) => ({ ...curErrors, [componentId]: errors }))
-    $componentsValidationErrors.on(setComponentsValidationErrorsEvent, (curErrors, newErrors) => ({ ...curErrors, ...newErrors }))
-    $componentsValidationErrors.on(removeComponentValidationErrorsEvent, (curErrors, componentId) => {
-        delete curErrors[componentId]
-        return { ...curErrors }
-    })
-    $componentsValidationErrors.on(removeComponentsValidationErrorsEvent, (curErrors, errorsToRemove) => {
-        const newErrors = { ...curErrors }
-
-        for (const [componentId, validationsSchemasIdsToRemove] of Object.entries(errorsToRemove)) {
-            const newComponentErrors = new Map(newErrors[componentId])
-
-            for (const idToRemove of validationsSchemasIdsToRemove) {
-                newComponentErrors.delete(idToRemove)
-            }
-
-            if (isEmpty(newComponentErrors)) {
-                delete newErrors[componentId]
-                continue
-            }
-
-            newErrors[componentId] = newComponentErrors
-        }
-
-        return newErrors
-    })
-    $componentsValidationErrors.on(filterComponentsValidationErrorsEvent, (curErrors, validationIdsToRemove) =>
-        Object.entries(curErrors).reduce<UnitValue<typeof $componentsValidationErrors>>((resultErrors, [componentId, errors]) => {
-            const filteredErrors = new Map(errors)
-
-            for (const idToRemove of validationIdsToRemove) {
-                filteredErrors.delete(idToRemove)
-            }
-
-            if (isNotEmpty(filteredErrors)) {
-                const finalErrors = filteredErrors.size === errors.size ? errors : filteredErrors
-                resultErrors[componentId] = finalErrors
-            } else {
-                delete resultErrors[componentId]
-            }
-
-            return resultErrors
-        }, {}),
     )
 
     $isComponentsValidationPending.on(runComponentsValidationsFx, () => true)
@@ -306,8 +272,6 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
     $readyConditionalGroupValidationRules.on(removeReadyConditionalGroupValidationRulesEvent, differenceSet)
     $readyConditionalGroupValidationRulesByRuleName.on(removeReadyConditionalGroupValidationRulesByRuleNameEvent, removeReadyValidationRules)
 
-    filterComponentsValidationErrorsEvent.watch((asd) => console.log('sad: ', asd))
-
     init({
         schemaService,
         runRelationRulesOnUserActionsEvent,
@@ -318,7 +282,7 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
         setReadyConditionalGroupValidationRulesEvent,
         setReadyConditionalGroupValidationRulesByRuleNameEvent,
         initComponentSchemasEvent,
-        filterComponentsValidationErrorsEvent,
+        filterValidationErrorsEvent,
         filterGroupsValidationErrorsEvent,
         updateComponentsSchemasModelFx,
         $hiddenComponents,
@@ -373,9 +337,9 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
         updateComponentPropertiesEvent,
         removeComponentsSchemasByIdsEvent,
         initComponentSchemasEvent,
-        $schemasMap: $componentsSchemasModel,
+        $componentsSchemasModel,
         $isValidationPending,
         $groupValidationErrors: $groupValidationErrorsArr,
-        $componentsIsValid,
+        $formIsValid,
     }
 }

@@ -8,10 +8,10 @@ type Params = Pick<RepeaterService, 'addChildEvent' | 'removeChildEvent'> & Pick
 
 export const init = ({ componentsSchemasService, viewsService, addChildEvent, removeChildEvent }: Params) => {
     const executeAddChildEvent = sample({
-        source: { views: viewsService.$views, schemasMap: componentsSchemasService.$schemasMap },
+        source: { views: viewsService.$views, componentsSchemasModel: componentsSchemasService.$componentsSchemasModel },
         clock: addChildEvent,
-        fn: ({ views: currentViews, schemasMap }, { repeaterId }) => {
-            const { template } = schemasMap.get(repeaterId)!.$schema.getState() as RepeaterComponentSchema
+        fn: ({ views: currentViews, componentsSchemasModel }, { repeaterId }) => {
+            const { template } = componentsSchemasModel.get(repeaterId)!.$schema.getState() as RepeaterComponentSchema
 
             const { views: additionalViews, componentsSchemas: additionalComponentsSchemas, additionalRowId } = createViewsDefinitions(template, repeaterId)
 
@@ -42,10 +42,10 @@ export const init = ({ componentsSchemasService, viewsService, addChildEvent, re
     })
 
     const executeRemoveChildEvent = sample({
-        source: { views: viewsService.$views, componentsSchemas: componentsSchemasService.$schemasMap },
+        source: { views: viewsService.$views, componentsSchemasModel: componentsSchemasService.$componentsSchemasModel },
         clock: removeChildEvent,
-        fn: ({ views: currentViews, componentsSchemas }, { rowId, repeaterId }) => {
-            const { template } = componentsSchemas.get(repeaterId)!.$schema.getState() as RepeaterComponentSchema
+        fn: ({ views: currentViews, componentsSchemasModel }, { rowId, repeaterId }) => {
+            const { template } = componentsSchemasModel.get(repeaterId)!.$schema.getState() as RepeaterComponentSchema
 
             const relevantViews = extractRelevantViews(currentViews, template.views)
             const { views: finalViews, componentsIdsToRemove } = removeViewRow(relevantViews, repeaterId, rowId)

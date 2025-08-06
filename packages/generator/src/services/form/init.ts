@@ -1,7 +1,7 @@
 import { Effect, EventCallable, sample } from 'effector'
 
 import { GeneratorProps } from '../../types'
-import { extractComponentsSchemasModels } from '../../utils'
+import { extractComponentsSchemasModels } from '../components-schemas/components-models'
 import { FormServiceParams } from './types'
 
 type Params = Pick<FormServiceParams, 'componentsSchemasService' | 'viewsService'> & {
@@ -16,11 +16,11 @@ export const init = ({ onFormSubmitEvent, invokeUserSubmitHandlerFx, componentsS
     })
 
     sample({
-        source: { componentsIsValid: componentsSchemasService.$componentsIsValid, schemasMap: componentsSchemasService.$schemasMap },
+        source: { componentsIsValid: componentsSchemasService.$formIsValid, componentsSchemasModel: componentsSchemasService.$componentsSchemasModel },
         clock: componentsSchemasService.runFormValidationFx.done,
         filter: ({ componentsIsValid }) => componentsIsValid,
-        fn: ({ schemasMap }) => {
-            const componentsSchemas = extractComponentsSchemasModels(schemasMap)
+        fn: ({ componentsSchemasModel }) => {
+            const componentsSchemas = extractComponentsSchemasModels(componentsSchemasModel)
             return {
                 componentsSchemas,
             }

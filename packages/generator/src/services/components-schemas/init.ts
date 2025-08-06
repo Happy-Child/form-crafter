@@ -4,10 +4,9 @@ import { createEvent, Effect, EventCallable, sample, Store, StoreValue, StoreWri
 import { cloneDeep, isEqual, merge, pick } from 'lodash-es'
 import { combineEvents } from 'patronum'
 
-import { SchemaMap } from '../../types'
-import { extractComponentsSchemasModels } from '../../utils'
 import { SchemaService } from '../schema/types'
 import { ThemeService } from '../theme'
+import { ComponentsSchemasModel, extractComponentsSchemasModels } from './components-models'
 import {
     CalcRelationRulesPayload,
     DepsComponentRuleSchemas,
@@ -18,7 +17,7 @@ import {
 } from './types'
 import { buildExecutorContext } from './utils'
 
-type RunrelationRulesPayload = {
+type RunRelationRulesPayload = {
     componentsSchemas: ComponentsSchemas
     newComponentsSchemas: ComponentsSchemas
     relationsDependents: EntityId[]
@@ -41,10 +40,10 @@ type Params = {
     setReadyConditionalGroupValidationRulesEvent: EventCallable<ReadyValidationsRules[keyof ReadyValidationsRules]>
     setReadyConditionalGroupValidationRulesByRuleNameEvent: EventCallable<ReadyValidationsRulesByRuleName[keyof ReadyValidationsRulesByRuleName]>
     initComponentSchemasEvent: EventCallable<void>
-    filterComponentsValidationErrorsEvent: EventCallable<Set<EntityId>>
+    filterValidationErrorsEvent: EventCallable<Set<EntityId>>
     filterGroupsValidationErrorsEvent: EventCallable<Set<EntityId>>
     $hiddenComponents: StoreWritable<Set<EntityId>>
-    $componentsSchemasModel: StoreWritable<SchemaMap>
+    $componentsSchemasModel: StoreWritable<ComponentsSchemasModel>
     $rulesOverridesCache: StoreWritable<RulesOverridesCache>
     $sortedAllRelationsDependents: Store<EntityId[]>
     $sortedRelationsDependentsByComponent: Store<Record<EntityId, EntityId[]>>
@@ -69,7 +68,7 @@ export const init = ({
     setReadyConditionalGroupValidationRulesEvent,
     setReadyConditionalGroupValidationRulesByRuleNameEvent,
     initComponentSchemasEvent,
-    filterComponentsValidationErrorsEvent,
+    filterValidationErrorsEvent,
     filterGroupsValidationErrorsEvent,
     updateComponentsSchemasModelFx,
     $hiddenComponents,
@@ -87,7 +86,7 @@ export const init = ({
     $operatorsForConditions,
     $relationRules,
 }: Params) => {
-    const runRelationRulesEvent = createEvent<RunrelationRulesPayload>('runRelationRulesEvent')
+    const runRelationRulesEvent = createEvent<RunRelationRulesPayload>('runRelationRulesEvent')
 
     const calcReadyConditionalValidationRulesEvent = createEvent<CalcReadyConditionalValidationRulesPayload>('calcReadyConditionalValidationRulesEvent')
 
@@ -513,7 +512,7 @@ export const init = ({
         clock: resultCalcOfReadyValidationRulesEvent,
         filter: ({ rulesToInactive }) => isNotEmpty(rulesToInactive),
         fn: ({ rulesToInactive }) => rulesToInactive,
-        target: [filterComponentsValidationErrorsEvent, filterGroupsValidationErrorsEvent],
+        target: [filterValidationErrorsEvent, filterGroupsValidationErrorsEvent],
     })
 
     sample({

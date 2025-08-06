@@ -1,4 +1,3 @@
-export * from './extract-components-schemas-models'
 export * from './gen-component-id'
 export * from './gen-id'
 export * from './gen-row-id'
