@@ -2,13 +2,13 @@ import { ComponentValidationError, RepeaterComponentSchema } from '@form-crafter
 import { OptionalSerializableObject } from '@form-crafter/utils'
 import { createEffect, createEvent, createStore } from 'effector'
 
-import { RepeaterSchemaModel, RunComponentValidationFxDone, RunComponentValidationFxFail } from '../types'
+import { RepeaterModel, RunComponentValidationFxDone, RunComponentValidationFxFail } from '../types'
 
-export type RepeaterSchemaModelParams = {
+type Params = {
     schema: RepeaterComponentSchema
 }
 
-export const createRepeaterSchemaModel = ({ schema }: RepeaterSchemaModelParams): RepeaterSchemaModel => {
+export const createRepeaterModel = ({ schema }: Params): RepeaterModel => {
     const $schema = createStore<RepeaterComponentSchema>(schema)
 
     const $firstError = createStore<ComponentValidationError | null>(null)

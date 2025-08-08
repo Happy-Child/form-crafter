@@ -4,18 +4,16 @@ import { attach, createEffect, createEvent, createStore, EventCallable, sample, 
 
 import { SchemaService } from '../../schema'
 import { ThemeService } from '../../theme'
-import { ComponentsSchemasModel, extractComponentsSchemasModels } from '../components-models'
-import { ReadyValidationsRules } from '../types'
-import { buildExecutorContext } from '../utils'
+import { GetExecutorContextBuilder, ReadyValidationsRules } from '../types'
 import { ComponentsValidationErrors } from '../validations-errors-model'
 import { RunGroupValidationFxDone, RunGroupValidationFxFail, RunGroupValidationFxParams } from './types'
 
-type GroupValidationModelParams = Pick<ThemeService, '$groupValidationRules'> &
+type Params = Pick<ThemeService, '$groupValidationRules'> &
     Pick<SchemaService, '$groupValidationSchemas'> & {
         setComponentsGroupsValidationErrorsEvent: EventCallable<ComponentsValidationErrors>
         clearComponentsGroupsValidationErrorsEvent: EventCallable<void>
         $componentsGroupsValidationErrors: StoreWritable<ComponentsValidationErrors>
-        $componentsSchemasModel: StoreWritable<ComponentsSchemasModel>
+        $getExecutorContextBuilder: GetExecutorContextBuilder
         $readyConditionalGroupValidationRules: StoreWritable<ReadyValidationsRules[keyof ReadyValidationsRules]>
     }
 
@@ -23,11 +21,11 @@ export const createGroupValidationModel = ({
     setComponentsGroupsValidationErrorsEvent,
     clearComponentsGroupsValidationErrorsEvent,
     $componentsGroupsValidationErrors,
-    $componentsSchemasModel,
+    $getExecutorContextBuilder,
     $groupValidationRules,
     $groupValidationSchemas,
     $readyConditionalGroupValidationRules,
-}: GroupValidationModelParams) => {
+}: Params) => {
     const validationIsAvailable = isNotEmpty($groupValidationSchemas.getState())
 
     const $isValidationPending = createStore<boolean>(false)
@@ -35,13 +33,18 @@ export const createGroupValidationModel = ({
     const $errors = createStore<Map<EntityId, GroupValidationError>>(new Map())
 
     const baseRunGroupValidationsFx = createEffect<RunGroupValidationFxParams, RunGroupValidationFxDone, RunGroupValidationFxFail>(
-        async ({ componentsGroupsValidationErrors, componentsSchemasModel, groupValidationRules, groupValidationSchemas, readyConditionalValidationRules }) => {
+        async ({
+            componentsGroupsValidationErrors,
+            getExecutorContextBuilder,
+            groupValidationRules,
+            groupValidationSchemas,
+            readyConditionalValidationRules,
+        }) => {
             if (!validationIsAvailable) {
                 return Promise.resolve()
             }
 
-            const componentsSchemas = extractComponentsSchemasModels(componentsSchemasModel)
-            const executorContext = buildExecutorContext({ componentsSchemas })
+            const executorContext = getExecutorContextBuilder()
 
             const finalGroupsErrors: UnitValue<typeof $errors> = new Map()
             const finalComponentsErrors: ComponentsValidationErrors = {}
@@ -99,7 +102,7 @@ export const createGroupValidationModel = ({
     const runGroupValidationsFx = attach({
         source: {
             componentsGroupsValidationErrors: $componentsGroupsValidationErrors,
-            componentsSchemasModel: $componentsSchemasModel,
+            getExecutorContextBuilder: $getExecutorContextBuilder,
             groupValidationRules: $groupValidationRules,
             groupValidationSchemas: $groupValidationSchemas,
             readyConditionalValidationRules: $readyConditionalGroupValidationRules,

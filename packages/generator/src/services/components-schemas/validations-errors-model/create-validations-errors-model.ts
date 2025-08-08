@@ -1,45 +1,65 @@
 import { EntityId } from '@form-crafter/core'
-import { createEvent, createStore, sample, UnitValue } from 'effector'
+import { combine, createEvent, createStore, sample, StoreWritable, UnitValue } from 'effector'
 
 import { isErrorsDifferent } from '../utils'
 import { ComponentsValidationErrors, SetComponentValidationErrorsPayload } from './types'
-import { filterValidationErrors } from './utils'
+import { filterValidationErrors, removeValidationErrors } from './utils'
 
-export const createValidationsErrorsModel = () => {
+type Params = {
+    $hiddenComponents: StoreWritable<Set<EntityId>>
+}
+
+export const createValidationsErrorsModel = ({ $hiddenComponents }: Params) => {
     const $componentsGroupsValidationErrors = createStore<ComponentsValidationErrors>({})
     const $componentsValidationErrors = createStore<ComponentsValidationErrors>({})
 
     const $validationErrors = createStore<ComponentsValidationErrors>({})
 
-    const setComponentValidationErrorsEvent = createEvent<SetComponentValidationErrorsPayload>('setComponentValidationErrorsEvent')
-    const setComponentsGroupsValidationErrorsEvent = createEvent<ComponentsValidationErrors>('setComponentsGeoupsValidationErrorsEvent')
-    const removeValidationErrorsEvent = createEvent<EntityId>('removeValidationErrorsEvent')
-    const filterValidationErrorsEvent = createEvent<Set<EntityId>>('filterValidationErrorsEvent')
-    const clearComponentsGroupsValidationErrorsEvent = createEvent<void>('clearComponentsGroupsValidationErrorsEvent')
     const setValidationErrorsEvent = createEvent<ComponentsValidationErrors>('setValidationErrorsEvent')
 
-    $componentsGroupsValidationErrors.on(setComponentsGroupsValidationErrorsEvent, (curErrors, newErrors) => ({ ...curErrors, ...newErrors }))
-    $componentsGroupsValidationErrors.on(removeValidationErrorsEvent, (curErrors, componentId) => {
-        if (componentId in curErrors) {
-            delete curErrors[componentId]
-            return { ...curErrors }
-        }
-        return curErrors
-    })
-    $componentsGroupsValidationErrors.on(filterValidationErrorsEvent, filterValidationErrors)
-    $componentsGroupsValidationErrors.reset(clearComponentsGroupsValidationErrorsEvent)
+    const setComponentsGroupsValidationErrorsEvent = createEvent<ComponentsValidationErrors>('setComponentsGeoupsValidationErrorsEvent')
+    const clearComponentsGroupsValidationErrorsEvent = createEvent<void>('clearComponentsGroupsValidationErrorsEvent')
+    const removeGroupValidationErrorsEvent = createEvent<EntityId>('removeGroupValidationErrorsEvent')
 
-    $componentsValidationErrors.on(setComponentValidationErrorsEvent, (curErrors, { componentId, errors }) => ({ ...curErrors, [componentId]: errors }))
-    $componentsValidationErrors.on(removeValidationErrorsEvent, (curErrors, componentId) => {
-        if (componentId in curErrors) {
-            delete curErrors[componentId]
-            return { ...curErrors }
+    const setComponentValidationErrorsEvent = createEvent<SetComponentValidationErrorsPayload>('setComponentValidationErrorsEvent')
+    const removeComponentValidationErrorsEvent = createEvent<EntityId>('removeComponentValidationErrorsEvent')
+
+    const filterAllValidationErrorsEvent = createEvent<Set<EntityId>>('filterAllValidationErrorsEvent')
+
+    const removeAllValidationErrorsEvent = createEvent<EntityId>('removeAllValidationErrorsEvent')
+
+    const $visibleValidationErrors = combine($validationErrors, $hiddenComponents, (validationErrors, hiddenComponents) => {
+        const filteredErrors: UnitValue<typeof $validationErrors> = { ...validationErrors }
+        let wasDeleted = false
+
+        for (const componentId of hiddenComponents) {
+            if (!(componentId in filteredErrors)) {
+                continue
+            }
+
+            delete filteredErrors[componentId]
+            wasDeleted = true
         }
-        return curErrors
+
+        return wasDeleted ? filteredErrors : validationErrors
     })
-    $componentsValidationErrors.on(filterValidationErrorsEvent, filterValidationErrors)
 
     $validationErrors.on(setValidationErrorsEvent, (_, newErrors) => newErrors)
+
+    $componentsGroupsValidationErrors.on(setComponentsGroupsValidationErrorsEvent, (curErrors, newErrors) => ({ ...curErrors, ...newErrors }))
+    $componentsGroupsValidationErrors.reset(clearComponentsGroupsValidationErrorsEvent)
+    $componentsGroupsValidationErrors.on(removeGroupValidationErrorsEvent, removeValidationErrors)
+
+    $componentsValidationErrors.on(setComponentValidationErrorsEvent, (curErrors, { componentId, errors }) => ({ ...curErrors, [componentId]: errors }))
+    $componentsValidationErrors.on(removeComponentValidationErrorsEvent, removeValidationErrors)
+
+    $componentsGroupsValidationErrors.on(filterAllValidationErrorsEvent, filterValidationErrors)
+    $componentsValidationErrors.on(filterAllValidationErrorsEvent, filterValidationErrors)
+
+    sample({
+        clock: removeAllValidationErrorsEvent,
+        target: [removeGroupValidationErrorsEvent, removeComponentValidationErrorsEvent],
+    })
 
     sample({
         source: {
@@ -78,11 +98,13 @@ export const createValidationsErrorsModel = () => {
     return {
         setComponentValidationErrorsEvent,
         setComponentsGroupsValidationErrorsEvent,
-        removeValidationErrorsEvent,
-        filterValidationErrorsEvent,
+        removeComponentValidationErrorsEvent,
+        removeAllValidationErrorsEvent,
+        filterAllValidationErrorsEvent,
         clearComponentsGroupsValidationErrorsEvent,
         $componentsGroupsValidationErrors,
         $componentsValidationErrors,
         $validationErrors,
+        $visibleValidationErrors,
     }
 }

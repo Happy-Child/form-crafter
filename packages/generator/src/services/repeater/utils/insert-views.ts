@@ -1,13 +1,13 @@
 import { EntityId, ViewDefinition, ViewsDefinitions } from '@form-crafter/core'
 
-type InsertViewsParams = {
+type Params = {
     views: ViewsDefinitions
     additionalViews: ViewsDefinitions
     repeaterId: EntityId
     additionalRowId: EntityId
 }
 
-export const insertViews = ({ views, additionalViews, repeaterId, additionalRowId }: InsertViewsParams): ViewsDefinitions => {
+export const insertViews = ({ views, additionalViews, repeaterId, additionalRowId }: Params): ViewsDefinitions => {
     return Object.fromEntries(
         Object.entries(views).map(([viewId, definition]): [EntityId, ViewDefinition] => {
             if (!(viewId in additionalViews)) {

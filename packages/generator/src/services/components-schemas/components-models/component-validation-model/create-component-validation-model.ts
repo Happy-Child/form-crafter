@@ -9,15 +9,19 @@ import {
 import { isNotEmpty } from '@form-crafter/utils'
 import { attach, combine, createEffect, createStore, Store, StoreWritable } from 'effector'
 
-import { buildExecutorContext, getPermanentValidationRulesByRuleName } from '../../utils'
+import { getPermanentValidationRulesByRuleName } from '../../utils'
 import { ComponentsValidationErrors } from '../../validations-errors-model'
-import { ComponentSchemaModelParams, RunComponentValidationFxDone, RunComponentValidationFxFail } from '../types'
-import { extractComponentsSchemasModels } from '../utils'
+import { ComponentModelParams, RunComponentValidationFxDone, RunComponentValidationFxFail } from '../types'
 import { RunComponentValidationFxParams } from './types'
 
 type ComponentValidationModelParams<S extends ComponentSchema> = Pick<
-    ComponentSchemaModelParams,
-    '$componentsSchemasModel' | '$readyConditionalValidationRules' | '$readyConditionalValidationRulesByRuleName' | '$validationErrors' | 'themeService'
+    ComponentModelParams,
+    | '$componentsSchemas'
+    | '$getExecutorContextBuilder'
+    | '$readyConditionalValidationRules'
+    | '$readyConditionalValidationRulesByRuleName'
+    | '$visibleValidationErrors'
+    | 'themeService'
 > & {
     $componentId: Store<EntityId>
     $schema: StoreWritable<S>
@@ -25,10 +29,10 @@ type ComponentValidationModelParams<S extends ComponentSchema> = Pick<
 }
 
 export const createComponentValidationModel = <S extends ComponentSchema>({
-    $componentsSchemasModel,
+    $getExecutorContextBuilder,
     $readyConditionalValidationRules,
     $readyConditionalValidationRulesByRuleName,
-    $validationErrors,
+    $visibleValidationErrors,
     $componentId,
     $schema,
     themeService,
@@ -36,7 +40,7 @@ export const createComponentValidationModel = <S extends ComponentSchema>({
 }: ComponentValidationModelParams<S>) => {
     const $isValidationPending = createStore<boolean>(false)
 
-    const $componentErrors = combine($validationErrors, $componentId, (validationErrors, componentId) => validationErrors[componentId] || null)
+    const $componentErrors = combine($visibleValidationErrors, $componentId, (validationErrors, componentId) => validationErrors[componentId] || null)
     const $errorsArr = combine($componentErrors, (componentErrors) => (isNotEmpty(componentErrors) ? Array.from(componentErrors.values()) : null))
     const $firstError = combine($errorsArr, (errors) => (isNotEmpty(errors) ? errors[0] : null))
 
@@ -76,7 +80,7 @@ export const createComponentValidationModel = <S extends ComponentSchema>({
     )
 
     const baseRunValidationFx = createEffect<RunComponentValidationFxParams<S>, RunComponentValidationFxDone, RunComponentValidationFxFail>(
-        async ({ schema, componentsSchemasModel, readyComponentConditionalValidationRules, componentsValidationsRules }) => {
+        async ({ schema, getExecutorContextBuilder, readyComponentConditionalValidationRules, componentsValidationsRules }) => {
             if (!validationIsAvailable) {
                 return Promise.resolve()
             }
@@ -84,8 +88,7 @@ export const createComponentValidationModel = <S extends ComponentSchema>({
             const value = schema.properties.value
             const componentId = schema.meta.id
 
-            const componentsSchemas = extractComponentsSchemasModels(componentsSchemasModel)
-            const executorContext = buildExecutorContext({ componentsSchemas })
+            const executorContext = getExecutorContextBuilder()
 
             const newErrors: ComponentsValidationErrors[keyof ComponentsValidationErrors] = new Map()
 
@@ -124,8 +127,7 @@ export const createComponentValidationModel = <S extends ComponentSchema>({
     const runValidationFx = attach({
         source: {
             schema: $schema,
-            componentErrors: $componentErrors,
-            componentsSchemasModel: $componentsSchemasModel,
+            getExecutorContextBuilder: $getExecutorContextBuilder,
             readyComponentConditionalValidationRules: $readyComponentConditionalValidationRules,
             componentsValidationsRules: themeService.$componentsValidationsRules,
         },

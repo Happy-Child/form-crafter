@@ -3,21 +3,22 @@ import { isNotEmpty, OptionalSerializableObject } from '@form-crafter/utils'
 import { combine, createEvent, createStore, sample } from 'effector'
 
 import { createComponentValidationModel } from '../component-validation-model'
-import { ComponentSchemaModelParams, EditableSchemaModel } from '../types'
+import { ComponentModelParams, EditableModel } from '../types'
 import { isChangedValue } from '../utils'
 
-export type EditableSchemaModelParams = Omit<ComponentSchemaModelParams, 'schema'> & {
+type Params = Omit<ComponentModelParams, 'schema'> & {
     schema: EditableComponentSchema
 }
 
-export const createEditableSchemaModel = ({
+export const createEditableModel = ({
     schema,
     additionalTriggers,
     runRelationRulesEvent,
     setComponentValidationErrorsEvent,
-    removeValidationErrorsEvent,
+    removeComponentValidationErrorsEvent,
+    removeAllValidationErrorsEvent,
     ...params
-}: EditableSchemaModelParams): EditableSchemaModel => {
+}: Params): EditableModel => {
     const validationIsAvailable = isNotEmpty(schema.validations?.schemas)
     const validationOnChangeIsAvailable = validationIsAvailable && additionalTriggers?.includes('onChange')
     const validationOnBlurIsAvailable = validationIsAvailable && additionalTriggers?.includes('onBlur')
@@ -72,10 +73,11 @@ export const createEditableSchemaModel = ({
     })
 
     sample({
-        source: $componentId,
+        source: { componentId: $componentId, firstError: validationComponentModel.$firstError },
         clock: valueBeChangedEvent,
-        fn: (componentId) => componentId,
-        target: removeValidationErrorsEvent,
+        filter: ({ firstError }) => isNotEmpty(firstError),
+        fn: ({ componentId }) => componentId,
+        target: removeAllValidationErrorsEvent,
     })
 
     if (validationOnChangeIsAvailable) {
@@ -129,10 +131,11 @@ export const createEditableSchemaModel = ({
 
     if (validationIsAvailable) {
         sample({
-            source: $componentId,
+            source: { componentId: $componentId, firstError: validationComponentModel.$firstError },
             clock: validationComponentModel.runValidationFx.doneData,
-            fn: (componentId) => componentId,
-            target: removeValidationErrorsEvent,
+            filter: ({ firstError }) => isNotEmpty(firstError),
+            fn: ({ componentId }) => componentId,
+            target: removeComponentValidationErrorsEvent,
         })
         sample({
             source: $componentId,

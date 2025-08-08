@@ -1,4 +1,3 @@
-export * from './can-be-validate-schema-model'
-export * from './extract-components-schemas-models'
+export * from './extract-components-models'
 export * from './is-changed-value'
-export * from './is-validable-schema-model'
+export * from './is-validable-model'

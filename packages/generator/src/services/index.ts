@@ -20,7 +20,7 @@ export const createRootServices = ({ schema, theme, PlaceholderComponent, onSubm
     const formService = createFormService({ onSubmit, viewsService, componentsSchemasService })
 
     const bootstrap = () => {
-        componentsSchemasService.initComponentSchemasEvent()
+        componentsSchemasService.initServiceEvent()
     }
 
     bootstrap()

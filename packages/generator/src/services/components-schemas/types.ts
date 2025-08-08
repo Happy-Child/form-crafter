@@ -1,10 +1,10 @@
-import { ComponentSchema, ComponentsSchemas, EntityId, GroupValidationError } from '@form-crafter/core'
+import { ComponentSchema, ComponentsSchemas, EntityId, GroupValidationError, RuleExecutorContext } from '@form-crafter/core'
 import { OptionalSerializableObject } from '@form-crafter/utils'
 import { Effect, EventCallable, Store, StoreWritable } from 'effector'
 
 import { SchemaService } from '../schema'
 import { ThemeService } from '../theme'
-import { ComponentsSchemasModel } from './components-models'
+import { ComponentsModels } from './components-models'
 
 export type ReadyValidationsRules = Record<EntityId, Set<EntityId>>
 
@@ -17,7 +17,7 @@ export type DepsRuleSchema = {
     schemaIdToDependents: Record<EntityId, EntityId[]>
 }
 
-export type DepsComponentRuleSchemas = {
+export type DepsComponentsRuleSchemas = {
     relations: DepsRuleSchema
     validations: DepsRuleSchema
 }
@@ -31,13 +31,16 @@ export type CalcRelationRulesPayload = { id: EntityId; data: OptionalSerializabl
 
 export type RemoveComponentsValidationErrorsPayload = Record<EntityId, Set<EntityId>>
 
+export type GetExecutorContextBuilder = Store<(params?: { componentsSchemas?: ComponentsSchemas }) => RuleExecutorContext>
+
 export type ComponentsSchemasService = {
     runFormValidationFx: Effect<void, void>
     updateComponentsSchemasEvent: EventCallable<ComponentsSchemas>
     removeComponentsSchemasByIdsEvent: EventCallable<{ ids: EntityId[] }>
     updateComponentPropertiesEvent: EventCallable<UpdateComponentPropertiesPayload>
-    initComponentSchemasEvent: EventCallable<void>
-    $componentsSchemasModel: StoreWritable<ComponentsSchemasModel>
+    initServiceEvent: EventCallable<void>
+    $componentsModels: StoreWritable<ComponentsModels>
+    $visibleComponentsSchemas: Store<ComponentsSchemas>
     $isValidationPending: Store<boolean>
     $groupValidationErrors: Store<GroupValidationError[]>
     $formIsValid: Store<boolean>

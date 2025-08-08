@@ -2,13 +2,13 @@ import { ComponentValidationError, UploaderComponentProperties, UploaderComponen
 import { OptionalSerializableObject } from '@form-crafter/utils'
 import { createEffect, createEvent, createStore } from 'effector'
 
-import { RunComponentValidationFxDone, RunComponentValidationFxFail, UploaderSchemaModel } from '../types'
+import { RunComponentValidationFxDone, RunComponentValidationFxFail, UploaderModel } from '../types'
 
-export type UploaderSchemaModelParams = {
+type Params = {
     schema: UploaderComponentSchema
 }
 
-export const createUploaderSchemaModel = ({ schema }: UploaderSchemaModelParams): UploaderSchemaModel => {
+export const createUploaderModel = ({ schema }: Params): UploaderModel => {
     const $schema = createStore<UploaderComponentSchema>(schema)
 
     const $firstError = createStore<ComponentValidationError | null>(null)

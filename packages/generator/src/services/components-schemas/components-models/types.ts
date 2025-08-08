@@ -1,5 +1,6 @@
 import {
     ComponentSchema,
+    ComponentsSchemas,
     ComponentType,
     ComponentValidationError,
     ContainerComponentProperties,
@@ -8,6 +9,7 @@ import {
     EditableComponentSchema,
     EntityId,
     RepeaterComponentSchema,
+    RuleExecutorContext,
     StaticComponentSchema,
     UploaderComponentProperties,
     UploaderComponentSchema,
@@ -24,22 +26,24 @@ export type RunComponentValidationFxDone = {}
 
 export type RunComponentValidationFxFail = { errors: ComponentsValidationErrors[keyof ComponentsValidationErrors] }
 
-export type GeneralSchemaModelParams = {}
+export type GeneralModelParams = {}
 
-export type ComponentSchemaModelParams = {
-    $componentsSchemasModel: StoreWritable<ComponentsSchemasModel>
+export type ComponentModelParams = {
+    $componentsSchemas: Store<ComponentsSchemas>
+    $getExecutorContextBuilder: Store<() => RuleExecutorContext>
     $readyConditionalValidationRules: StoreWritable<ReadyValidationsRules>
     $readyConditionalValidationRulesByRuleName: StoreWritable<ReadyValidationsRulesByRuleName>
-    $validationErrors: Store<ComponentsValidationErrors>
+    $visibleValidationErrors: Store<ComponentsValidationErrors>
     themeService: ThemeService
     schema: ComponentSchema
     additionalTriggers: ValidationsTriggers[] | null
     runRelationRulesEvent: EventCallable<CalcRelationRulesPayload>
     setComponentValidationErrorsEvent: EventCallable<SetComponentValidationErrorsPayload>
-    removeValidationErrorsEvent: EventCallable<EntityId>
+    removeComponentValidationErrorsEvent: EventCallable<EntityId>
+    removeAllValidationErrorsEvent: EventCallable<EntityId>
 }
 
-export type EditableSchemaModel = {
+export type EditableModel = {
     $schema: StoreWritable<EditableComponentSchema>
     $errors: Store<ComponentValidationError[] | null>
     $firstError: Store<ComponentValidationError | null>
@@ -51,13 +55,13 @@ export type EditableSchemaModel = {
     runValidationFx: Effect<void, RunComponentValidationFxDone, RunComponentValidationFxFail>
 }
 
-export type ContainerSchemaModel = {
+export type ContainerModel = {
     $schema: StoreWritable<ContainerComponentSchema>
     setSchemaEvent: EventCallable<OptionalSerializableObject>
     onUpdatePropertiesEvent: EventCallable<Partial<ContainerComponentProperties>>
 }
 
-export type RepeaterSchemaModel = {
+export type RepeaterModel = {
     $schema: StoreWritable<RepeaterComponentSchema>
     $errors: Store<ComponentValidationError[]>
     $firstError: Store<ComponentValidationError | null>
@@ -67,7 +71,7 @@ export type RepeaterSchemaModel = {
     runValidationFx: Effect<void, RunComponentValidationFxDone, RunComponentValidationFxFail>
 }
 
-export type UploaderSchemaModel = {
+export type UploaderModel = {
     $schema: StoreWritable<UploaderComponentSchema>
     $errors: Store<ComponentValidationError[]>
     $firstError: Store<ComponentValidationError | null>
@@ -78,23 +82,23 @@ export type UploaderSchemaModel = {
     runValidationFx: Effect<void, RunComponentValidationFxDone, RunComponentValidationFxFail>
 }
 
-export type StaticSchemaModel = {
+export type StaticModel = {
     $schema: StoreWritable<StaticComponentSchema>
     setSchemaEvent: EventCallable<OptionalSerializableObject>
 }
 
-export type ComponentSchemaModel = EditableSchemaModel | ContainerSchemaModel | RepeaterSchemaModel | UploaderSchemaModel | StaticSchemaModel
+export type ComponentModel = EditableModel | ContainerModel | RepeaterModel | UploaderModel | StaticModel
 
-export type ComponentSchemaModelByType<T extends ComponentType> = T extends 'editable'
-    ? EditableSchemaModel
+export type ComponentModelByType<T extends ComponentType> = T extends 'editable'
+    ? EditableModel
     : T extends 'container'
-      ? ContainerSchemaModel
+      ? ContainerModel
       : T extends 'repeater'
-        ? RepeaterSchemaModel
+        ? RepeaterModel
         : T extends 'uploader'
-          ? UploaderSchemaModel
+          ? UploaderModel
           : T extends 'static'
-            ? StaticSchemaModel
+            ? StaticModel
             : never
 
-export type ComponentsSchemasModel = Map<EntityId, ComponentSchemaModel>
+export type ComponentsModels = Map<EntityId, ComponentModel>

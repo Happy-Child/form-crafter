@@ -3,13 +3,13 @@ import { isEmpty } from '@form-crafter/utils'
 import { useStoreMap } from 'effector-react'
 
 import { useGeneratorContext } from '../contexts'
-import { ComponentSchemaModelByType } from '../services/components-schemas/components-models'
+import { ComponentModelByType } from '../services/components-schemas/components-models'
 
-export const useComponentModel = <T extends ComponentType = ComponentType>(id: EntityId): ComponentSchemaModelByType<T> => {
+export const useComponentModel = <T extends ComponentType = ComponentType>(id: EntityId): ComponentModelByType<T> => {
     const { services } = useGeneratorContext()
 
     const data = useStoreMap({
-        store: services.componentsSchemasService.$componentsSchemasModel,
+        store: services.componentsSchemasService.$componentsModels,
         keys: [id],
         fn: (map, [id]) => map.get(id),
     })
@@ -18,5 +18,5 @@ export const useComponentModel = <T extends ComponentType = ComponentType>(id: E
         throw new Error(`Missing schema for component ${id}`)
     }
 
-    return data as ComponentSchemaModelByType<T>
+    return data as ComponentModelByType<T>
 }
