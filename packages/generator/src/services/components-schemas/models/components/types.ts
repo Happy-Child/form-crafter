@@ -18,8 +18,8 @@ import { Effect, EventCallable, Store, StoreWritable } from 'effector'
 import { ThemeService } from '../../../theme'
 import { RunMutationsRulesOnUserActionsPayload } from '../../types'
 import { ComponentsModel } from '../components-model'
+import { ComponentsValidationErrors, ComponentsValidationErrorsModel } from '../components-validation-errors-model'
 import { ReadyConditionalValidationRulesModel } from '../ready-conditional-validation-rules-model'
-import { ComponentsValidationErrors, ValidationsErrorsModel } from '../validations-errors-model'
 
 export type RunComponentValidationFxDone = {}
 
@@ -31,7 +31,7 @@ export type ComponentModelParams = {
     runMutationsRulesEvent: EventCallable<RunMutationsRulesOnUserActionsPayload>
     componentsModel: ComponentsModel
     readyConditionalValidationRulesModel: ReadyConditionalValidationRulesModel
-    validationsErrorsModel: ValidationsErrorsModel
+    componentsValidationErrorsModel: ComponentsValidationErrorsModel
     themeService: ThemeService
     schema: ComponentSchema
     additionalTriggers: ValidationsTriggers[] | null

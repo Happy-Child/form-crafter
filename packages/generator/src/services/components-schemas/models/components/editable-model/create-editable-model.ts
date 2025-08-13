@@ -10,7 +10,13 @@ type Params = Omit<ComponentModelParams, 'schema'> & {
     schema: EditableComponentSchema
 }
 
-export const createEditableModel = ({ schema, additionalTriggers, runMutationsRulesEvent, validationsErrorsModel, ...params }: Params): EditableModel => {
+export const createEditableModel = ({
+    schema,
+    additionalTriggers,
+    runMutationsRulesEvent,
+    componentsValidationErrorsModel,
+    ...params
+}: Params): EditableModel => {
     const validationIsAvailable = isNotEmpty(schema.validations?.schemas)
     const validationOnChangeIsAvailable = validationIsAvailable && additionalTriggers?.includes('onChange')
     const validationOnBlurIsAvailable = validationIsAvailable && additionalTriggers?.includes('onBlur')
@@ -34,7 +40,7 @@ export const createEditableModel = ({ schema, additionalTriggers, runMutationsRu
 
     const validationComponentModel = createComponentValidationModel<EditableComponentSchema>({
         ...params,
-        validationsErrorsModel,
+        componentsValidationErrorsModel,
         $schema,
         $componentId,
         validationIsAvailable,
@@ -75,7 +81,7 @@ export const createEditableModel = ({ schema, additionalTriggers, runMutationsRu
         clock: valueBeChangedEvent,
         filter: ({ firstError }) => isNotEmpty(firstError),
         fn: ({ componentId }) => componentId,
-        target: validationsErrorsModel.removeAllErrorsEvent,
+        target: componentsValidationErrorsModel.removeAllErrorsEvent,
     })
 
     if (validationOnChangeIsAvailable) {
@@ -133,13 +139,14 @@ export const createEditableModel = ({ schema, additionalTriggers, runMutationsRu
             clock: validationComponentModel.runValidationFx.doneData,
             filter: ({ firstError }) => isNotEmpty(firstError),
             fn: ({ componentId }) => componentId,
-            target: validationsErrorsModel.removeComponentErrorsEvent,
+            target: componentsValidationErrorsModel.removeComponentErrorsEvent,
         })
+
         sample({
             source: $componentId,
             clock: validationComponentModel.runValidationFx.failData,
             fn: (componentId, { errors }) => ({ componentId, errors }),
-            target: validationsErrorsModel.setComponentErrorsEvent,
+            target: componentsValidationErrorsModel.setComponentErrorsEvent,
         })
     }
 

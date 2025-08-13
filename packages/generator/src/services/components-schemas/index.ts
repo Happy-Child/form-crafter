@@ -4,11 +4,11 @@ import { createEvent } from 'effector'
 import { init } from './init'
 import { createComponentsModels } from './models/components'
 import { createComponentsModel } from './models/components-model'
+import { createComponentsValidationErrorsModel } from './models/components-validation-errors-model'
 import { createDepsOfRulesModel } from './models/deps-of-rules-model'
 import { createFormValidationModel } from './models/form-validation-model'
 import { createMutationsRulesModel } from './models/mutations-rules-model'
 import { createReadyConditionalValidationRulesModel } from './models/ready-conditional-validation-rules-model'
-import { createValidationsErrorsModel } from './models/validations-errors-model'
 import { createVisabilityComponentsModel } from './models/visability-components-model'
 import { ComponentsSchemasService, ComponentsSchemasServiceParams, RunMutationsRulesOnUserActionsPayload } from './types'
 
@@ -24,8 +24,7 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
 
     const visabilityComponentsModel = createVisabilityComponentsModel({ componentsModel })
 
-    // cahnge to components validation errors model, только для компонентых ошибок
-    const validationsErrorsModel = createValidationsErrorsModel({ visabilityComponentsModel })
+    const componentsValidationErrorsModel = createComponentsValidationErrorsModel({ visabilityComponentsModel })
 
     const depsOfRulesModel = createDepsOfRulesModel({
         themeService,
@@ -45,7 +44,7 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
             runMutationsRulesEvent: runMutationsRulesOnUserActionsEvent,
             componentsModel,
             readyConditionalValidationRulesModel,
-            validationsErrorsModel,
+            componentsValidationErrorsModel,
             themeService,
             initialComponentsSchemas: initial,
             additionalTriggers,
@@ -55,7 +54,7 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
     const formValidationModel = createFormValidationModel({
         componentsModel,
         visabilityComponentsModel,
-        validationsErrorsModel,
+        componentsValidationErrorsModel,
         readyConditionalValidationRulesModel,
         themeService,
         schemaService,
@@ -72,7 +71,7 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
     init({
         componentsModel,
         visabilityComponentsModel,
-        validationsErrorsModel,
+        componentsValidationErrorsModel,
         depsOfRulesModel,
         readyConditionalValidationRulesModel,
         formValidationModel,
@@ -98,7 +97,6 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
     return {
         componentsModel,
         visabilityComponentsModel,
-        validationsErrorsModel,
         formValidationModel,
         initServiceEvent,
         updateComponentsSchemasEvent,

@@ -4,18 +4,18 @@ import { cloneDeep } from 'lodash-es'
 import { combineEvents } from 'patronum'
 
 import { ComponentsModel } from './models/components-model'
+import { ComponentsValidationErrorsModel } from './models/components-validation-errors-model'
 import { DepsOfRulesModel } from './models/deps-of-rules-model'
 import { FormValidationModel } from './models/form-validation-model'
 import { MutationsRulesModel } from './models/mutations-rules-model'
 import { ReadyConditionalValidationRulesModel } from './models/ready-conditional-validation-rules-model'
-import { ValidationsErrorsModel } from './models/validations-errors-model'
 import { VisabilityComponentsModel } from './models/visability-components-model'
 import { RunMutationsRulesOnUserActionsPayload } from './types'
 
 type Params = {
     componentsModel: ComponentsModel
     visabilityComponentsModel: VisabilityComponentsModel
-    validationsErrorsModel: ValidationsErrorsModel
+    componentsValidationErrorsModel: ComponentsValidationErrorsModel
     depsOfRulesModel: DepsOfRulesModel
     readyConditionalValidationRulesModel: ReadyConditionalValidationRulesModel
     formValidationModel: FormValidationModel
@@ -27,7 +27,7 @@ type Params = {
 export const init = ({
     componentsModel,
     visabilityComponentsModel,
-    validationsErrorsModel,
+    componentsValidationErrorsModel,
     depsOfRulesModel,
     readyConditionalValidationRulesModel,
     formValidationModel,
@@ -84,7 +84,7 @@ export const init = ({
         clock: readyConditionalValidationRulesModel.resultOfCalcReadyRulesEvent,
         filter: ({ rulesToInactive }) => isNotEmpty(rulesToInactive),
         fn: ({ rulesToInactive }) => rulesToInactive,
-        target: [validationsErrorsModel.filterAllErrorsEvent, formValidationModel.groupValidationModel.filterErrorsEvent],
+        target: [componentsValidationErrorsModel.filterAllErrorsEvent, formValidationModel.groupValidationModel.filterErrorsEvent],
     })
 
     sample({

@@ -10,13 +10,13 @@ import { isNotEmpty } from '@form-crafter/utils'
 import { attach, combine, createEffect, createStore, Store, StoreWritable } from 'effector'
 
 import { getPermanentValidationRulesByRuleName } from '../../../utils'
-import { ComponentsValidationErrors } from '../../validations-errors-model'
+import { ComponentsValidationErrors } from '../../components-validation-errors-model'
 import { ComponentModelParams, RunComponentValidationFxDone, RunComponentValidationFxFail } from '../types'
 import { RunComponentValidationFxParams } from './types'
 
 type ComponentValidationModelParams<S extends ComponentSchema> = Pick<
     ComponentModelParams,
-    'componentsModel' | 'validationsErrorsModel' | 'readyConditionalValidationRulesModel' | 'themeService'
+    'componentsModel' | 'componentsValidationErrorsModel' | 'readyConditionalValidationRulesModel' | 'themeService'
 > & {
     $componentId: Store<EntityId>
     $schema: StoreWritable<S>
@@ -28,14 +28,14 @@ export const createComponentValidationModel = <S extends ComponentSchema>({
     $componentId,
     $schema,
     readyConditionalValidationRulesModel,
-    validationsErrorsModel,
+    componentsValidationErrorsModel,
     themeService,
     validationIsAvailable,
 }: ComponentValidationModelParams<S>) => {
     const $isValidationPending = createStore<boolean>(false)
 
     const $componentErrors = combine(
-        validationsErrorsModel.$visibleErrors,
+        componentsValidationErrorsModel.$visibleErrors,
         $componentId,
         (validationErrors, componentId) => validationErrors[componentId] || null,
     )

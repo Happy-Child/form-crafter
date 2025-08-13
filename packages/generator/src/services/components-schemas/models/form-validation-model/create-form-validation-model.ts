@@ -6,15 +6,15 @@ import { SchemaService } from '../../../schema'
 import { ThemeService } from '../../../theme'
 import { isValidableModel, RunComponentValidationFxDone, RunComponentValidationFxFail } from '../components'
 import { ComponentsModel } from '../components-model'
+import { ComponentsValidationErrorsModel } from '../components-validation-errors-model'
 import { ReadyConditionalValidationRulesModel } from '../ready-conditional-validation-rules-model'
-import { ValidationsErrorsModel } from '../validations-errors-model'
 import { VisabilityComponentsModel } from '../visability-components-model'
 import { createGroupValidationModel } from './models/group-validation-model'
 
 type Params = {
     componentsModel: ComponentsModel
     visabilityComponentsModel: VisabilityComponentsModel
-    validationsErrorsModel: ValidationsErrorsModel
+    componentsValidationErrorsModel: ComponentsValidationErrorsModel
     readyConditionalValidationRulesModel: ReadyConditionalValidationRulesModel
     themeService: ThemeService
     schemaService: SchemaService
@@ -24,7 +24,7 @@ export type FormValidationModel = ReturnType<typeof createFormValidationModel>
 
 export const createFormValidationModel = ({
     componentsModel,
-    validationsErrorsModel,
+    componentsValidationErrorsModel,
     visabilityComponentsModel,
     readyConditionalValidationRulesModel,
     themeService,
@@ -69,7 +69,7 @@ export const createFormValidationModel = ({
 
     const groupValidationModel = createGroupValidationModel({
         componentsModel,
-        validationsErrorsModel,
+        componentsValidationErrorsModel,
         readyConditionalValidationRulesModel,
         themeService,
         schemaService,
@@ -78,7 +78,7 @@ export const createFormValidationModel = ({
     const $groupValidationErrors = combine(groupValidationModel.$errors, (groupValidationErrors) => Array.from(groupValidationErrors.values()))
 
     const $formIsValid = combine(
-        validationsErrorsModel.$visibleErrors,
+        componentsValidationErrorsModel.$visibleErrors,
         groupValidationModel.$errors,
         (visibleValidationErrors, groupValidationErrors) => isEmpty(visibleValidationErrors) && isEmpty(groupValidationErrors),
     )

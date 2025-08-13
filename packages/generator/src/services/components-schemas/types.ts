@@ -6,7 +6,6 @@ import { SchemaService } from '../schema'
 import { ThemeService } from '../theme'
 import { ComponentsModel } from './models/components-model'
 import { FormValidationModel } from './models/form-validation-model'
-import { ValidationsErrorsModel } from './models/validations-errors-model'
 import { VisabilityComponentsModel } from './models/visability-components-model'
 
 export type RunMutationsRulesOnUserActionsPayload = { id: EntityId; data: OptionalSerializableObject }
@@ -14,7 +13,6 @@ export type RunMutationsRulesOnUserActionsPayload = { id: EntityId; data: Option
 export type ComponentsSchemasService = {
     componentsModel: ComponentsModel
     visabilityComponentsModel: VisabilityComponentsModel
-    validationsErrorsModel: ValidationsErrorsModel
     formValidationModel: FormValidationModel
     initServiceEvent: EventCallable<void>
     updateComponentsSchemasEvent: EventCallable<ComponentsSchemas>

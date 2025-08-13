@@ -5,13 +5,13 @@ import { attach, createEffect, createEvent, createStore, sample, UnitValue } fro
 import { SchemaService } from '../../../../../schema'
 import { ThemeService } from '../../../../../theme'
 import { ComponentsModel } from '../../../components-model'
+import { ComponentsValidationErrors, ComponentsValidationErrorsModel } from '../../../components-validation-errors-model'
 import { ReadyConditionalValidationRulesModel } from '../../../ready-conditional-validation-rules-model'
-import { ComponentsValidationErrors, ValidationsErrorsModel } from '../../../validations-errors-model'
 import { RunGroupValidationFxDone, RunGroupValidationFxFail, RunGroupValidationFxParams } from './types'
 
 type Params = {
     componentsModel: ComponentsModel
-    validationsErrorsModel: ValidationsErrorsModel
+    componentsValidationErrorsModel: ComponentsValidationErrorsModel
     readyConditionalValidationRulesModel: ReadyConditionalValidationRulesModel
     themeService: ThemeService
     schemaService: SchemaService
@@ -19,7 +19,7 @@ type Params = {
 
 export const createGroupValidationModel = ({
     componentsModel,
-    validationsErrorsModel,
+    componentsValidationErrorsModel,
     readyConditionalValidationRulesModel,
     themeService,
     schemaService,
@@ -93,7 +93,7 @@ export const createGroupValidationModel = ({
     )
     const runValidationsFx = attach({
         source: {
-            componentsGroupsErrors: validationsErrorsModel.$componentsGroupsErrors,
+            componentsGroupsErrors: componentsValidationErrorsModel.$componentsGroupsErrors,
             getExecutorContextBuilder: componentsModel.$getExecutorContextBuilder,
             readyConditionalValidationRules: readyConditionalValidationRulesModel.$readyGroupsRules,
             groupValidationRules: themeService.$groupValidationRules,
@@ -126,7 +126,7 @@ export const createGroupValidationModel = ({
             clock: runValidationsFx.failData,
             filter: ({ componentsErrors }) => isNotEmpty(componentsErrors),
             fn: ({ componentsErrors }) => componentsErrors!,
-            target: validationsErrorsModel.setComponentsGroupsErrorsEvent,
+            target: componentsValidationErrorsModel.setComponentsGroupsErrorsEvent,
         })
 
         sample({
@@ -138,7 +138,7 @@ export const createGroupValidationModel = ({
 
         sample({
             clock: runValidationsFx.doneData,
-            target: [validationsErrorsModel.setComponentsGroupsErrorsEvent, clearErrorsEvent],
+            target: [componentsValidationErrorsModel.setComponentsGroupsErrorsEvent, clearErrorsEvent],
         })
     }
 

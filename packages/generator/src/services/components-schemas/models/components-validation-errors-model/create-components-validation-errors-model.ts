@@ -10,9 +10,9 @@ type Params = {
     visabilityComponentsModel: VisabilityComponentsModel
 }
 
-export type ValidationsErrorsModel = ReturnType<typeof createValidationsErrorsModel>
+export type ComponentsValidationErrorsModel = ReturnType<typeof createComponentsValidationErrorsModel>
 
-export const createValidationsErrorsModel = ({ visabilityComponentsModel }: Params) => {
+export const createComponentsValidationErrorsModel = ({ visabilityComponentsModel }: Params) => {
     const $componentsGroupsErrors = createStore<ComponentsValidationErrors>({})
     const $componentsErrors = createStore<ComponentsValidationErrors>({})
 
@@ -83,9 +83,9 @@ export const createValidationsErrorsModel = ({ visabilityComponentsModel }: Para
                 const curMergedComponentErrors = mergedErrors[componentId]
                 const newMergedComponentErrors = new Map([...errors, ...groupsErrors])
 
-                const res = isErrorsDifferent(curMergedComponentErrors || new Map(), newMergedComponentErrors)
+                const isDifferent = isErrorsDifferent(curMergedComponentErrors || new Map(), newMergedComponentErrors)
 
-                if (!res) {
+                if (!isDifferent) {
                     resultErrors[componentId] = curMergedComponentErrors
                     continue
                 }
