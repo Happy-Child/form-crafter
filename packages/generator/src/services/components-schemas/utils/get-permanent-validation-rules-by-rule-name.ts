@@ -1,7 +1,7 @@
 import { EntityId, ValidationRuleSchema } from '@form-crafter/core'
 import { isNotEmpty } from '@form-crafter/utils'
 
-import { ReadyValidationsRulesByRuleName } from '../types'
+import { ReadyValidationsRulesByRuleName } from '../models/ready-conditional-validation-rules-model'
 
 export const getPermanentValidationRulesByRuleName = (
     validationsSchemas: ValidationRuleSchema[],

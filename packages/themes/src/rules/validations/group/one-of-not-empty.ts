@@ -3,7 +3,7 @@ import { builders } from '@form-crafter/options-builder'
 import { isNotEmpty } from '@form-crafter/utils'
 
 const optionsBuilder = builders.group({
-    // TODO добавить .relations() на связь formMessage и componentMessage - одно из них обязательно.
+    // TODO добавить .mutations() на связь formMessage и componentMessage - одно из них обязательно.
     formMessage: builders.text().label('Текст ошибки формы'),
     componentMessage: builders.text().label('Текст ошибки компонента').required(),
     oneOfFields: builders.selectComponents().label('Поля формы').required(),

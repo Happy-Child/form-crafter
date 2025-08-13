@@ -89,12 +89,12 @@ export class SelectComponentBuilder<Output extends Maybe<Properties['value']> = 
     }
 
     public hideIf() {
-        this.relations.push({ name: 'hideIf' })
+        this.mutations.push({ name: 'hideIf' })
         return this
     }
 
     public disableIf() {
-        this.relations.push({ name: 'disableIf' })
+        this.mutations.push({ name: 'disableIf' })
         return this
     }
 }

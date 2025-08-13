@@ -1,8 +1,7 @@
-import { SerializableObject } from '@form-crafter/utils'
+import { OptionalSerializableObject, SerializableObject } from '@form-crafter/utils'
 
 import { ConditionNode } from '../../conditions'
 import { OptionsBuilder, OptionsBuilderOutput } from '../../options-builder'
-import { RelationRuleUserOptions } from '../../rules'
 import { ComponentType, EntityId } from '../../types'
 import {
     ContainerComponentProperties,
@@ -22,6 +21,13 @@ export type ValidationRuleSchema = {
     condition?: ConditionNode
 }
 
+export type MutationRuleSchema = {
+    id: EntityId
+    ruleName: string
+    options?: OptionsBuilderOutput<OptionsBuilder<OptionalSerializableObject>>
+    condition?: ConditionNode
+}
+
 export type ValidationsConfigs = {
     disableSelf?: boolean
     disableChildren?: boolean
@@ -32,14 +38,14 @@ export type ComponentValidations = {
     schemas: ValidationRuleSchema[]
 }
 
-export type ComponentRelations = {
-    schemas: RelationRuleUserOptions[]
+export type ComponentMutations = {
+    schemas: MutationRuleSchema[]
 }
 
 export type GeneralComponentSchema = {
     visability?: ComponentVisability
     validations?: ComponentValidations
-    relations?: ComponentRelations
+    mutations?: ComponentMutations
 }
 
 export type ComponentMeta<T extends ComponentType> = {

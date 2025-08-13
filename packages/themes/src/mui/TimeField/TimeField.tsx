@@ -48,7 +48,7 @@ export const timeFieldModule = createEditableComponentModule({
     label: 'Time field',
     optionsBuilder,
     operatorsForConditions: [componentsOperators.isEmptyOperator, componentsOperators.isNotEmptyOperator],
-    relationsRules: [rules.relations.duplicateValueRule],
+    mutationsRules: [rules.mutations.duplicateValueRule],
     validationsRules: [rules.validations.editable.isRequiredRule],
     Component: TimeField,
 })

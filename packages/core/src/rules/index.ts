@@ -1,3 +1,3 @@
-export * from './relations'
+export * from './mutations'
 export * from './types'
 export * from './validations'

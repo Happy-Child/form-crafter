@@ -1,7 +1,7 @@
-import { relations } from './relations'
+import { mutations } from './mutations'
 import { validations } from './validations'
 
 export const rules = {
     validations,
-    relations,
+    mutations,
 }

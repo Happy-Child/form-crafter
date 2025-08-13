@@ -36,6 +36,5 @@ export const buttonModule = createStaticComponentModule({
     name: 'button',
     label: 'Button',
     optionsBuilder,
-    relationsRules: [],
     Component: Button,
 })

@@ -20,6 +20,5 @@ export const textModule = createStaticComponentModule({
     name: 'text',
     label: 'Text',
     optionsBuilder,
-    relationsRules: [],
     Component: Text,
 })

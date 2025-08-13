@@ -5,7 +5,7 @@ import { FC } from 'react'
 
 import { init } from './init'
 import { OperatorsForConditionsStore, ThemeService, ThemeServiceParams } from './types'
-import { extractRelationsRules } from './utils'
+import { extractMutationsRules } from './utils'
 import { extractOperatorsForConditions } from './utils/extract-operators-for-conditions'
 
 export type { OperatorsForConditionsStore, ThemeService, ThemeServiceParams }
@@ -15,7 +15,7 @@ export const createThemeService = ({ theme, PlaceholderComponent }: ThemeService
 
     const $componentsModules = $theme.map(({ componentsModules }) => componentsModules)
     const $componentsModulesMap = $theme.map(({ componentsModules }) => componentsModules.reduce((map, module) => ({ ...map, [module.name]: module }), {}))
-    const $relationRules = combine($componentsModules, extractRelationsRules)
+    const $mutationsRules = combine($componentsModules, extractMutationsRules)
 
     const $groupValidationRules = $theme.map(({ groupValidationRules }) =>
         isNotEmpty(groupValidationRules)
@@ -52,7 +52,7 @@ export const createThemeService = ({ theme, PlaceholderComponent }: ThemeService
         $componentsValidationsRules,
         $groupValidationRules,
         $operatorsForConditions,
-        $relationRules,
+        $mutationsRules,
         $placeholderComponent,
     }
 }

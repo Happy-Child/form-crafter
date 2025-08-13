@@ -27,7 +27,7 @@ export interface OptionsBuilder<Output extends OptionalSerializableValue = Optio
     readonly type: OptionBuilderType
     properties: unknown
     validations: unknown[]
-    relations: unknown[]
+    mutations: unknown[]
 }
 
 export interface GroupOptionsBuilder<Output extends OptionalSerializableObject = OptionalSerializableObject> extends OptionsBuilder<Output> {

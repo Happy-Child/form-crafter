@@ -11,19 +11,22 @@ type Params = Pick<FormServiceParams, 'componentsSchemasService' | 'viewsService
 export const init = ({ onFormSubmitEvent, invokeUserSubmitHandlerFx, componentsSchemasService }: Params) => {
     sample({
         clock: onFormSubmitEvent,
-        target: componentsSchemasService.runFormValidationFx,
+        target: componentsSchemasService.formValidationModel.runFormValidationFx,
     })
 
     sample({
-        source: { componentsIsValid: componentsSchemasService.$formIsValid, visibleComponentsSchemas: componentsSchemasService.$visibleComponentsSchemas },
-        clock: componentsSchemasService.runFormValidationFx.done,
+        source: {
+            componentsIsValid: componentsSchemasService.formValidationModel.$formIsValid,
+            visibleComponentsSchemas: componentsSchemasService.visabilityComponentsModel.$visibleComponentsSchemas,
+        },
+        clock: componentsSchemasService.formValidationModel.runFormValidationFx.done,
         filter: ({ componentsIsValid }) => componentsIsValid,
         fn: ({ visibleComponentsSchemas }) => visibleComponentsSchemas,
         target: invokeUserSubmitHandlerFx,
     })
 
     sample({
-        clock: componentsSchemasService.runFormValidationFx.fail,
+        clock: componentsSchemasService.formValidationModel.runFormValidationFx.fail,
         fn: console.log,
     })
 }

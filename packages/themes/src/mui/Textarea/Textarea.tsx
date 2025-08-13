@@ -54,7 +54,7 @@ export const textareaModule = createEditableComponentModule({
         componentsOperators.endsWithOperator,
         componentsOperators.startsWithOperator,
     ],
-    relationsRules: [rules.relations.duplicateValueRule],
+    mutationsRules: [rules.mutations.duplicateValueRule],
     validationsRules: [rules.validations.editable.isRequiredRule, rules.validations.editable.minLengthRule, rules.validations.editable.maxLengthRule],
     Component: Textarea,
 })

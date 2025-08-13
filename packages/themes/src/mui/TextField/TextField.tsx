@@ -54,7 +54,7 @@ export const textFieldModule = createEditableComponentModule({
         componentsOperators.endsWithOperator,
         componentsOperators.startsWithOperator,
     ],
-    relationsRules: [rules.relations.duplicateValueRule],
+    mutationsRules: [rules.mutations.duplicateValueRule],
     validationsRules: [
         rules.validations.editable.isRequiredRule,
         rules.validations.editable.isEmailRule,

@@ -199,7 +199,7 @@ export const employeeFormSchema: Schema = {
             meta: { id: 'input-last-name', type: 'editable', name: 'text-field' },
             visability: { condition: { type: 'component', componentId: 'input-salary', operatorName: 'isNotEmpty' } },
             properties: { label: 'Фамилия', value: '' },
-            relations: {
+            mutations: {
                 schemas: [
                     {
                         id: genId(),
@@ -295,7 +295,7 @@ export const employeeFormSchema: Schema = {
                 label: 'Область',
                 options: [],
             },
-            relations: {
+            mutations: {
                 schemas: [
                     {
                         id: genId(),
@@ -381,7 +381,7 @@ export const employeeFormSchema: Schema = {
                     { label: 'Продажи', value: 'sales' },
                 ],
             },
-            relations: {
+            mutations: {
                 schemas: [
                     {
                         id: genId(),

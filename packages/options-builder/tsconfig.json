@@ -1,5 +1,5 @@
 {
-    "include": ["src", "../generator/src/services/theme/utils/__tests__", "../generator/src/services/theme/utils/__tests__/get-deps-paths-rules-components.spec.ts", "../core/src/options-builder/consts", "../core/src/options-builder/utils/is-component-options-builder.ts", "../core/src/options-builder/utils/is-group-options-builder.ts"],
+    "include": ["src"],
     "extends": "../../tsconfig.json"
   }
   

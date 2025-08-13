@@ -28,7 +28,7 @@ export class GroupBuilder<
     }
 
     public hideIf() {
-        this.relations.push({ name: 'hideIf' })
+        this.mutations.push({ name: 'hideIf' })
         return this
     }
 

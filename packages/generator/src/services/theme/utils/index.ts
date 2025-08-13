@@ -1,2 +1,2 @@
+export * from './extract-mutations-rules'
 export * from './extract-operators-for-conditions'
-export * from './extract-relations-rules'

@@ -8,7 +8,7 @@ type Params = Pick<RepeaterService, 'addChildEvent' | 'removeChildEvent'> & Pick
 
 export const init = ({ componentsSchemasService, viewsService, addChildEvent, removeChildEvent }: Params) => {
     const executeAddChildEvent = sample({
-        source: { views: viewsService.$views, visibleComponentsSchemas: componentsSchemasService.$visibleComponentsSchemas },
+        source: { views: viewsService.$views, visibleComponentsSchemas: componentsSchemasService.visabilityComponentsModel.$visibleComponentsSchemas },
         clock: addChildEvent,
         fn: ({ views: currentViews, visibleComponentsSchemas }, { repeaterId }) => {
             const { template } = visibleComponentsSchemas[repeaterId] as RepeaterComponentSchema
@@ -42,7 +42,7 @@ export const init = ({ componentsSchemasService, viewsService, addChildEvent, re
     })
 
     const executeRemoveChildEvent = sample({
-        source: { views: viewsService.$views, visibleComponentsSchemas: componentsSchemasService.$visibleComponentsSchemas },
+        source: { views: viewsService.$views, visibleComponentsSchemas: componentsSchemasService.visabilityComponentsModel.$visibleComponentsSchemas },
         clock: removeChildEvent,
         fn: ({ views: currentViews, visibleComponentsSchemas }, { rowId, repeaterId }) => {
             const { template } = visibleComponentsSchemas[repeaterId] as RepeaterComponentSchema

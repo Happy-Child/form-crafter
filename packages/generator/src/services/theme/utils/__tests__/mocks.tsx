@@ -1,14 +1,14 @@
-import { ComponentModule, createEditableComponentModule, createRelationRule, EditableComponentProperties } from '@form-crafter/core'
+import { ComponentModule, createEditableComponentModule, createMutationRule, EditableComponentProperties } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
 
-const createComponentModule = (name: string, label: string, rules: ReturnType<typeof createEditableComponentModule>['relationsRules'] = []) => {
+const createComponentModule = (name: string, label: string, rules: ReturnType<typeof createEditableComponentModule>['mutationsRules'] = []) => {
     return createEditableComponentModule({
         name,
         label,
         optionsBuilder: builders.group({
             value: builders.text().required().nullable(),
         }),
-        relationsRules: rules,
+        mutationsRules: rules,
         Component: () => null,
     })
 }
@@ -16,7 +16,7 @@ const createComponentModule = (name: string, label: string, rules: ReturnType<ty
 const optionsBuilder1 = builders.group({
     value: builders.checkbox().label('').required(),
 })
-const rule1 = createRelationRule<EditableComponentProperties, typeof optionsBuilder1>({
+const rule1 = createMutationRule<EditableComponentProperties, typeof optionsBuilder1>({
     ruleName: 'rule1',
     displayName: 'Правило 1',
     optionsBuilder: optionsBuilder1,
@@ -27,7 +27,7 @@ const optionsBuilder2 = builders.group({
     field1: builders.selectComponent(),
     field2: builders.selectComponents(),
 })
-const rule2 = createRelationRule<EditableComponentProperties, typeof optionsBuilder2>({
+const rule2 = createMutationRule<EditableComponentProperties, typeof optionsBuilder2>({
     ruleName: 'rule2',
     displayName: 'Правило 2',
     optionsBuilder: optionsBuilder2,
@@ -50,7 +50,7 @@ const optionsBuilder3 = builders.group({
         }),
     }),
 })
-const rule3 = createRelationRule<EditableComponentProperties, typeof optionsBuilder3>({
+const rule3 = createMutationRule<EditableComponentProperties, typeof optionsBuilder3>({
     ruleName: 'rule3',
     displayName: 'Правило 3',
     optionsBuilder: optionsBuilder3,
@@ -63,7 +63,7 @@ export const mockComponentsModules: ComponentModule[] = [
     createComponentModule('name', 'Name', [rule3]),
 ]
 
-export const mockRelationsRules = {
+export const mockMutationsRules = {
     rule1: rule1,
     rule2: rule2,
     rule3: rule3,

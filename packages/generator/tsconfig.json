@@ -1,4 +1,4 @@
 {
-    "include": ["src", "src/services/components-schemas/utils/__tests__/get-deps-paths-options-builder-relations-rules.spec.ts"],
+    "include": ["src"],
     "extends": "../../tsconfig.json"
 }

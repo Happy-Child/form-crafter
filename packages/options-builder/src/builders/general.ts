@@ -1,7 +1,7 @@
 import { OptionBuilderType, OptionsBuilder } from '@form-crafter/core'
 import { OptionalSerializableValue, SomeObject } from '@form-crafter/utils'
 
-import { RelationRule } from '../relations'
+import { MutationRule } from '../mutations'
 import { ValidationRule } from '../validations'
 
 type Params<P extends object> = {
@@ -15,12 +15,12 @@ export class GeneralOptionBuilder<Output extends OptionalSerializableValue, Prop
     public readonly type: OptionBuilderType
     public properties: Props
     public validations: ValidationRule[]
-    public relations: RelationRule[]
+    public mutations: MutationRule[]
 
     constructor({ type, properties }: Params<Props>) {
         this.type = type
         this.properties = properties
         this.validations = []
-        this.relations = []
+        this.mutations = []
     }
 }

@@ -4,8 +4,8 @@ import { GroupOptionsBuilder, OptionsBuilderOutput } from '../options-builder'
 import {
     EditableValidationRule,
     EditableValidationRuleWithoutOptions,
-    RelationRule,
-    RelationRuleWithoutOptions,
+    MutationRule,
+    MutationRuleWithoutOptions,
     RepeaterValidationRule,
     RepeaterValidationRuleWithoutOptions,
     UploaderValidationRule,
@@ -31,7 +31,7 @@ export type EditableComponentModule<O extends GroupOptionsBuilder<EditableCompon
         | EditableValidationRule<OptionsBuilderOutput<O>['value'], any>
         | EditableValidationRuleWithoutOptions<OptionsBuilderOutput<O>['value']>
     )[]
-    relationsRules?: (RelationRule<EditableComponentProperties, any> | RelationRuleWithoutOptions<EditableComponentProperties>)[]
+    mutationsRules?: (MutationRule<EditableComponentProperties, any> | MutationRuleWithoutOptions<EditableComponentProperties>)[]
     Component: EditableComponent<OptionsBuilderOutput<O>>
 }
 
@@ -42,19 +42,19 @@ export type ContainerComponentModule<O extends GroupOptionsBuilder<ContainerComp
 export type RepeaterComponentModule<O extends GroupOptionsBuilder<RepeaterComponentProperties>> = GeneralComponentModule<O> & {
     operatorsForConditions?: (ComponentConditionOperator<any> | ComponentConditionOperatorWithoutOptions)[]
     validationsRules?: (RepeaterValidationRule<any> | RepeaterValidationRuleWithoutOptions)[]
-    relationsRules?: (RelationRule<RepeaterComponentProperties, any> | RelationRuleWithoutOptions<RepeaterComponentProperties>)[]
+    mutationsRules?: (MutationRule<RepeaterComponentProperties, any> | MutationRuleWithoutOptions<RepeaterComponentProperties>)[]
     Component: RepeaterComponent<OptionsBuilderOutput<O>>
 }
 
 export type UploaderComponentModule<O extends GroupOptionsBuilder<UploaderComponentProperties>> = GeneralComponentModule<O> & {
     operatorsForConditions?: (ComponentConditionOperator<any> | ComponentConditionOperatorWithoutOptions)[]
-    relationsRules?: (RelationRule<UploaderComponentProperties, any> | RelationRuleWithoutOptions<UploaderComponentProperties>)[]
+    mutationsRules?: (MutationRule<UploaderComponentProperties, any> | MutationRuleWithoutOptions<UploaderComponentProperties>)[]
     validationsRules?: (UploaderValidationRule<any> | UploaderValidationRuleWithoutOptions<any>)[]
     Component: UploaderComponent<OptionsBuilderOutput<O>>
 }
 
 export type StaticComponentModule<O extends GroupOptionsBuilder<StaticComponentProperties>> = GeneralComponentModule<O> & {
-    relationsRules?: (RelationRule<StaticComponentProperties, any> | RelationRuleWithoutOptions<StaticComponentProperties>)[]
+    mutationsRules?: (MutationRule<StaticComponentProperties, any> | MutationRuleWithoutOptions<StaticComponentProperties>)[]
     Component: StaticComponent<OptionsBuilderOutput<O>>
 }
 

@@ -1,0 +1,124 @@
+import { EntityId } from '@form-crafter/core'
+import { isEmpty, isNotEmpty, splitAllSettledResult } from '@form-crafter/utils'
+import { attach, combine, createEffect, createStore, UnitValue } from 'effector'
+
+import { SchemaService } from '../../../schema'
+import { ThemeService } from '../../../theme'
+import { isValidableModel, RunComponentValidationFxDone, RunComponentValidationFxFail } from '../components'
+import { ComponentsModel } from '../components-model'
+import { ReadyConditionalValidationRulesModel } from '../ready-conditional-validation-rules-model'
+import { ValidationsErrorsModel } from '../validations-errors-model'
+import { VisabilityComponentsModel } from '../visability-components-model'
+import { createGroupValidationModel } from './models/group-validation-model'
+
+type Params = {
+    componentsModel: ComponentsModel
+    visabilityComponentsModel: VisabilityComponentsModel
+    validationsErrorsModel: ValidationsErrorsModel
+    readyConditionalValidationRulesModel: ReadyConditionalValidationRulesModel
+    themeService: ThemeService
+    schemaService: SchemaService
+}
+
+export type FormValidationModel = ReturnType<typeof createFormValidationModel>
+
+export const createFormValidationModel = ({
+    componentsModel,
+    validationsErrorsModel,
+    visabilityComponentsModel,
+    readyConditionalValidationRulesModel,
+    themeService,
+    schemaService,
+}: Params) => {
+    const $isComponentsValidationPending = createStore<boolean>(false)
+
+    const $componentsIdsCanBeValidate = combine(visabilityComponentsModel.$visibleComponentsSchemas, (visibleComponentsSchemas) =>
+        Object.entries(visibleComponentsSchemas).reduce<Set<EntityId>>((result, [componentId, schema]) => {
+            if (isNotEmpty(schema.validations?.schemas)) {
+                result.add(componentId)
+            }
+            return result
+        }, new Set()),
+    )
+
+    const baseRunComponentsValidationsFx = createEffect<
+        { componentsModels: UnitValue<typeof componentsModel.$models>; componentsIdsCanBeValidate: UnitValue<typeof $componentsIdsCanBeValidate> },
+        RunComponentValidationFxDone[],
+        RunComponentValidationFxFail[]
+    >(async ({ componentsModels, componentsIdsCanBeValidate }) => {
+        const promises = []
+
+        for (const componentId of componentsIdsCanBeValidate) {
+            const model = componentsModels.get(componentId)
+            if (isNotEmpty(model) && isValidableModel(model)) {
+                promises.push(model.runValidationFx())
+            }
+        }
+
+        const [resolved, rejected] = await splitAllSettledResult<RunComponentValidationFxDone, RunComponentValidationFxFail>(promises)
+        if (isNotEmpty(rejected)) {
+            return Promise.reject(rejected)
+        }
+
+        return Promise.resolve(resolved)
+    })
+    const runComponentsValidationsFx = attach({
+        source: { componentsModels: componentsModel.$models, componentsIdsCanBeValidate: $componentsIdsCanBeValidate },
+        effect: baseRunComponentsValidationsFx,
+    })
+
+    const groupValidationModel = createGroupValidationModel({
+        componentsModel,
+        validationsErrorsModel,
+        readyConditionalValidationRulesModel,
+        themeService,
+        schemaService,
+    })
+
+    const $groupValidationErrors = combine(groupValidationModel.$errors, (groupValidationErrors) => Array.from(groupValidationErrors.values()))
+
+    const $formIsValid = combine(
+        validationsErrorsModel.$visibleErrors,
+        groupValidationModel.$errors,
+        (visibleValidationErrors, groupValidationErrors) => isEmpty(visibleValidationErrors) && isEmpty(groupValidationErrors),
+    )
+
+    const $isValidationPending = combine(
+        groupValidationModel.$isValidationPending,
+        $isComponentsValidationPending,
+        (groupsValidationPending, componentsValidationPending) => groupsValidationPending || componentsValidationPending,
+    )
+
+    $isComponentsValidationPending.on(runComponentsValidationsFx, () => true)
+    $isComponentsValidationPending.on(runComponentsValidationsFx.finally, () => false)
+
+    const runFormValidationFx = createEffect(async () => {
+        let someoneFailed = false
+
+        try {
+            await runComponentsValidationsFx()
+        } catch {
+            someoneFailed = true
+        }
+
+        try {
+            await groupValidationModel.runValidationsFx()
+        } catch {
+            someoneFailed = true
+        }
+
+        if (someoneFailed) {
+            return Promise.reject()
+        }
+
+        return Promise.resolve()
+    })
+
+    return {
+        groupValidationModel,
+        runFormValidationFx,
+        $formIsValid,
+        $isValidationPending,
+        $groupValidationErrors,
+    }
+}

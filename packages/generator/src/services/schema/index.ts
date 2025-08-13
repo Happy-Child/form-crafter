@@ -13,7 +13,7 @@ const getLayout = (layout: SchemaServiceParams['layout']): Required<SchemaLayout
     colsSpanPx: layout?.colsSpanPx || defaultSchemaLayout.colsSpanPx,
 })
 
-export type { SchemaService }
+export type { GroupValidationRuleSchemas, SchemaService }
 
 export const createSchemaService = (schema: Schema): SchemaService => {
     const $schema = readonly(createStore<Schema>(schema))

@@ -92,7 +92,7 @@ export const checkboxModule = createEditableComponentModule({
     label: 'Checkbox',
     optionsBuilder,
     operatorsForConditions: [componentsOperators.isEmptyOperator, componentsOperators.isNotEmptyOperator],
-    relationsRules: [rules.relations.duplicateValueRule],
+    mutationsRules: [rules.mutations.duplicateValueRule],
     validationsRules: [rules.validations.editable.isRequiredRule],
     Component: Checkbox,
 })

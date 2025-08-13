@@ -1,16 +1,16 @@
-import { extractRelationsRules } from '../extract-relations-rules'
-import { mockComponentsModules, mockEmptyRulesComponentsModules, mockRelationsRules } from './mocks'
+import { extractMutationsRules } from '../extract-mutations-rules'
+import { mockComponentsModules, mockEmptyRulesComponentsModules, mockMutationsRules } from './mocks'
 
-describe('extractRelationsRules', () => {
-    it('should be extract relations rules from theme', () => {
-        const relationsRules = extractRelationsRules(mockComponentsModules)
+describe('extractMutationsRules', () => {
+    it('should be extract mutations rules from theme', () => {
+        const mutationsRules = extractMutationsRules(mockComponentsModules)
 
-        expect(relationsRules).toEqual(mockRelationsRules)
+        expect(mutationsRules).toEqual(mockMutationsRules)
     })
 
-    it('should be extract empty relations rules from theme', () => {
-        const relationsRules = extractRelationsRules(mockEmptyRulesComponentsModules)
+    it('should be extract empty mutations rules from theme', () => {
+        const mutationsRules = extractMutationsRules(mockEmptyRulesComponentsModules)
 
-        expect(relationsRules).toEqual({})
+        expect(mutationsRules).toEqual({})
     })
 })
