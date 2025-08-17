@@ -2,6 +2,7 @@ import { ComponentSchema, EntityId, isConditionSuccessful } from '@form-crafter/
 import { isEmpty, isNotEmpty } from '@form-crafter/utils'
 import { createEvent, createStore, sample, StoreValue } from 'effector'
 import { cloneDeep, isEqual, pick } from 'lodash-es'
+import { debug } from 'patronum'
 
 import { SchemaService } from '../../../schema'
 import { ThemeService } from '../../../theme'
@@ -203,6 +204,8 @@ export const createMutationsRulesModel = ({ componentsModel, depsOfRulesModel, v
             return { componentsToUpdate, rulesOverridesCacheToUpdate: newRulesOverridesCache, hiddenComponentsIds: finalHiddenComponentsIds }
         },
     })
+
+    debug(resultOfRunMutationRulesEvent)
 
     return {
         runMutationRulesEvent,

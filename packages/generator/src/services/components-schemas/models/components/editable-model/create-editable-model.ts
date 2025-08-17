@@ -97,7 +97,7 @@ export const createEditableModel = ({
     sample({
         source: $schema,
         clock: setSchemaEvent,
-        fn: (schema, newSchema) => ({
+        fn: (schema, { schema: newSchema }) => ({
             ...schema,
             ...newSchema,
         }),
