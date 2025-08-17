@@ -1,11 +1,11 @@
 import { mockComponentsModules, mockEmptyRulesComponentsModules } from '../../../../../theme/utils/__tests__/mocks'
 import { extractMutationsRules } from '../../../../../theme/utils/extract-mutations-rules'
-import { getDepsPathsOptionsBuilderRules } from '../get-deps-paths-options-builder-rules'
+import { buildPathsToOptionsBuilderRulesDeps } from '../build-paths-to-options-builder-rules-deps'
 
-describe('getDepsPathsOptionsBuilderRules', () => {
+describe('buildPathsToOptionsBuilderRulesDeps', () => {
     it('should get paths from components mutations rules', () => {
         const mutationsRules = extractMutationsRules(mockComponentsModules)
-        const result = getDepsPathsOptionsBuilderRules(mutationsRules)
+        const result = buildPathsToOptionsBuilderRulesDeps(mutationsRules)
 
         expect(result).toEqual({
             rule2: [['field1'], ['field2']],
@@ -21,7 +21,7 @@ describe('getDepsPathsOptionsBuilderRules', () => {
 
     it('should return empty paths from components mutations rules', () => {
         const mutationsRules = extractMutationsRules(mockEmptyRulesComponentsModules)
-        const result = getDepsPathsOptionsBuilderRules(mutationsRules)
+        const result = buildPathsToOptionsBuilderRulesDeps(mutationsRules)
 
         expect(result).toEqual({})
     })

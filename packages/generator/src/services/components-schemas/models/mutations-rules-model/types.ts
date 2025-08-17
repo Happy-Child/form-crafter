@@ -6,6 +6,6 @@ export type RulesOverridesCache = Record<EntityId, OptionalSerializableObject | 
 export type RunMutationRulesPayload = {
     curComponentsSchemas: ComponentsSchemas
     newComponentsSchemas: ComponentsSchemas
-    mutationsDependents: EntityId[]
+    componentsForMutationResolution: EntityId[]
     componentsIdsToUpdate: EntityId[]
 }

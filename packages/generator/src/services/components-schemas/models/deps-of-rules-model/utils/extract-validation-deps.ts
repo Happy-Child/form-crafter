@@ -3,11 +3,11 @@ import { isEmpty, isNotEmpty } from '@form-crafter/utils'
 
 import { extractDepsFromConditions } from './extract-deps-from-conditions'
 
-export const extractValidationsDeps = (validationSchemas: Pick<ValidationRuleSchema, 'id' | 'condition'>[] | undefined) => {
-    const validationSchemasIdToDeps: Record<string, EntityId[]> = {}
+export const extractValidationDeps = (validationSchemas: Pick<ValidationRuleSchema, 'id' | 'condition'>[] | undefined) => {
+    const schemaIdToDeps: Record<string, EntityId[]> = {}
 
     if (!isNotEmpty(validationSchemas)) {
-        return validationSchemasIdToDeps
+        return schemaIdToDeps
     }
 
     validationSchemas.forEach((schema) => {
@@ -15,8 +15,8 @@ export const extractValidationsDeps = (validationSchemas: Pick<ValidationRuleSch
             return
         }
         const deps = extractDepsFromConditions([], schema.condition)
-        validationSchemasIdToDeps[schema.id] = deps
+        schemaIdToDeps[schema.id] = deps
     })
 
-    return validationSchemasIdToDeps
+    return schemaIdToDeps
 }

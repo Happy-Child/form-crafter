@@ -1,10 +1,11 @@
-import { ComponentSchema, ComponentsSchemas, EntityId, isConditionSuccessful } from '@form-crafter/core'
+import { ComponentSchema, EntityId, isConditionSuccessful } from '@form-crafter/core'
 import { isEmpty, isNotEmpty } from '@form-crafter/utils'
 import { createEvent, createStore, sample, StoreValue } from 'effector'
 import { cloneDeep, isEqual, pick } from 'lodash-es'
 
 import { SchemaService } from '../../../schema'
 import { ThemeService } from '../../../theme'
+import { isChangedValue } from '../components'
 import { ComponentsModel } from '../components-model'
 import { DepsOfRulesModel } from '../deps-of-rules-model'
 import { VisabilityComponentsModel } from '../visability-components-model'
@@ -34,7 +35,7 @@ export const createMutationsRulesModel = ({ componentsModel, depsOfRulesModel, v
             getExecutorContextBuilder: componentsModel.$getExecutorContextBuilder,
             initialComponentsSchemas: schemaService.$initialComponentsSchemas,
             rulesOverridesCache: $rulesOverridesCache,
-            depsComponentsRuleSchemas: depsOfRulesModel.$depsComponentsRuleSchemas,
+            componentsDepsTriggeredMutationRules: depsOfRulesModel.$componentsDepsTriggeredMutationRules,
             operatorsForConditions: themeService.$operatorsForConditions,
             mutationsRules: themeService.$mutationsRules,
             hiddenComponentsIds: visabilityComponentsModel.$hiddenComponentsIds,
@@ -45,12 +46,12 @@ export const createMutationsRulesModel = ({ componentsModel, depsOfRulesModel, v
                 getExecutorContextBuilder,
                 initialComponentsSchemas,
                 rulesOverridesCache,
-                depsComponentsRuleSchemas,
+                componentsDepsTriggeredMutationRules,
                 operatorsForConditions,
                 mutationsRules,
                 hiddenComponentsIds,
             },
-            { curComponentsSchemas, newComponentsSchemas, componentsIdsToUpdate, mutationsDependents },
+            { curComponentsSchemas, newComponentsSchemas, componentsIdsToUpdate, componentsForMutationResolution }, // TODO rename mutationsDependents to dependentsToCalc
         ) => {
             const componentsIdsToUpdates: Set<EntityId> = new Set(componentsIdsToUpdate)
 
@@ -63,7 +64,7 @@ export const createMutationsRulesModel = ({ componentsModel, depsOfRulesModel, v
                 const componentModel = newComponentsSchemas[componentId]
                 const mutations = componentModel.mutations
 
-                const iterationsmutationsRulesAppliedCache: StoreValue<typeof $rulesOverridesCache> = {}
+                const iterationsAppliedCache: StoreValue<typeof $rulesOverridesCache> = {}
 
                 mutations?.schemas?.forEach(({ id: ruleId, ruleName, options, condition }) => {
                     if (isEmpty(condition)) {
@@ -95,19 +96,16 @@ export const createMutationsRulesModel = ({ componentsModel, depsOfRulesModel, v
                         } as ComponentSchema
 
                         newRulesOverridesCache[ruleId] = { ...newRulesOverridesCache[ruleId], ...newProperties }
-                        iterationsmutationsRulesAppliedCache[ruleId] = newProperties
+                        iterationsAppliedCache[ruleId] = newProperties
                     } else if (isActiveRule) {
                         const ruleLatestAppliedKeysCache = Object.keys(newRulesOverridesCache[ruleId] || {})
 
-                        let iterationsUpdatedKeysProperties = Object.entries(iterationsmutationsRulesAppliedCache).reduce<string[]>(
-                            (arr, [, appliedComponentProperties]) => {
-                                if (isNotEmpty(appliedComponentProperties)) {
-                                    return [...arr, ...Object.keys(appliedComponentProperties)]
-                                }
-                                return arr
-                            },
-                            [],
-                        )
+                        let iterationsUpdatedKeysProperties = Object.entries(iterationsAppliedCache).reduce<string[]>((arr, [, appliedComponentProperties]) => {
+                            if (isNotEmpty(appliedComponentProperties)) {
+                                return [...arr, ...Object.keys(appliedComponentProperties)]
+                            }
+                            return arr
+                        }, [])
                         iterationsUpdatedKeysProperties = Array.from(new Set(iterationsUpdatedKeysProperties))
 
                         const propertiesKeysToRollback = ruleLatestAppliedKeysCache.filter((key) => !iterationsUpdatedKeysProperties.includes(key))
@@ -130,10 +128,10 @@ export const createMutationsRulesModel = ({ componentsModel, depsOfRulesModel, v
             }
 
             const finalHiddenComponentsIds: Set<EntityId> = new Set(hiddenComponentsIds)
-            mutationsDependents.forEach((depComponentId) => {
+            componentsForMutationResolution.forEach((depComponentId) => {
                 // 1.1 Проверить есть ли не скрытые зависимости. Если есть - идём дальше. Если нет - выход.
                 // 1.2 Так же идём дальше если нет зависимостей вообще.
-                const dependents = depsComponentsRuleSchemas.mutations.schemaIdToDependents[depComponentId]
+                const dependents = componentsDepsTriggeredMutationRules.componentIdToDependents[depComponentId]
                 const existsVisibleDep = isNotEmpty(dependents) ? dependents.some((componentId) => !finalHiddenComponentsIds.has(componentId)) : true
                 if (!existsVisibleDep) {
                     return
@@ -184,17 +182,25 @@ export const createMutationsRulesModel = ({ componentsModel, depsOfRulesModel, v
                 }
             })
 
-            // TODO change to array
-            const componentsSchemasToUpdate = Array.from(componentsIdsToUpdates)
+            const componentsToUpdate = Array.from(componentsIdsToUpdates)
                 .filter((componentId) => {
                     const isEqualProperties = isEqual(curComponentsSchemas[componentId].properties, newComponentsSchemas[componentId].properties)
                     const isEqualHidden = !!curComponentsSchemas[componentId].visability?.hidden === !!newComponentsSchemas[componentId].visability?.hidden
 
                     return !isEqualProperties || !isEqualHidden
                 })
-                .reduce<ComponentsSchemas>((obj, componentId) => ({ ...obj, [componentId]: newComponentsSchemas[componentId] }), {})
+                .map((componentId) => {
+                    const schema = newComponentsSchemas[componentId]
+                    const isNewValue = isChangedValue(curComponentsSchemas[componentId].properties.value, newComponentsSchemas[componentId].properties.value)
 
-            return { componentsSchemasToUpdate, rulesOverridesCacheToUpdate: newRulesOverridesCache, hiddenComponentsIds: finalHiddenComponentsIds }
+                    return {
+                        componentId,
+                        schema,
+                        isNewValue,
+                    }
+                })
+
+            return { componentsToUpdate, rulesOverridesCacheToUpdate: newRulesOverridesCache, hiddenComponentsIds: finalHiddenComponentsIds }
         },
     })
 

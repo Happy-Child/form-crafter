@@ -8,5 +8,5 @@
             }
         ]
     ],
-    "plugins": ["@emotion"]
+    "plugins": ["effector/babel-plugin", "@emotion"]
 }

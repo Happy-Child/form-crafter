@@ -1,8 +1,7 @@
-import { ComponentsSchemas } from '@form-crafter/core'
 import { isNotEmpty } from '@form-crafter/utils'
 import { attach, combine, createEffect, createEvent, createStore, sample, UnitValue } from 'effector'
 
-import { GetExecutorContextBuilder } from './types'
+import { ComponentToUpdate, GetExecutorContextBuilder } from './types'
 import { ComponentsModels } from './types'
 import { buildExecutorContext, extractComponentsModels } from './utils'
 
@@ -25,14 +24,14 @@ export const createComponentsModel = () => {
     const baseUpdateModelsFx = createEffect<
         {
             componentsModels: ComponentsModels
-            componentsSchemasToUpdate: ComponentsSchemas
+            componentsToUpdate: ComponentToUpdate[]
         },
         ComponentsModels
-    >(({ componentsModels, componentsSchemasToUpdate }) => {
-        const newModel = Object.entries(componentsSchemasToUpdate).reduce((map, [componentId, schema]) => {
+    >(({ componentsModels, componentsToUpdate }) => {
+        const newModel = componentsToUpdate.reduce((map, { componentId, schema, isNewValue }) => {
             const model = map.get(componentId)
             if (isNotEmpty(model)) {
-                model.setSchemaEvent(schema)
+                model.setSchemaEvent({ schema, isNewValue })
             }
             return map
         }, new Map(componentsModels))
@@ -41,9 +40,9 @@ export const createComponentsModel = () => {
     })
     const updateModelsFx = attach({
         source: $models,
-        mapParams: (componentsSchemasToUpdate: ComponentsSchemas, componentsModels: ComponentsModels) => ({
+        mapParams: (componentsToUpdate: ComponentToUpdate[], componentsModels: ComponentsModels) => ({
             componentsModels,
-            componentsSchemasToUpdate,
+            componentsToUpdate,
         }),
         effect: baseUpdateModelsFx,
     })

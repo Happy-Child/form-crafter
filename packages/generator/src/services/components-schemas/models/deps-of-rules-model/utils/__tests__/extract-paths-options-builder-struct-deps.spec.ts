@@ -1,8 +1,8 @@
 import { builders } from '@form-crafter/options-builder'
 
-import { extractPathsOptionsBuilderStructDeps } from '../extract-paths-options-builder-struct-deps'
+import { extractPathsOptionsBuilderDeps } from '../extract-paths-options-builder-deps'
 
-describe('extractPathsOptionsBuilderStructDeps', () => {
+describe('extractPathsOptionsBuilderDeps', () => {
     it('should extract paths from group builder', () => {
         const groupBuilder = builders.group({
             name: builders.text(),
@@ -23,7 +23,7 @@ describe('extractPathsOptionsBuilderStructDeps', () => {
             }),
         })
 
-        const result = extractPathsOptionsBuilderStructDeps(groupBuilder.struct)
+        const result = extractPathsOptionsBuilderDeps(groupBuilder.struct)
 
         expect(result).toEqual([
             ['company'],
@@ -37,7 +37,7 @@ describe('extractPathsOptionsBuilderStructDeps', () => {
     it('should return empty array for empty group builder', () => {
         const groupBuilder = builders.group({})
 
-        const result = extractPathsOptionsBuilderStructDeps(groupBuilder.struct)
+        const result = extractPathsOptionsBuilderDeps(groupBuilder.struct)
 
         expect(result).toEqual([])
     })

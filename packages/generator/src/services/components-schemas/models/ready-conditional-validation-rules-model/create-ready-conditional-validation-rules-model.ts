@@ -11,10 +11,10 @@ import { CalcReadyConditionalValidationRulesPayload, ReadyValidationsRules, Read
 import { removeReadyValidationRules } from './utils'
 
 type Params = {
-    schemaService: Pick<SchemaService, '$componentsValidationSchemas' | '$groupValidationSchemas'>
-    themeService: Pick<ThemeService, '$operatorsForConditions'>
-    depsOfRulesModel: Pick<DepsOfRulesModel, '$depsComponentsRuleSchemas' | '$depsGroupsValidationRuleSchemas'>
-    componentsModel: Pick<ComponentsModel, '$componentsSchemas' | '$getExecutorContextBuilder'>
+    schemaService: SchemaService
+    themeService: ThemeService
+    depsOfRulesModel: DepsOfRulesModel
+    componentsModel: ComponentsModel
 }
 
 export type ReadyConditionalValidationRulesModel = ReturnType<typeof createReadyConditionalValidationRulesModel>
@@ -33,6 +33,7 @@ export const createReadyConditionalValidationRulesModel = ({ schemaService, them
     const $readyGroupsByRuleName = createStore<ReadyValidationsRulesByRuleName[keyof ReadyValidationsRulesByRuleName]>({})
 
     const calcReadyRulesEvent = createEvent<CalcReadyConditionalValidationRulesPayload>('calcReadyRulesEvent')
+    const calcReadyRulesGuardEvent = createEvent<CalcReadyConditionalValidationRulesPayload>('calcReadyRulesGuardEvent')
 
     const setReadyComponentsRulesEvent = createEvent<UnitValue<typeof $readyComponentsRules>>('setReadyComponentsRulesEvent')
     const setReadyComponentsRulesByRuleNameEvent = createEvent<UnitValue<typeof $readyComponentsRulesByRuleName>>('setReadyComponentsRulesByRuleNameEvent')
@@ -67,13 +68,19 @@ export const createReadyConditionalValidationRulesModel = ({ schemaService, them
     $readyGroupsRules.on(removeReadyGroupRulesEvent, differenceSet)
     $readyGroupsByRuleName.on(removeReadyGroupRulesByRuleNameEvent, removeReadyValidationRules)
 
+    sample({
+        clock: calcReadyRulesGuardEvent,
+        filter: ({ componentsToUpdate }) => componentsToUpdate.some(({ isNewValue }) => !!isNewValue),
+        target: calcReadyRulesEvent,
+    })
+
     const resultOfCalcReadyRulesEvent = sample({
         source: {
             validationRuleSchemas: schemaService.$componentsValidationSchemas,
             groupValidationSchemas: schemaService.$groupValidationSchemas,
             operatorsForConditions: themeService.$operatorsForConditions,
-            depsComponentsRuleSchemas: depsOfRulesModel.$depsComponentsRuleSchemas,
-            depsGroupsValidationRuleSchemas: depsOfRulesModel.$depsGroupsValidationRuleSchemas,
+            componentsDepsByValidationRules: depsOfRulesModel.$componentsDepsByValidationRules,
+            componentsDepsByGroupValidationRules: depsOfRulesModel.$componentsDepsByGroupValidationRules,
             readyComponentsRules: $readyComponentsRules,
             readyComponentsRulesByRuleName: $readyComponentsRulesByRuleName,
             readyComponentsRulesIds: $readyComponentsRulesIds,
@@ -87,8 +94,8 @@ export const createReadyConditionalValidationRulesModel = ({ schemaService, them
             {
                 validationRuleSchemas,
                 groupValidationSchemas,
-                depsComponentsRuleSchemas,
-                depsGroupsValidationRuleSchemas,
+                componentsDepsByValidationRules,
+                componentsDepsByGroupValidationRules,
                 operatorsForConditions,
                 readyComponentsRules,
                 readyComponentsRulesByRuleName,
@@ -98,8 +105,9 @@ export const createReadyConditionalValidationRulesModel = ({ schemaService, them
                 componentsSchemas,
                 getExecutorContextBuilder,
             },
-            { componentsSchemasToUpdate, skipIfValueUnchanged = true },
+            { componentsToUpdate, skipIfValueUnchanged = true },
         ) => {
+            const componentsSchemasToUpdate = Object.fromEntries(componentsToUpdate.map(({ componentId, schema }) => [componentId, schema]))
             const newComponentsSchemas = merge(cloneDeep(componentsSchemas), componentsSchemasToUpdate)
 
             const executorContext = getExecutorContextBuilder({ componentsSchemas: newComponentsSchemas })
@@ -150,14 +158,14 @@ export const createReadyConditionalValidationRulesModel = ({ schemaService, them
                     return
                 }
 
-                const dependentsValidations = depsComponentsRuleSchemas.validations.schemaIdToDependents[componentId]
-                if (!isNotEmpty(dependentsValidations)) {
+                const dependentsValidationsIds = componentsDepsByValidationRules.componentsToDependentsRuleIds[componentId]
+                if (!isNotEmpty(dependentsValidationsIds)) {
                     return
                 }
 
                 const evokedValidationsRules: Set<EntityId> = new Set()
 
-                dependentsValidations.forEach((validationSchemaId) => {
+                dependentsValidationsIds.forEach((validationSchemaId) => {
                     if (evokedValidationsRules.has(validationSchemaId)) {
                         return
                     }
@@ -194,14 +202,14 @@ export const createReadyConditionalValidationRulesModel = ({ schemaService, them
                     return
                 }
 
-                const dependentsValidations = depsGroupsValidationRuleSchemas.schemaIdToDependents[componentId]
-                if (!isNotEmpty(dependentsValidations)) {
+                const dependentsValidationsIds = componentsDepsByGroupValidationRules.componentsToDependentsRuleIds[componentId]
+                if (!isNotEmpty(dependentsValidationsIds)) {
                     return
                 }
 
                 const evokedValidationsRules: Set<EntityId> = new Set()
 
-                dependentsValidations.forEach((validationSchemaId) => {
+                dependentsValidationsIds.forEach((validationSchemaId) => {
                     if (evokedValidationsRules.has(validationSchemaId)) {
                         return
                     }
@@ -233,9 +241,9 @@ export const createReadyConditionalValidationRulesModel = ({ schemaService, them
                 })
             }
 
-            Object.entries(componentsSchemasToUpdate).forEach(([componentId, componentSchema]) => {
-                calcReadyRules(componentId, componentSchema)
-                calcReadyGroupRules(componentId, componentSchema)
+            componentsToUpdate.forEach(({ componentId, schema }) => {
+                calcReadyRules(componentId, schema)
+                calcReadyGroupRules(componentId, schema)
             })
 
             return {
@@ -277,7 +285,7 @@ export const createReadyConditionalValidationRulesModel = ({ schemaService, them
     })
 
     return {
-        calcReadyRulesEvent,
+        calcReadyRulesEvent: calcReadyRulesGuardEvent,
         resultOfCalcReadyRulesEvent,
         $readyComponentsRules,
         $readyComponentsRulesByRuleName,

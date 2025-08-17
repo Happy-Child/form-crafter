@@ -1,10 +1,9 @@
 import { EditableComponentProperties, EditableComponentSchema } from '@form-crafter/core'
-import { isNotEmpty, OptionalSerializableObject } from '@form-crafter/utils'
+import { isNotEmpty } from '@form-crafter/utils'
 import { combine, createEvent, createStore, sample } from 'effector'
 
 import { createComponentValidationModel } from '../component-validation-model'
-import { ComponentModelParams, EditableModel } from '../types'
-import { isChangedValue } from '../utils'
+import { ComponentModelParams, EditableModel, SetSchemaPayload } from '../types'
 
 type Params = Omit<ComponentModelParams, 'schema'> & {
     schema: EditableComponentSchema
@@ -28,7 +27,7 @@ export const createEditableModel = ({
 
     const onBlurEvent = createEvent<void>('onBlurEvent')
 
-    const setSchemaEvent = createEvent<OptionalSerializableObject>('setSchemaEvent')
+    const setSchemaEvent = createEvent<SetSchemaPayload>('setSchemaEvent')
 
     const valueBeChangedEvent = createEvent('valueBeChangedEvent')
 
@@ -54,13 +53,10 @@ export const createEditableModel = ({
     })
 
     sample({
-        source: $schema,
         clock: setSchemaEvent,
-        filter: (curModel, newModel) => {
-            const oldValue = curModel.properties.value
-            const newValue = (newModel.properties as EditableComponentProperties).value
+        filter: ({ schema: newModel, isNewValue }) => {
             const isVisible = (newModel as EditableComponentSchema).visability?.hidden !== true
-            return isChangedValue(oldValue, newValue) && isVisible
+            return !!isNewValue && isVisible
         },
         target: valueBeChangedEvent,
     })
@@ -68,8 +64,8 @@ export const createEditableModel = ({
     sample({
         source: $schema,
         clock: setSchemaEvent,
-        filter: (curModel, newModel) => {
-            const nowIsHidden = curModel.visability?.hidden === true
+        filter: (curSchema, { schema: newModel }) => {
+            const nowIsHidden = curSchema.visability?.hidden === true
             const nextIsVisability = (newModel as EditableComponentSchema).visability?.hidden !== true
             return nowIsHidden && nextIsVisability
         },

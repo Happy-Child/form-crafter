@@ -1,6 +1,6 @@
 import { EntityId } from '@form-crafter/core'
 
-export type DepsRuleSchema = {
-    schemaIdToDeps: Record<EntityId, EntityId[]>
-    schemaIdToDependents: Record<EntityId, EntityId[]>
+export type DepsByValidationRules = {
+    ruleIdToDepsComponents: Record<EntityId, EntityId[]>
+    componentsToDependentsRuleIds: Record<EntityId, EntityId[]>
 }

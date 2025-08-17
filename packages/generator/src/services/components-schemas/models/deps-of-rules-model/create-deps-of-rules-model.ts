@@ -1,16 +1,18 @@
 import { ComponentsSchemas } from '@form-crafter/core'
-import { combine } from 'effector'
+import { combine, createStore } from 'effector'
+import { cloneDeep, merge } from 'lodash-es'
 
 import { SchemaService } from '../../../schema'
 import { GroupValidationRuleSchemas } from '../../../schema'
 import { ThemeService } from '../../../theme'
-import { DepsRuleSchema } from './types'
+import { DepsByValidationRules } from './types'
 import {
     buildReverseDepsGraph,
     buildSortedDependents,
-    extractDepsFromRuleSchemas,
-    extractValidationsDeps,
-    getDepsPathsOptionsBuilderRules,
+    extractComponentsDepsByMutationRules,
+    extractComponentsDepsByValidationRules,
+    extractComponentsDepsByVisabilityConditions,
+    extractValidationDeps,
     topologicalSortDeps,
 } from './utils'
 
@@ -23,31 +25,43 @@ type Params = {
 export type DepsOfRulesModel = ReturnType<typeof createDepsOfRulesModel>
 
 export const createDepsOfRulesModel = ({ initialComponentsSchemas, themeService, schemaService }: Params) => {
-    const $depsComponentsRuleSchemas = combine(themeService.$mutationsRules, (rules) => {
-        const depsPaths = getDepsPathsOptionsBuilderRules(rules)
-        return extractDepsFromRuleSchemas(initialComponentsSchemas, depsPaths)
+    const $componentsDepsByVisabilityConditions = createStore(extractComponentsDepsByVisabilityConditions(initialComponentsSchemas))
+
+    const $componentsDepsByValidationRules = createStore(extractComponentsDepsByValidationRules(initialComponentsSchemas))
+
+    const $componentsDepsByMutationRules = combine(themeService.$mutationsRules, (rules) =>
+        extractComponentsDepsByMutationRules(initialComponentsSchemas, rules),
+    )
+
+    const $componentsDepsTriggeredMutationRules = combine(
+        $componentsDepsByMutationRules,
+        $componentsDepsByVisabilityConditions,
+        (depsByMutation, depsByVisability) => merge(cloneDeep(depsByMutation), depsByVisability),
+    )
+
+    const $componentsByResolutionAllMutationRules = combine($componentsDepsTriggeredMutationRules, ({ componentIdToDeps }) => {
+        const componentsIdsWithMutationRules = Object.keys(componentIdToDeps)
+        return topologicalSortDeps(componentsIdsWithMutationRules, componentIdToDeps)
     })
-    const $depsGroupsValidationRuleSchemas = combine<GroupValidationRuleSchemas, DepsRuleSchema>(
+    const $componentsByResolutionMutationRules = combine($componentsDepsTriggeredMutationRules, ({ componentIdToDependents, componentIdToDeps }) =>
+        buildSortedDependents(componentIdToDeps, componentIdToDependents),
+    )
+
+    const $componentsDepsByGroupValidationRules = combine<GroupValidationRuleSchemas, DepsByValidationRules>(
         schemaService.$groupValidationSchemas,
         (groupValidationSchemas) => {
-            const validationsList = Object.entries(groupValidationSchemas).map(([, schema]) => schema)
-            const depsGraph = extractValidationsDeps(validationsList)
-            return { schemaIdToDeps: depsGraph, schemaIdToDependents: buildReverseDepsGraph(depsGraph) }
+            const schemas = Object.entries(groupValidationSchemas).map(([, schema]) => schema)
+            const ruleIdToDepsComponents = extractValidationDeps(schemas)
+            return { ruleIdToDepsComponents, componentsToDependentsRuleIds: buildReverseDepsGraph(ruleIdToDepsComponents) }
         },
     )
 
-    const $sortedAllMutationsDependents = combine($depsComponentsRuleSchemas, ({ mutations: { schemaIdToDeps } }) => {
-        const componentsWithMutationsRules = Object.keys(schemaIdToDeps)
-        return topologicalSortDeps(componentsWithMutationsRules, schemaIdToDeps)
-    })
-    const $sortedMutationsDependentsByComponent = combine($depsComponentsRuleSchemas, ({ mutations: { schemaIdToDeps, schemaIdToDependents } }) =>
-        buildSortedDependents(schemaIdToDeps, schemaIdToDependents),
-    )
-
     return {
-        $depsComponentsRuleSchemas,
-        $depsGroupsValidationRuleSchemas,
-        $sortedAllMutationsDependents,
-        $sortedMutationsDependentsByComponent,
+        $componentsDepsTriggeredMutationRules,
+        $componentsByResolutionAllMutationRules,
+        $componentsByResolutionMutationRules,
+        $componentsDepsByGroupValidationRules,
+        $componentsDepsByValidationRules,
+        $componentsDepsByVisabilityConditions,
     }
 }

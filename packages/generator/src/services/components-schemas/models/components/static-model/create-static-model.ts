@@ -1,8 +1,7 @@
 import { StaticComponentSchema } from '@form-crafter/core'
-import { OptionalSerializableObject } from '@form-crafter/utils'
 import { createEvent, createStore } from 'effector'
 
-import { StaticModel } from '../types'
+import { SetSchemaPayload, StaticModel } from '../types'
 
 type Params = {
     schema: StaticComponentSchema
@@ -11,9 +10,9 @@ type Params = {
 export const createStaticModel = ({ schema }: Params): StaticModel => {
     const $schema = createStore<StaticComponentSchema>(schema)
 
-    const setSchemaEvent = createEvent<OptionalSerializableObject>('setSchemaEvent')
+    const setSchemaEvent = createEvent<SetSchemaPayload>('setSchemaEvent')
 
-    $schema.on(setSchemaEvent, (schema, newSchema) => ({
+    $schema.on(setSchemaEvent, (schema, { schema: newSchema }) => ({
         ...schema,
         ...newSchema,
     }))

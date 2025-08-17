@@ -27,6 +27,8 @@ export type RunComponentValidationFxFail = { errors: ComponentsValidationErrors[
 
 export type GeneralModelParams = {}
 
+export type SetSchemaPayload = { schema: OptionalSerializableObject; isNewValue?: boolean }
+
 export type ComponentModelParams = {
     runMutationsRulesEvent: EventCallable<RunMutationsRulesOnUserActionsPayload>
     componentsModel: ComponentsModel
@@ -43,7 +45,7 @@ export type EditableModel = {
     $firstError: Store<ComponentValidationError | null>
     $isRequired: Store<boolean>
     $isValidationPending: StoreWritable<boolean>
-    setSchemaEvent: EventCallable<OptionalSerializableObject>
+    setSchemaEvent: EventCallable<SetSchemaPayload>
     onUpdatePropertiesEvent: EventCallable<Partial<EditableComponentProperties>>
     onBlurEvent: EventCallable<void>
     runValidationFx: Effect<void, RunComponentValidationFxDone, RunComponentValidationFxFail>
@@ -51,7 +53,7 @@ export type EditableModel = {
 
 export type ContainerModel = {
     $schema: StoreWritable<ContainerComponentSchema>
-    setSchemaEvent: EventCallable<OptionalSerializableObject>
+    setSchemaEvent: EventCallable<SetSchemaPayload>
     onUpdatePropertiesEvent: EventCallable<Partial<ContainerComponentProperties>>
 }
 
@@ -61,7 +63,7 @@ export type RepeaterModel = {
     $firstError: Store<ComponentValidationError | null>
     $isValidationPending: StoreWritable<boolean>
     $isRequired: StoreWritable<boolean>
-    setSchemaEvent: EventCallable<OptionalSerializableObject>
+    setSchemaEvent: EventCallable<SetSchemaPayload>
     runValidationFx: Effect<void, RunComponentValidationFxDone, RunComponentValidationFxFail>
 }
 
@@ -71,14 +73,14 @@ export type UploaderModel = {
     $firstError: Store<ComponentValidationError | null>
     $isValidationPending: StoreWritable<boolean>
     $isRequired: StoreWritable<boolean>
-    setSchemaEvent: EventCallable<OptionalSerializableObject>
+    setSchemaEvent: EventCallable<SetSchemaPayload>
     onUpdatePropertiesEvent: EventCallable<Partial<UploaderComponentProperties>>
     runValidationFx: Effect<void, RunComponentValidationFxDone, RunComponentValidationFxFail>
 }
 
 export type StaticModel = {
     $schema: StoreWritable<StaticComponentSchema>
-    setSchemaEvent: EventCallable<OptionalSerializableObject>
+    setSchemaEvent: EventCallable<SetSchemaPayload>
 }
 
 export type ComponentModel = EditableModel | ContainerModel | RepeaterModel | UploaderModel | StaticModel
