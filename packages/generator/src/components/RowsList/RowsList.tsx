@@ -1,5 +1,6 @@
-import { ViewRowChild } from '@form-crafter/core'
 import { FC, memo, PropsWithChildren } from 'react'
+
+import { ViewRowChild } from '@form-crafter/core'
 
 import { useRootLayoutSpans } from '../../hooks'
 import { Row } from '../Row'

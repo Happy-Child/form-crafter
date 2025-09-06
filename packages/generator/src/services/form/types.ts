@@ -1,4 +1,4 @@
-import { OptionalSerializableObject } from '@form-crafter/utils'
+import { AvailableObject } from '@form-crafter/utils'
 import { Effect, EventCallable, StoreWritable } from 'effector'
 
 import { GeneratorProps } from '../../types'
@@ -16,5 +16,5 @@ export type FormService = {
 export type FormServiceParams = {
     componentsSchemasService: ComponentsSchemasService
     viewsService: ViewsService
-    onSubmit: (schema: OptionalSerializableObject) => void
+    onSubmit: (schema: AvailableObject) => void
 }

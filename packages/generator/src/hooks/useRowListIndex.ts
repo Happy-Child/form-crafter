@@ -1,5 +1,6 @@
-import { EntityId } from '@form-crafter/core'
 import { useMemo } from 'react'
+
+import { EntityId } from '@form-crafter/core'
 
 import { useViewComponentWithRows } from './useViewComponentWithRows'
 

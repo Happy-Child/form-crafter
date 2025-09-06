@@ -1,14 +1,14 @@
-import { ComponentModule, createEditableComponentModule, createMutationRule, EditableComponentProperties } from '@form-crafter/core'
+import { ComponentModule, createMutationRule, createTextInputComponentModule } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
 
-const createComponentModule = (name: string, label: string, rules: ReturnType<typeof createEditableComponentModule>['mutationsRules'] = []) => {
-    return createEditableComponentModule({
+const createComponentModule = (name: string, label: string, rules: ReturnType<typeof createTextInputComponentModule>['mutations'] = []) => {
+    return createTextInputComponentModule({
         name,
         label,
         optionsBuilder: builders.group({
             value: builders.text().required().nullable(),
         }),
-        mutationsRules: rules,
+        mutations: rules,
         Component: () => null,
     })
 }
@@ -16,8 +16,8 @@ const createComponentModule = (name: string, label: string, rules: ReturnType<ty
 const optionsBuilder1 = builders.group({
     value: builders.checkbox().label('').required(),
 })
-const rule1 = createMutationRule<EditableComponentProperties, typeof optionsBuilder1>({
-    ruleName: 'rule1',
+const rule1 = createMutationRule({
+    key: 'rule1',
     displayName: 'Правило 1',
     optionsBuilder: optionsBuilder1,
     execute: () => ({ properties: {} }),
@@ -27,8 +27,8 @@ const optionsBuilder2 = builders.group({
     field1: builders.selectComponent(),
     field2: builders.selectComponents(),
 })
-const rule2 = createMutationRule<EditableComponentProperties, typeof optionsBuilder2>({
-    ruleName: 'rule2',
+const rule2 = createMutationRule({
+    key: 'rule2',
     displayName: 'Правило 2',
     optionsBuilder: optionsBuilder2,
     execute: () => ({ properties: {} }),
@@ -41,17 +41,21 @@ const optionsBuilder3 = builders.group({
         field1: builders.selectComponent().nullable(),
         field2: builders.selectComponent().nullable(),
         group: builders.group({
-            contacts: builders.multifield({
-                country: builders.selectComponent(),
-                education: builders.multifield({
-                    positions: builders.selectComponents(),
+            contacts: builders.multifield(
+                builders.group({
+                    country: builders.selectComponent(),
+                    education: builders.multifield(
+                        builders.group({
+                            positions: builders.selectComponents(),
+                        }),
+                    ),
                 }),
-            }),
+            ),
         }),
     }),
 })
-const rule3 = createMutationRule<EditableComponentProperties, typeof optionsBuilder3>({
-    ruleName: 'rule3',
+const rule3 = createMutationRule({
+    key: 'rule3',
     displayName: 'Правило 3',
     optionsBuilder: optionsBuilder3,
     execute: () => ({ properties: {} }),
@@ -63,7 +67,7 @@ export const mockComponentsModules: ComponentModule[] = [
     createComponentModule('name', 'Name', [rule3]),
 ]
 
-export const mockMutationsRules = {
+export const mockMutations = {
     rule1: rule1,
     rule2: rule2,
     rule3: rule3,

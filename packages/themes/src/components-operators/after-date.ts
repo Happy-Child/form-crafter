@@ -1,20 +1,20 @@
-import { createComponentConditionOperator, isEditableComponentSchema } from '@form-crafter/core'
+import { createComponentConditionOperator } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
-import { isString } from '@form-crafter/utils'
+import { isNumber, isString } from '@form-crafter/utils'
 import dayjs from 'dayjs'
 
 const optionsBuilder = builders.group({
     date: builders.datePicker().label('Дата').required(),
 })
 
-export const afterDateOperator = createComponentConditionOperator<typeof optionsBuilder>({
-    name: 'afterDate',
+export const afterDateOperator = createComponentConditionOperator({
+    key: 'afterDate',
     displayName: 'Значение даты должно быть после',
-    execute: (componentId, { ctx, options }) => {
-        const componentSchema = ctx.getComponentSchemaById(componentId)
+    execute: ({ properties }, { options }) => {
+        const value = properties.value
 
-        if (isEditableComponentSchema(componentSchema) && isString(componentSchema.properties.value)) {
-            return dayjs(componentSchema.properties.value).isAfter(options.date)
+        if (isString(value) || isNumber(value)) {
+            return dayjs(value).isAfter(options.date)
         }
 
         return false

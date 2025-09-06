@@ -1,7 +1,7 @@
 import { ComponentsSchemas, EntityId } from '@form-crafter/core'
-import { OptionalSerializableObject } from '@form-crafter/utils'
+import { AvailableObject } from '@form-crafter/utils'
 
-export type RulesOverridesCache = Record<EntityId, OptionalSerializableObject | null>
+export type RulesOverridesCache = Record<EntityId, AvailableObject | null>
 
 export type RunMutationRulesPayload = {
     curComponentsSchemas: ComponentsSchemas

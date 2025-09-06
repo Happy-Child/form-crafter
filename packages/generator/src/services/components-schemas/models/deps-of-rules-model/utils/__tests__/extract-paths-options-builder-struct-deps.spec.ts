@@ -13,12 +13,16 @@ describe('extractPathsOptionsBuilderDeps', () => {
                 user: builders.selectComponent(),
                 group: builders.group({
                     users: builders.selectComponents(),
-                    contacts: builders.multifield({
-                        country: builders.selectComponent(),
-                        education: builders.multifield({
-                            positions: builders.selectComponents(),
+                    contacts: builders.multifield(
+                        builders.group({
+                            country: builders.selectComponent(),
+                            education: builders.multifield(
+                                builders.group({
+                                    positions: builders.selectComponents(),
+                                }),
+                            ),
                         }),
-                    }),
+                    ),
                 }),
             }),
         })

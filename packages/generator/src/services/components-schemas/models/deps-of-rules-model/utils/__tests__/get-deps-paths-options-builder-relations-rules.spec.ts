@@ -1,10 +1,10 @@
 import { mockComponentsModules, mockEmptyRulesComponentsModules } from '../../../../../theme/utils/__tests__/mocks'
-import { extractMutationsRules } from '../../../../../theme/utils/extract-mutations-rules'
+import { extractMutations } from '../../../../../theme/utils/extract-mutations'
 import { buildPathsToOptionsBuilderRulesDeps } from '../build-paths-to-options-builder-rules-deps'
 
 describe('buildPathsToOptionsBuilderRulesDeps', () => {
     it('should get paths from components mutations rules', () => {
-        const mutationsRules = extractMutationsRules(mockComponentsModules)
+        const mutationsRules = extractMutations(mockComponentsModules)
         const result = buildPathsToOptionsBuilderRulesDeps(mutationsRules)
 
         expect(result).toEqual({
@@ -20,7 +20,7 @@ describe('buildPathsToOptionsBuilderRulesDeps', () => {
     })
 
     it('should return empty paths from components mutations rules', () => {
-        const mutationsRules = extractMutationsRules(mockEmptyRulesComponentsModules)
+        const mutationsRules = extractMutations(mockEmptyRulesComponentsModules)
         const result = buildPathsToOptionsBuilderRulesDeps(mutationsRules)
 
         expect(result).toEqual({})

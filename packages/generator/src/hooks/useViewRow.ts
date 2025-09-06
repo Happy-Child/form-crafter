@@ -8,6 +8,7 @@ export const useViewRow = (id: EntityId): ViewRow => {
     return useStoreMap({
         store: services.viewsService.currentView,
         keys: [id],
-        fn: ({ rows }, [id]) => rows[id],
+        // TODO switch on change responsive?
+        fn: ({ xxl }, [id]) => xxl.rows[id],
     })
 }

@@ -1,5 +1,6 @@
-import { ViewRowChild } from '@form-crafter/core'
 import { FC, memo } from 'react'
+
+import { ViewRowChild } from '@form-crafter/core'
 
 import { useRootLayoutSpans, useViewRow } from '../../hooks'
 import { ResolverComponent } from '../ResolverComponent'

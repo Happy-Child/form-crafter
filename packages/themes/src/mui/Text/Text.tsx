@@ -1,12 +1,13 @@
-import { createStaticComponentModule, OptionsBuilderOutput, StaticComponentProps } from '@form-crafter/core'
-import { builders } from '@form-crafter/options-builder'
 import { forwardRef, memo } from 'react'
+
+import { createStaticComponentModule, StaticComponentProps } from '@form-crafter/core'
+import { builders } from '@form-crafter/options-builder'
 
 const optionsBuilder = builders.group({
     value: builders.textarea().required().label('Текст'),
 })
 
-type ComponentProps = StaticComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = StaticComponentProps<typeof optionsBuilder>
 
 const Text = memo(
     forwardRef<HTMLDivElement, ComponentProps>(({ properties: { value } }, ref) => {

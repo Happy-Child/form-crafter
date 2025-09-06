@@ -1,4 +1,4 @@
-import { OptionalSerializableObject, OptionalSerializableValue } from '@form-crafter/utils'
+import { AvailableObject, AvailableValue } from '@form-crafter/utils'
 
 export type OptionBuilderType =
     | 'text'
@@ -21,7 +21,7 @@ export type OptionBuilderType =
     | 'mask'
     | 'textarea'
 
-export interface OptionsBuilder<Output extends OptionalSerializableValue = OptionalSerializableValue> {
+export interface OptionsBuilder<Output extends AvailableValue = AvailableValue> {
     __outputType: Output
     struct?: Record<string, OptionsBuilder>
     readonly type: OptionBuilderType
@@ -30,11 +30,11 @@ export interface OptionsBuilder<Output extends OptionalSerializableValue = Optio
     mutations: unknown[]
 }
 
-export interface GroupOptionsBuilder<Output extends OptionalSerializableObject = OptionalSerializableObject> extends OptionsBuilder<Output> {
+export interface GroupOptionsBuilder<Output extends AvailableObject = AvailableObject> extends OptionsBuilder<Output> {
     struct: Record<string, OptionsBuilder>
 }
 
-export interface MultifieldOptionsBuilder<Output extends OptionalSerializableObject = OptionalSerializableObject> extends OptionsBuilder<Output> {
+export interface MultifieldOptionsBuilder<Output extends AvailableObject = AvailableObject> extends OptionsBuilder<Output> {
     properties: {
         template: Record<string, OptionsBuilder>
     }

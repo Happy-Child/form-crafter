@@ -53,6 +53,6 @@ export const isNotEmpty = <T>(value: Maybe<T>): value is T => {
 
 export const isFunction = (val: unknown): val is Function => typeof val === 'function'
 
-export const isObject = (value: unknown): value is object => {
+export const isObject = (value: unknown): value is Record<string, unknown> => {
     return typeof value === 'object' && value !== null && !isArray(value) && Object.prototype.toString.call(value) === '[object Object]'
 }

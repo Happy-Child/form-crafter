@@ -1,8 +1,9 @@
+import { FC, useCallback } from 'react'
+
 import { Generator } from '@form-crafter/generator'
 import { muiTheme } from '@form-crafter/themes'
 import { isNotEmpty } from '@form-crafter/utils'
 import { Alert, Button, Container, Paper, Stack, Typography } from '@mui/material'
-import { FC, useCallback } from 'react'
 
 import { employeeFormSchema } from '../mock-schemas'
 import { AppStyled } from './styles'
@@ -16,7 +17,7 @@ export const App: FC = () => {
 
     return (
         <AppStyled>
-            <Container maxWidth="md" sx={{ pt: 4 }}>
+            <Container maxWidth="md" sx={{ py: 4 }}>
                 <Paper elevation={3} sx={{ p: 4 }}>
                     <Generator
                         onSubmit={handleeSubmit}

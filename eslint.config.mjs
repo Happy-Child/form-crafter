@@ -64,7 +64,7 @@ export default [
             'simple-import-sort': simpleImportSort,
         },
         rules: {
-            'simple-import-sort/imports': ['error', { groups: [['^\\u0000'], ['^@?\\w'], ['^_?\\w'], ['^\\.']] }],
+            'simple-import-sort/imports': ['error', { groups: [['^\\u0000'], ['^react$', '^react-dom$'], ['^@?\\w'], ['^_?\\w'], ['^\\.']] }],
             'simple-import-sort/exports': 'error',
         },
     },

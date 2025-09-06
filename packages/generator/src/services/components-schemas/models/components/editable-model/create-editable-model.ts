@@ -114,8 +114,6 @@ export const createEditableModel = ({
     }
 
     if (validationOnChangeIsAvailable) {
-        // TODO вызывается ли гарантированно после вышестоящего sample?
-        // Если нет, то combineEvents runOnChangeValidationEvent + $schema.update решит проблему?
         sample({
             clock: runOnChangeValidationEvent,
             target: validationComponentModel.runValidationFx,

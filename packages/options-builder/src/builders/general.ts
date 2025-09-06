@@ -1,5 +1,5 @@
 import { OptionBuilderType, OptionsBuilder } from '@form-crafter/core'
-import { OptionalSerializableValue, SomeObject } from '@form-crafter/utils'
+import { AvailableValue, SomeObject } from '@form-crafter/utils'
 
 import { MutationRule } from '../mutations'
 import { ValidationRule } from '../validations'
@@ -9,7 +9,7 @@ type Params<P extends object> = {
     properties: P
 }
 
-export class GeneralOptionBuilder<Output extends OptionalSerializableValue, Props extends SomeObject = SomeObject> implements OptionsBuilder<Output> {
+export class GeneralOptionBuilder<Output extends AvailableValue, Props extends SomeObject = SomeObject> implements OptionsBuilder<Output> {
     declare readonly __outputType: Output
 
     public readonly type: OptionBuilderType

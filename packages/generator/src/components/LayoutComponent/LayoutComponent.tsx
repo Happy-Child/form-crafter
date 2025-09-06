@@ -1,5 +1,6 @@
-import { EntityId } from '@form-crafter/core'
 import { FC, memo, PropsWithChildren } from 'react'
+
+import { EntityId } from '@form-crafter/core'
 
 import { useRootLayoutSpans, useViewComponentLayout } from '../../hooks'
 import { LayoutStyled } from './styles'

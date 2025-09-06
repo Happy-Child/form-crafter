@@ -1,5 +1,6 @@
-import { Global } from '@emotion/react'
 import { StrictMode } from 'react'
+
+import { Global } from '@emotion/react'
 import * as ReactDOM from 'react-dom/client'
 
 import { App } from './components/App'

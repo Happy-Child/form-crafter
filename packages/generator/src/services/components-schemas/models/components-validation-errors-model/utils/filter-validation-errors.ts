@@ -10,20 +10,20 @@ type FilteredErrorsPayload = {
 
 export const filterValidationErrors = (curErrors: ComponentsValidationErrors, validationIdsToRemove: Set<EntityId>) => {
     const { filteredErrors, wasChanged } = Object.entries(curErrors).reduce<FilteredErrorsPayload>(
-        (result, [componentId, curErrors]) => {
-            const newErrors = new Map(curErrors)
+        (result, [componentId, componentErrors]) => {
+            const finalErrors = new Map(componentErrors)
 
             for (const idToRemove of validationIdsToRemove) {
-                newErrors.delete(idToRemove)
+                finalErrors.delete(idToRemove)
             }
 
-            const wasChanged = newErrors.size !== curErrors.size
+            const wasChanged = finalErrors.size !== componentErrors.size
             if (wasChanged) {
                 result.wasChanged = true
             }
 
-            if (isNotEmpty(newErrors)) {
-                result.filteredErrors[componentId] = wasChanged ? curErrors : newErrors
+            if (isNotEmpty(finalErrors)) {
+                result.filteredErrors[componentId] = wasChanged ? finalErrors : componentErrors
             }
 
             return result

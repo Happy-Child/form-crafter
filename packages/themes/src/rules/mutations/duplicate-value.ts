@@ -1,4 +1,4 @@
-import { createMutationRule, EditableComponentProperties, isEditableComponentSchema } from '@form-crafter/core'
+import { createMutationRule, isEditableComponentSchema } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
 import { isEmpty } from '@form-crafter/utils'
 
@@ -6,10 +6,9 @@ const optionsBuilder = builders.group({
     duplicateValueComponentId: builders.selectComponent().label('Выберете поле').required(),
 })
 
-export const duplicateValueRule = createMutationRule<EditableComponentProperties, typeof optionsBuilder>({
-    ruleName: 'duplicateValue',
+export const duplicateValueRule = createMutationRule({
+    key: 'duplicateValue',
     displayName: 'Дублирование значения',
-    optionsBuilder,
     execute: (_, { options, ctx }) => {
         if (isEmpty(options)) {
             return null
@@ -24,4 +23,5 @@ export const duplicateValueRule = createMutationRule<EditableComponentProperties
 
         return null
     },
+    optionsBuilder,
 })

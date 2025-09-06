@@ -1,5 +1,6 @@
-import { useUnit } from 'effector-react'
 import { memo } from 'react'
+
+import { useUnit } from 'effector-react'
 
 import { RepeaterProvider } from '../../../../contexts'
 import { useComponentMeta, useComponentModel, useComponentProperties, useDisplayComponent, useViewComponentWithParent } from '../../../../hooks'

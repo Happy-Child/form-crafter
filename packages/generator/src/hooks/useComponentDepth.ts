@@ -9,6 +9,6 @@ export const useComponentDepth = (id: EntityId): number => {
     return useStoreMap({
         store: services.viewsService.currentView,
         keys: [id],
-        fn: ({ components }, [id]) => getComponentDepth(id, components),
+        fn: ({ xxl }, [id]) => getComponentDepth(id, xxl.components),
     })
 }

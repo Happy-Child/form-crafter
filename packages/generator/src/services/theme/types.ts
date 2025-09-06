@@ -1,25 +1,17 @@
-import {
-    ComponentConditionOperator,
-    ComponentConditionOperatorWithoutOptions,
-    ComponentModule,
-    ComponentValidationRule,
-    FormCrafterTheme,
-    GroupValidationRule,
-    MutationRule,
-} from '@form-crafter/core'
-import { OptionalSerializableObject } from '@form-crafter/utils'
-import { Store } from 'effector'
 import { FC } from 'react'
 
-export type OperatorsForConditionsStore = Store<Record<string, ComponentConditionOperator | ComponentConditionOperatorWithoutOptions>>
+import { ComponentConditionOperator, ComponentModule, ComponentValidationRule, FormCrafterTheme, GroupValidationRule, MutationRule } from '@form-crafter/core'
+import { Store } from 'effector'
+
+export type OperatorsStore = Store<Record<string, ComponentConditionOperator>>
 
 export type ThemeService = {
     $componentsModules: Store<ComponentModule[]>
     $componentsModulesMap: Store<Record<string, ComponentModule>>
     $componentsValidationsRules: Store<Record<string, ComponentValidationRule>>
     $groupValidationRules: Store<Record<string, GroupValidationRule>>
-    $operatorsForConditions: OperatorsForConditionsStore
-    $mutationsRules: Store<Record<string, MutationRule<OptionalSerializableObject>>>
+    $operators: OperatorsStore
+    $mutationsRules: Store<Record<string, MutationRule>>
     $placeholderComponent: Store<FC>
 }
 

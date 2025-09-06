@@ -1,4 +1,4 @@
-import { isFile, isFilesList, isOptionalSerializableObject } from '@form-crafter/utils'
+import { isFile, isFilesList, isObject } from '@form-crafter/utils'
 import { isEqual } from 'lodash-es'
 
 const areFilesEqual = (a: File, b: File): boolean => {
@@ -21,7 +21,7 @@ export const isChangedValue = (oldValue: unknown, newValue: unknown): boolean =>
         return !areFileArraysEqual(oldValue, newValue)
     }
 
-    if (isOptionalSerializableObject(oldValue) && isOptionalSerializableObject(newValue)) {
+    if (isObject(oldValue) && isObject(newValue)) {
         for (const key in oldValue) {
             const a = oldValue[key]
             const b = newValue[key]

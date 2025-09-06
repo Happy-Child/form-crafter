@@ -1,6 +1,7 @@
+import { useCallback } from 'react'
+
 import { EntityId, RepeaterComponentProps } from '@form-crafter/core'
 import { useUnit } from 'effector-react'
-import { useCallback } from 'react'
 
 import { useGeneratorContext } from '../../../../contexts'
 

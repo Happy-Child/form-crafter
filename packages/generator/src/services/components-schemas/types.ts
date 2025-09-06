@@ -1,5 +1,5 @@
 import { ComponentsSchemas, EntityId } from '@form-crafter/core'
-import { OptionalSerializableObject } from '@form-crafter/utils'
+import { AvailableObject } from '@form-crafter/utils'
 import { EventCallable } from 'effector'
 
 import { SchemaService } from '../schema'
@@ -8,7 +8,7 @@ import { ComponentsModel } from './models/components-model'
 import { FormValidationModel } from './models/form-validation-model'
 import { VisabilityComponentsModel } from './models/visability-components-model'
 
-export type RunMutationsRulesOnUserActionsPayload = { id: EntityId; data: OptionalSerializableObject }
+export type RunMutationsRulesOnUserActionsPayload = { id: EntityId; data: AvailableObject }
 
 export type ComponentsSchemasService = {
     componentsModel: ComponentsModel

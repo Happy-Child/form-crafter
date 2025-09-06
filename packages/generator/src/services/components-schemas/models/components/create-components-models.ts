@@ -1,10 +1,4 @@
-import {
-    ComponentsSchemas,
-    isContainerComponentSchema,
-    isEditableComponentSchema,
-    isRepeaterComponentSchema,
-    isUploaderComponentSchema,
-} from '@form-crafter/core'
+import { ComponentsSchemas, isContainerComponentSchema, isEditableComponentSchema, isRepeaterComponentSchema } from '@form-crafter/core'
 
 import { ComponentsModels } from '../components-model'
 import { createContainerModel } from './container-model'
@@ -12,7 +6,6 @@ import { createEditableModel } from './editable-model'
 import { createRepeaterModel } from './repeater-model'
 import { createStaticModel } from './static-model'
 import { ComponentModel, ComponentModelParams } from './types'
-import { createUploaderModel } from './uploader-model'
 
 const createComponentModel = ({ schema, ...args }: ComponentModelParams): ComponentModel => {
     if (isEditableComponentSchema(schema)) {
@@ -25,10 +18,6 @@ const createComponentModel = ({ schema, ...args }: ComponentModelParams): Compon
 
     if (isRepeaterComponentSchema(schema)) {
         return createRepeaterModel({ schema, ...args })
-    }
-
-    if (isUploaderComponentSchema(schema)) {
-        return createUploaderModel({ schema, ...args })
     }
 
     return createStaticModel({ schema, ...args })

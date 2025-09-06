@@ -1,5 +1,6 @@
-import { useUnit } from 'effector-react'
 import { memo } from 'react'
+
+import { useUnit } from 'effector-react'
 
 import { useComponentMeta, useComponentModel, useComponentProperties, useDisplayComponent, useViewComponentWithParent } from '../../../../hooks'
 import { LayoutComponent } from '../../../LayoutComponent'

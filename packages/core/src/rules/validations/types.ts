@@ -1,17 +1,11 @@
-import { OptionalSerializableValue, SerializableObject } from '@form-crafter/utils'
+import { TypeCheckingError, Unwrap } from '@form-crafter/utils'
 
-import { OptionsBuilder, OptionsBuilderOutput } from '../../options-builder'
+import { ComponentSchema } from '../../components'
+import { GroupOptionsBuilder, OptionsBuilderOutput } from '../../options-builder'
 import { EntityId } from '../../types'
-import { RuleExecuteParams, RuleExecuteParamsWithoutOptions } from '../types'
+import { GeneralRuleConfig, RuleExecutorContext } from '../types'
 
-type GeneralValidationRule = {
-    ruleName: string
-    displayName: string
-}
-
-export type ValidationRuleFormParams<O extends OptionsBuilder<SerializableObject>> = {
-    options: OptionsBuilderOutput<O>
-}
+export type ValidateSchema<T extends ComponentSchema> = Unwrap<Pick<T, 'meta' | 'properties'>>
 
 export type ComponentValidationResult =
     | {
@@ -21,6 +15,58 @@ export type ComponentValidationResult =
     | {
           isValid: true
       }
+    | null
+
+export type ComponentValidationRuleValidate<OptsBuilderOptions, CompSchema extends ComponentSchema> = unknown extends OptsBuilderOptions
+    ? (
+          schema: CompSchema,
+          params: {
+              ctx: RuleExecutorContext
+          },
+      ) => ComponentValidationResult
+    : (
+          schema: CompSchema,
+          params: {
+              ctx: RuleExecutorContext
+              options: OptsBuilderOptions
+          },
+      ) => ComponentValidationResult
+
+export type ComponentValidationRuleToCreate<OptsBuilder, Validate> = unknown extends OptsBuilder
+    ? GeneralRuleConfig & {
+          validate: Validate
+          optionsBuilder?: never
+      }
+    : OptsBuilder extends GroupOptionsBuilder
+      ? GeneralRuleConfig & {
+            validate: Validate
+            optionsBuilder: OptsBuilder
+        }
+      : TypeCheckingError<'optionsBuilder should be a group builder', OptsBuilder>
+
+export type ComponentValidationRule<OptsBuilder extends GroupOptionsBuilder = GroupOptionsBuilder> =
+    | (GeneralRuleConfig & {
+          type: 'component'
+          validate: (
+              schema: ValidateSchema<ComponentSchema>,
+              params: {
+                  ctx: RuleExecutorContext
+                  options: OptionsBuilderOutput<GroupOptionsBuilder>
+              },
+          ) => ComponentValidationResult
+          optionsBuilder: OptsBuilder
+      })
+    | (GeneralRuleConfig & {
+          type: 'component'
+          validate: (
+              schema: ValidateSchema<ComponentSchema>,
+              params: {
+                  ctx: RuleExecutorContext
+              },
+          ) => ComponentValidationResult
+      })
+
+export type ComponentValidationRuleWithOptionsBuilder = Extract<ComponentValidationRule, { optionsBuilder: GroupOptionsBuilder }>
 
 export type GroupValidationResult =
     | {
@@ -31,55 +77,35 @@ export type GroupValidationResult =
     | {
           isValid: true
       }
+    | null
 
-export type EditableValidationRule<
-    V extends OptionalSerializableValue,
-    O extends OptionsBuilder<SerializableObject> = OptionsBuilder<SerializableObject>,
-> = GeneralValidationRule & {
-    type: 'editable'
-    optionsBuilder: O
-    validate: (value: V, params: RuleExecuteParams<O>) => ComponentValidationResult
-}
-export type EditableValidationRuleWithoutOptions<V extends OptionalSerializableValue> = GeneralValidationRule & {
-    type: 'editable'
-    validate: (value: V, params: RuleExecuteParamsWithoutOptions) => ComponentValidationResult
-}
-
-export type RepeaterValidationRule<O extends OptionsBuilder<SerializableObject> = OptionsBuilder<SerializableObject>> = GeneralValidationRule & {
-    type: 'repeater'
-    optionsBuilder: O
-    validate: (componentId: EntityId, params: RuleExecuteParams<O>) => ComponentValidationResult
-}
-export type RepeaterValidationRuleWithoutOptions = GeneralValidationRule & {
-    type: 'repeater'
-    validate: (componentId: EntityId, params: RuleExecuteParamsWithoutOptions) => ComponentValidationResult
-}
-
-// TODO fix generic type
-export type UploaderValidationRule<
-    V extends OptionalSerializableValue,
-    O extends OptionsBuilder<SerializableObject> = OptionsBuilder<SerializableObject>,
-> = GeneralValidationRule & {
-    type: 'uploader'
-    optionsBuilder: O
-    validate: (value: V, params: RuleExecuteParams<O>) => ComponentValidationResult
-}
-export type UploaderValidationRuleWithoutOptions<V extends OptionalSerializableValue> = GeneralValidationRule & {
-    type: 'uploader'
-    validate: (value: V, params: RuleExecuteParamsWithoutOptions) => ComponentValidationResult
-}
-
-export type ComponentValidationRule<T extends OptionalSerializableValue = OptionalSerializableValue> =
-    | EditableValidationRule<T>
-    | RepeaterValidationRule
-    | UploaderValidationRule<T>
-
-export type GroupValidationRule<O extends OptionsBuilder<SerializableObject> = OptionsBuilder<SerializableObject>> = GeneralValidationRule & {
+export type GeneralGroupValidationRuleConfig = GeneralRuleConfig & {
     type: 'group'
-    optionsBuilder: O
-    validate: (params: RuleExecuteParams<O>) => GroupValidationResult
 }
-export type GroupValidationRuleWithoutOptions = GeneralValidationRule & {
-    type: 'group'
-    validate: (params: RuleExecuteParamsWithoutOptions) => GroupValidationResult
-}
+
+export type GroupValidationRuleValidate<OptsBuilderOptions> = unknown extends OptsBuilderOptions
+    ? (params: { ctx: RuleExecutorContext }) => GroupValidationResult
+    : (params: { ctx: RuleExecutorContext; options: OptsBuilderOptions }) => GroupValidationResult
+
+export type GroupValidationRuleToCreate<OptsBuilder, Validate> = unknown extends OptsBuilder
+    ? GeneralRuleConfig & {
+          validate: Validate
+          optionsBuilder?: never
+      }
+    : OptsBuilder extends GroupOptionsBuilder
+      ? GeneralRuleConfig & {
+            validate: Validate
+            optionsBuilder: OptsBuilder
+        }
+      : TypeCheckingError<'optionsBuilder should be a group builder', OptsBuilder>
+
+export type GroupValidationRule<OptsBuilder extends GroupOptionsBuilder = GroupOptionsBuilder> =
+    | (GeneralRuleConfig & {
+          type: 'group'
+          validate: (params: { ctx: RuleExecutorContext; options: OptionsBuilderOutput<GroupOptionsBuilder> }) => GroupValidationResult
+          optionsBuilder: OptsBuilder
+      })
+    | (GeneralRuleConfig & {
+          type: 'group'
+          validate: (params: { ctx: RuleExecutorContext }) => GroupValidationResult
+      })

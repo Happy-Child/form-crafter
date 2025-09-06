@@ -1,21 +1,17 @@
-import { ContainerComponentProps, createContainerComponentModule, OptionsBuilderOutput } from '@form-crafter/core'
-import { RowsList, useIsRepeater } from '@form-crafter/generator'
-import { builders } from '@form-crafter/options-builder'
-import { isNotEmpty } from '@form-crafter/utils'
-import { Box } from '@mui/material'
 import { forwardRef, memo } from 'react'
 
-import { Title } from '../Title'
-import { TopLevelContainerHeader } from './TopLevelContainerHeader'
+import { createContainerComponentModule } from '@form-crafter/core'
+import { RowsList, useIsRepeater } from '@form-crafter/generator'
+import { isNotEmpty } from '@form-crafter/utils'
+import { Box } from '@mui/material'
 
-const optionsBuilder = builders.group({
-    title: builders.text().label('Заголовок').nullable(),
-})
-
-type ComponentProps = ContainerComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
+import { Title } from './components/Title'
+import { TopLevelContainerHeader } from './components/TopLevelContainerHeader'
+import { optionsBuilder } from './options-builder'
+import { ContainerComponentProps } from './types'
 
 const Group = memo(
-    forwardRef<HTMLDivElement, ComponentProps>(({ rows, properties, ...props }, ref) => {
+    forwardRef<HTMLDivElement, ContainerComponentProps>(({ rows, properties, ...props }, ref) => {
         const parentIsRepeater = useIsRepeater(props.parentId)
 
         const header = parentIsRepeater ? (

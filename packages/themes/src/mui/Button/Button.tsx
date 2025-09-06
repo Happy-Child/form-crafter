@@ -1,7 +1,8 @@
-import { createStaticComponentModule, OptionsBuilderOutput, StaticComponentProps } from '@form-crafter/core'
+import { forwardRef, memo } from 'react'
+
+import { createStaticComponentModule, StaticComponentProps } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
 import { Button as ButtonBase } from '@mui/material'
-import { forwardRef, memo } from 'react'
 
 const defautType = 'button'
 
@@ -18,7 +19,7 @@ const optionsBuilder = builders.group({
         .required(),
 })
 
-type ComponentProps = StaticComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = StaticComponentProps<typeof optionsBuilder>
 
 const Button = memo(
     forwardRef<HTMLButtonElement, ComponentProps>(({ properties: { text, type } }, ref) => {

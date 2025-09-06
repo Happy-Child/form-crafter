@@ -1,10 +1,10 @@
 import { EntityId } from '@form-crafter/core'
-import { isArray, isNotEmpty, isObject, isString, OptionalSerializableObject, OptionalSerializableValue } from '@form-crafter/utils'
+import { AvailableObject, AvailableValue, isArray, isNotEmpty, isObject, isString } from '@form-crafter/utils'
 
-export const getRuleOptionsValuesByDepsPaths = (targetObj: OptionalSerializableObject, paths: string[][]): EntityId[] => {
+export const getRuleOptionsValuesByDepsPaths = (targetObj: AvailableObject, paths: string[][]): EntityId[] => {
     const values: EntityId[] = []
 
-    const extractValues = (value: OptionalSerializableValue, path: string[], currentIndex: number) => {
+    const extractValues = (value: AvailableValue, path: string[], currentIndex: number) => {
         if (currentIndex === path.length) {
             if (isString(value)) {
                 values.push(value)

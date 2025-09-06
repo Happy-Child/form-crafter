@@ -3,11 +3,11 @@ import { Maybe, NonUndefinable, Nullable, Undefinable } from '@form-crafter/util
 import { CustomValidationRuleParams } from '../validations'
 import { GeneralOptionBuilder } from './general'
 
-type Value = Undefinable<string | number>
+type Value = Maybe<string | number>
 
 type Properties = {
     label: Undefinable<string>
-    value: Undefinable<{ start?: Value; end?: Value }>
+    value: Undefinable<{ start: Value; end: Value }>
     min: Value
     max: Value
     pattern: Undefinable<string>

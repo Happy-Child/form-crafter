@@ -3,6 +3,7 @@ import { EventCallable, sample } from 'effector'
 import { cloneDeep } from 'lodash-es'
 import { combineEvents } from 'patronum'
 
+import { ChangeViewsModel } from './models/change-views-model'
 import { ComponentsModel } from './models/components-model'
 import { ComponentsValidationErrorsModel } from './models/components-validation-errors-model'
 import { DepsOfRulesModel } from './models/deps-of-rules-model'
@@ -20,6 +21,7 @@ type Params = {
     readyConditionalValidationRulesModel: ReadyConditionalValidationRulesModel
     formValidationModel: FormValidationModel
     mutationsRulesModel: MutationsRulesModel
+    changeViewsModel: ChangeViewsModel
     initServiceEvent: EventCallable<void>
     runMutationsRulesOnUserActionsEvent: EventCallable<RunMutationsRulesOnUserActionsPayload>
 }
@@ -32,9 +34,15 @@ export const init = ({
     readyConditionalValidationRulesModel,
     formValidationModel,
     mutationsRulesModel,
+    // changeViewsModel,
     initServiceEvent,
     runMutationsRulesOnUserActionsEvent,
 }: Params) => {
+    // sample({
+    //     clock: readyConditionalValidationRulesModel.calcReadyRulesEvent,
+    //     fn: (aaa, bbb) => ({}),
+    // })
+
     sample({
         source: {
             componentsSchemas: componentsModel.$componentsSchemas,
@@ -44,8 +52,12 @@ export const init = ({
             componentsToUpdate: Object.entries(componentsSchemas).map(([componentId, schema]) => ({ componentId, schema, isNewValue: true })),
             skipIfValueUnchanged: false,
         }),
+        // TODO вычислять для всех компонентов в рамках всех view? Или только текущей?
+        // будет понятно и очевидно вычисляя только на текущей
         target: readyConditionalValidationRulesModel.calcReadyRulesEvent,
     })
+
+    // TODO тут тоже вьебать нужно выполнение активного view, как и с готовыми валидац.
 
     sample({
         source: {
@@ -122,6 +134,6 @@ export const init = ({
 
     // sample({
     //     clock: mutationsRulesModel.resultOfRunMutationRulesEvent,
-    //     target: calcViewsEvent,
+    //     target: changeViewsModel...,
     // })
 }

@@ -1,5 +1,6 @@
-import { isNotEmpty } from '@form-crafter/utils'
 import { FC, FormEvent, memo, useCallback } from 'react'
+
+import { isNotEmpty } from '@form-crafter/utils'
 
 import { useGeneratorContext } from '../../contexts'
 import { useRootViewComponent } from '../../hooks'

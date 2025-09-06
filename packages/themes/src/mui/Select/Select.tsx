@@ -1,59 +1,24 @@
-import { createEditableComponentModule, EditableComponentProps, OptionsBuilderOutput } from '@form-crafter/core'
-import { builders } from '@form-crafter/options-builder'
-import { isNotEmpty } from '@form-crafter/utils'
-import { FormControl, FormHelperText, InputLabel, ListItemText, MenuItem, Select as SelectBase } from '@mui/material'
-import { SelectInputProps } from '@mui/material/Select/SelectInput'
 import { forwardRef, memo, useCallback } from 'react'
 
+import { createSelectComponentModule } from '@form-crafter/core'
+import { isArray, isNotEmpty } from '@form-crafter/utils'
+import { FormControl, FormHelperText, InputLabel, MenuItem, Select as SelectBase } from '@mui/material'
+import { SelectInputProps } from '@mui/material/Select/SelectInput'
+
 import { componentsOperators } from '../../components-operators'
-import { rules } from '../../rules'
-
-const optionsBuilder = builders.group({
-    value: builders
-        .multiSelect()
-        .options([
-            {
-                label: 'Мужской',
-                value: 'male',
-            },
-            {
-                label: 'Женский',
-                value: 'female',
-            },
-        ])
-        .required()
-        .nullable(),
-    readonly: builders.checkbox().label('Только для чтения'),
-    label: builders.text().label('Название'),
-    disabled: builders.checkbox().label('Блокировка ввода'),
-    options: builders
-        .multifield({
-            label: builders.text().label('Название').required().value('Название'),
-            value: builders.text().label('Значение').required().value('Значение'),
-        })
-        .required()
-        .label('Список опций')
-        .value([
-            {
-                label: 'Мужской',
-                value: 'male',
-            },
-            {
-                label: 'Женский',
-                value: 'female',
-            },
-        ]),
-})
-
-type ComponentProps = EditableComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
+import { rules as generalRules } from '../../rules'
+import { optionsBuilder } from './options-builder'
+import { rules } from './rules'
+import { SelectComponentProps } from './types'
 
 const Select = memo(
-    forwardRef<HTMLDivElement, ComponentProps>(
+    forwardRef<HTMLDivElement, SelectComponentProps>(
         ({ meta, properties: { options, value, label, disabled }, onChangeProperties, isRequired, firstError, onBlur }, ref) => {
+            const finalValue = isNotEmpty(value) ? [value] : ''
+
             const handleChange = useCallback<Required<SelectInputProps<string[]>>['onChange']>(
-                ({ target: { value } }) => {
-                    const finalValues = Array.isArray(value) ? value : [value]
-                    onChangeProperties({ value: finalValues })
+                ({ target: { value: newValue } }) => {
+                    onChangeProperties({ value: isArray(newValue) ? newValue[0] : newValue })
                 },
                 [onChangeProperties],
             )
@@ -62,10 +27,8 @@ const Select = memo(
                 <FormControl ref={ref} fullWidth error={isNotEmpty(firstError?.message)}>
                     {label && <InputLabel>{label}</InputLabel>}
                     <SelectBase
-                        multiple
                         name={meta.formKey}
-                        value={value || []}
-                        renderValue={(selected) => selected.join(', ')}
+                        value={finalValue}
                         disabled={disabled}
                         label={label}
                         onChange={handleChange}
@@ -75,7 +38,7 @@ const Select = memo(
                     >
                         {options.map((option) => (
                             <MenuItem key={option.value} value={option.value}>
-                                <ListItemText primary={option.label} />
+                                {option.label}
                             </MenuItem>
                         ))}
                     </SelectBase>
@@ -88,12 +51,17 @@ const Select = memo(
 
 Select.displayName = 'Select'
 
-export const selectModule = createEditableComponentModule({
+export const selectModule = createSelectComponentModule({
     name: 'select',
     label: 'Select',
     optionsBuilder,
-    operatorsForConditions: [componentsOperators.isEmptyOperator, componentsOperators.isNotEmptyOperator, componentsOperators.equalStringOperator],
-    mutationsRules: [rules.mutations.duplicateValueRule, rules.mutations.changeSelectOptionsRule],
-    validationsRules: [rules.validations.editable.isRequiredRule],
+    operators: [
+        componentsOperators.isEmptyOperator,
+        componentsOperators.isNotEmptyOperator,
+        componentsOperators.includesOperator,
+        componentsOperators.equalOperator,
+    ],
+    mutations: [generalRules.mutations.duplicateValueRule, rules.mutations.changeSelectOptionsRule],
+    validations: [generalRules.validations.components.editable.isRequiredRule],
     Component: Select,
 })

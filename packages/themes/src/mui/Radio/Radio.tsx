@@ -1,8 +1,9 @@
-import { createEditableComponentModule, EditableComponentProps, OptionsBuilderOutput } from '@form-crafter/core'
+import { forwardRef, memo } from 'react'
+
+import { createSelectComponentModule, SelectComponentProps } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
 import { isNotEmpty } from '@form-crafter/utils'
-import { Box, FormControl, FormControlLabel, FormHelperText, FormLabel, Radio as Radioeditable } from '@mui/material'
-import { forwardRef, memo } from 'react'
+import { Box, FormControl, FormControlLabel, FormHelperText, FormLabel, Radio as RadioBase } from '@mui/material'
 
 import { componentsOperators } from '../../components-operators'
 import { rules } from '../../rules'
@@ -26,10 +27,12 @@ const optionsBuilder = builders.group({
         .required()
         .nullable(),
     options: builders
-        .multifield({
-            label: builders.text().label('Название').required().value('Например'),
-            value: builders.text().label('Значение').required().value('value'),
-        })
+        .multifield(
+            builders.group({
+                label: builders.text().label('Название').required().value('Например'),
+                value: builders.text().label('Значение').required().value('value'),
+            }),
+        )
         .required()
         .label('Список опций')
         .value([
@@ -44,7 +47,7 @@ const optionsBuilder = builders.group({
         ]),
 })
 
-type ComponentProps = EditableComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = SelectComponentProps<typeof optionsBuilder>
 
 const Radio = memo(
     forwardRef<HTMLDivElement, ComponentProps>(({ meta, properties: { options, value, label, disabled }, isRequired, firstError, onChangeProperties }, ref) => {
@@ -55,9 +58,9 @@ const Radio = memo(
                     {options.map((option) => (
                         <FormControlLabel
                             key={option.value}
-                            required={isRequired}
+                            label={option.label}
                             control={
-                                <Radioeditable
+                                <RadioBase
                                     checked={value === option.value}
                                     name={meta.formKey}
                                     value={option.value}
@@ -65,7 +68,6 @@ const Radio = memo(
                                     onChange={() => onChangeProperties({ value: option.value })}
                                 />
                             }
-                            label={option.label}
                         />
                     ))}
                 </Box>
@@ -77,12 +79,12 @@ const Radio = memo(
 
 Radio.displayName = 'Radio'
 
-export const radioModule = createEditableComponentModule({
+export const radioModule = createSelectComponentModule({
     name: 'radio',
     label: 'Radio',
     optionsBuilder,
-    operatorsForConditions: [componentsOperators.isEmptyOperator, componentsOperators.isNotEmptyOperator],
-    mutationsRules: [rules.mutations.duplicateValueRule],
-    validationsRules: [rules.validations.editable.isRequiredRule],
+    operators: [componentsOperators.isEmptyOperator, componentsOperators.isNotEmptyOperator],
+    mutations: [rules.mutations.duplicateValueRule],
+    validations: [rules.validations.components.editable.isRequiredRule],
     Component: Radio,
 })

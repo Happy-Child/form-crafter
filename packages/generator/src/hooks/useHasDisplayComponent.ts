@@ -1,7 +1,8 @@
+import { FC, useMemo } from 'react'
+
 import { EntityId } from '@form-crafter/core'
 import { isNotEmpty } from '@form-crafter/utils'
 import { useUnit } from 'effector-react'
-import { FC, useMemo } from 'react'
 
 import { useGeneratorContext } from '../contexts'
 import { useComponentMeta } from './useComponentMeta'

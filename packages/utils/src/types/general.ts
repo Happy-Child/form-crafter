@@ -1,12 +1,12 @@
-export type UniversalValue = string | number | boolean | null
+// export type UniversalValue = string | number | boolean | null
 
-export type SerializableValue = UniversalValue | SerializableObject | SerializableValue[]
+// export type SerializableValue = UniversalValue | SerializableObject | SerializableValue[]
 
-export type SerializableObject = { [key: string]: SerializableValue }
+// export type SerializableObject = { [key: string]: SerializableValue }
 
-export type OptionalSerializableValue = UniversalValue | OptionalSerializableObject | OptionalSerializableValue[] | undefined
+// export type OptionalSerializableValue = UniversalValue | OptionalSerializableObject | OptionalSerializableValue[] | undefined
 
-export type OptionalSerializableObject = { [key: string]: OptionalSerializableValue }
+// export type OptionalSerializableObject = { [key: string]: OptionalSerializableValue }
 
 export type SomeObject = Record<string, any>
 
@@ -29,6 +29,8 @@ export type Undefinable<T> = T | undefined
 export type Nullable<T> = T | null
 
 export type Maybe<T> = Undefinable<T> | Nullable<T>
+
+export type RequiredType<T> = NonNullable<T> & NonUndefinable<T>
 
 export type NonUndefinableKey<T extends SomeObject, O extends keyof T> = {
     [K in keyof T]: K extends O ? NonUndefinable<T[K]> : T[K]

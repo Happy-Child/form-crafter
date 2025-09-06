@@ -1,15 +1,8 @@
-import {
-    ComponentSchema,
-    ComponentValidationResult,
-    EntityId,
-    isEditableValidationRule,
-    isUploaderValidationRule,
-    validationRuleNames,
-} from '@form-crafter/core'
-import { isNotEmpty } from '@form-crafter/utils'
+import { ComponentSchema, ComponentValidationResult, EntityId, validationKeys } from '@form-crafter/core'
+import { isNotEmpty, isNotNull } from '@form-crafter/utils'
 import { attach, combine, createEffect, createStore, Store, StoreWritable } from 'effector'
 
-import { getPermanentValidationRulesByRuleName } from '../../../utils'
+import { getPermanentValidationRulesByKey } from '../../../utils'
 import { ComponentsValidationErrors } from '../../components-validation-errors-model'
 import { ComponentModelParams, RunComponentValidationFxDone, RunComponentValidationFxFail } from '../types'
 import { RunComponentValidationFxParams } from './types'
@@ -46,27 +39,32 @@ export const createComponentValidationModel = <S extends ComponentSchema>({
         readyConditionalValidationRulesModel.$readyComponentsRules,
         $componentId,
         (readyConditionalValidationRules, componentId) => {
+            // console.log('COMPONENT readyConditionalValidationRules: ', readyConditionalValidationRules)
+            // console.log('COMPONENT componentId: ', componentId)
+
             const rules = readyConditionalValidationRules[componentId]
             return isNotEmpty(rules) ? rules : null
         },
     )
-    const $readyComponentConditionalValidationRulesByRuleName = combine(
-        readyConditionalValidationRulesModel.$readyComponentsRulesByRuleName,
+    const $readyComponentConditionalValidationRulesByKey = combine(
+        readyConditionalValidationRulesModel.$readyComponentsRulesByKey,
         $componentId,
-        (readyConditionalValidationRulesByRuleName, componentId) => {
-            const rules = readyConditionalValidationRulesByRuleName[componentId]
+        (readyConditionalValidationRulesByKey, componentId) => {
+            // console.log('COMPONENT readyConditionalValidationRulesByKey: ', readyConditionalValidationRulesByKey)
+            // console.log('COMPONENT componentId: ', componentId)
+            const rules = readyConditionalValidationRulesByKey[componentId]
             return isNotEmpty(rules) ? rules : null
         },
     )
-    const $readyPermanentValidationsRules = combine($schema, (schema) => getPermanentValidationRulesByRuleName(schema.validations?.schemas || []))
+    const $readyPermanentValidationsRules = combine($schema, (schema) => getPermanentValidationRulesByKey(schema.validations?.schemas || []))
 
     const $isRequired = combine(
-        $readyComponentConditionalValidationRulesByRuleName,
+        $readyComponentConditionalValidationRulesByKey,
         $readyPermanentValidationsRules,
-        (readyComponentConditionalValidationRulesByRuleName, readyPermanentValidationsRules) => {
+        (readyComponentConditionalValidationRulesByKey, readyPermanentValidationsRules) => {
             const readyByIsRequired = new Set([
-                ...(readyComponentConditionalValidationRulesByRuleName?.[validationRuleNames.isRequired] || new Set()),
-                ...(readyPermanentValidationsRules?.[validationRuleNames.isRequired] || new Set()),
+                ...(readyComponentConditionalValidationRulesByKey?.[validationKeys.isRequired] || new Set()),
+                ...(readyPermanentValidationsRules?.[validationKeys.isRequired] || new Set()),
             ])
 
             if (isNotEmpty(readyByIsRequired) && readyByIsRequired.size !== 0) {
@@ -83,33 +81,37 @@ export const createComponentValidationModel = <S extends ComponentSchema>({
                 return Promise.resolve()
             }
 
-            const value = schema.properties.value
-            const componentId = schema.meta.id
-
             const executorContext = getExecutorContextBuilder()
 
             const newErrors: ComponentsValidationErrors[keyof ComponentsValidationErrors] = new Map()
 
             for (const validationSchema of schema.validations?.schemas || []) {
-                const { id: validaionSchemaId, ruleName, options, condition } = validationSchema
+                const { id: validaionSchemaId, key, options, condition } = validationSchema
 
                 const ruleIsReady = isNotEmpty(condition) ? readyComponentConditionalValidationRules?.has(validaionSchemaId) : true
+                // console.log('COMPONENT readyComponentConditionalValidationRules: ', readyComponentConditionalValidationRules)
+                // console.log('COMPONENT ruleIsReady: ', ruleIsReady)
+                // console.log('COMPONENT validaionSchemaId: ', validaionSchemaId)
+                // console.log('COMPONENT key: ', key)
+
                 if (!ruleIsReady) {
                     continue
                 }
 
-                const rule = componentsValidationsRules[ruleName]
+                const rule = componentsValidationsRules[key]
 
                 let validationResult: ComponentValidationResult
 
-                if (isEditableValidationRule(rule) || isUploaderValidationRule(rule)) {
-                    validationResult = rule.validate(value, { ctx: executorContext, options: options || {} })
-                } else {
-                    validationResult = rule.validate(componentId, { ctx: executorContext, options: options || {} })
+                switch (rule.type) {
+                    case 'component': {
+                        validationResult = rule.validate(schema, { ctx: executorContext, options: options || {} })
+                        break
+                    }
                 }
 
-                if (!validationResult.isValid) {
-                    newErrors.set(validaionSchemaId, { id: validaionSchemaId, ruleName, message: validationResult.message })
+                // TODO если null то по сути success валидация и убараются все ошибки, НО НУЖНО ОСТАВЬ ИХ. Проверить есть ои ошибки с validationSchemaId и добавь в переменные.
+                if (isNotNull(validationResult) && !validationResult.isValid) {
+                    newErrors.set(validaionSchemaId, { id: validaionSchemaId, key, message: validationResult.message })
                 }
             }
 

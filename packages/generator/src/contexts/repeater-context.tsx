@@ -1,5 +1,6 @@
-import { RepeaterComponentProps } from '@form-crafter/core'
 import { createContext, FC, PropsWithChildren, useContext, useMemo } from 'react'
+
+import { RepeaterComponentProps } from '@form-crafter/core'
 
 type RepeaterContext = Pick<RepeaterComponentProps, 'onAddRow' | 'onRemoveRow'>
 

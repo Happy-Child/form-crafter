@@ -12,6 +12,7 @@ export const getComponentDepth = (id: EntityId, componentsMap: ViewDefinitionCom
         if (isEmpty(parentId)) {
             return depth
         }
+
         return execute(parentId, depth + 1)
     }
 

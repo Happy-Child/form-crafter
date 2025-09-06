@@ -26,7 +26,7 @@ export const extractComponentsDepsByMutationRules = (componentsSchemas: Componen
                     componentsIdsDeps.push(...deps)
                 }
 
-                const optionsDepsKeys = pathsToOptionsBuilderRulesDeps[schema.ruleName]
+                const optionsDepsKeys = pathsToOptionsBuilderRulesDeps[schema.key]
                 if (isNotEmpty(schema.options) && isNotEmpty(optionsDepsKeys)) {
                     const deps = getRuleOptionsValuesByDepsPaths(schema.options, optionsDepsKeys)
                     componentsIdsDeps.push(...deps)

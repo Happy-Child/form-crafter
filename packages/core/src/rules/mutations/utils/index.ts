@@ -1,1 +1,1 @@
-export * from './is-mutation-rule-with-options'
+export * from './is-mutation-rule-with-options-builder'

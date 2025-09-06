@@ -1,5 +1,5 @@
 import { ComponentsSchemas, ValidationRuleSchema } from '../components'
-import { ComponentModule } from '../components-modules'
+import { ComponentModule } from '../components'
 import { GroupValidationRule } from '../rules'
 import { ResponsiveSizes, ValidationsTriggers } from '../types'
 import { Views } from '../views'
@@ -23,6 +23,5 @@ export type Schema = {
 
 export type FormCrafterTheme = {
     componentsModules: ComponentModule[]
-    // TODO может принять любой option builder, нужно разрешать только group
-    groupValidationRules?: GroupValidationRule<any>[]
+    groupValidationRules?: GroupValidationRule[]
 }

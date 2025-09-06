@@ -1,4 +1,4 @@
-import { createComponentConditionOperator, isEditableComponentSchema } from '@form-crafter/core'
+import { createComponentConditionOperator } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
 import { isString } from '@form-crafter/utils'
 
@@ -6,14 +6,14 @@ const optionsBuilder = builders.group({
     endsWith: builders.text().label('Значение').required(),
 })
 
-export const endsWithOperator = createComponentConditionOperator<typeof optionsBuilder>({
-    name: 'endsWith',
+export const endsWithOperator = createComponentConditionOperator({
+    key: 'endsWith',
     displayName: 'Оканчивается на',
-    execute: (componentId, { ctx, options }) => {
-        const componentSchema = ctx.getComponentSchemaById(componentId)
+    execute: ({ properties }, { options }) => {
+        const value = properties.value
 
-        if (isEditableComponentSchema(componentSchema) && isString(componentSchema.properties.value)) {
-            return componentSchema.properties.value.endsWith(options.endsWith)
+        if (isString(value)) {
+            return value.endsWith(options.endsWith)
         }
 
         return false

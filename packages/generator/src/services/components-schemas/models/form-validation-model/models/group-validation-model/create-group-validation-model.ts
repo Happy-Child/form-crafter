@@ -1,5 +1,5 @@
 import { EntityId, GroupValidationError } from '@form-crafter/core'
-import { isNotEmpty } from '@form-crafter/utils'
+import { isNotEmpty, isNotNull } from '@form-crafter/utils'
 import { attach, createEffect, createEvent, createStore, sample, UnitValue } from 'effector'
 
 import { SchemaService } from '../../../../../schema'
@@ -42,19 +42,26 @@ export const createGroupValidationModel = ({
             const finalComponentsErrors: ComponentsValidationErrors = {}
 
             for (const [, validationSchema] of Object.entries(groupValidationSchemas)) {
-                const { id: validationSchemaId, ruleName, options, condition } = validationSchema
+                const { id: validationSchemaId, key, options, condition } = validationSchema
+                console.log('key', key)
+                console.log('validationSchemaId', validationSchemaId)
 
                 const ruleIsReady = isNotEmpty(condition) ? readyConditionalValidationRules?.has(validationSchemaId) : true
+                console.log('ruleIsReady', ruleIsReady)
+                console.log('readyConditionalValidationRules', readyConditionalValidationRules)
+
                 if (!ruleIsReady) {
                     continue
                 }
 
-                const rule = groupValidationRules[ruleName]
+                const rule = groupValidationRules[key]
                 const validationResult = rule.validate({ ctx: executorContext, options: options || {} })
 
-                if (!validationResult.isValid) {
+                // TODO если null то по сути success валидация и убараются все ошибки, НО НУЖНО ОСТАВЬ ИХ. Проверить есть ои ошибки с validationSchemaId и добавь в переменные.
+
+                if (isNotNull(validationResult) && !validationResult.isValid) {
                     if (isNotEmpty(validationResult.message)) {
-                        finalGroupsErrors.set(validationSchemaId, { id: validationSchemaId, ruleName, message: validationResult.message })
+                        finalGroupsErrors.set(validationSchemaId, { id: validationSchemaId, key, message: validationResult.message })
                     }
 
                     if (isNotEmpty(validationResult?.componentsErrors)) {
@@ -73,7 +80,7 @@ export const createGroupValidationModel = ({
                             }
                             finalComponentsErrors[componentError.componentId].set(validationSchemaId, {
                                 id: validationSchemaId,
-                                ruleName,
+                                key,
                                 message: componentError.message,
                             })
                         })
@@ -138,7 +145,7 @@ export const createGroupValidationModel = ({
 
         sample({
             clock: runValidationsFx.doneData,
-            target: [componentsValidationErrorsModel.setComponentsGroupsErrorsEvent, clearErrorsEvent],
+            target: [componentsValidationErrorsModel.clearComponentsGroupsErrorsEvent, clearErrorsEvent],
         })
     }
 

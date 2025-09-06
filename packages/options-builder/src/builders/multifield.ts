@@ -1,18 +1,18 @@
-import { ChildType, NonUndefinable, OptionalSerializableObject, SomeObject, Undefinable, Unwrap } from '@form-crafter/utils'
+import { OptionsBuilder } from '@form-crafter/core'
+import { AvailableValue, ChildType, NonUndefinable, Undefinable } from '@form-crafter/utils'
 
-import { GroupStruct, GroupStructFromOutput, OutputFromGroupStruct } from '../types'
 import { CustomValidationRuleParams, LengthValidationRuleParams } from '../validations'
 import { GeneralOptionBuilder } from './general'
 
-type Properties<T extends Undefinable<SomeObject[]> = []> = {
+type Properties<T extends Undefinable<AvailableValue[]> = []> = {
     label: Undefinable<string>
     value: Undefinable<T>
-    template: Undefinable<SomeObject>
+    template: Undefinable<OptionsBuilder>
     disable: Undefinable<boolean>
     addButtonName: Undefinable<string>
 }
 
-const getInitialProperties: <T extends Undefinable<SomeObject[]> = []>() => Properties<T> = () => ({
+const getInitialProperties: <T extends Undefinable<AvailableValue[]> = []>() => Properties<T> = () => ({
     label: undefined,
     value: undefined,
     template: undefined,
@@ -20,10 +20,8 @@ const getInitialProperties: <T extends Undefinable<SomeObject[]> = []>() => Prop
     addButtonName: 'Add',
 })
 
-export class MultifieldBuilder<
-    Output extends Undefinable<OptionalSerializableObject[]> = Undefinable<OptionalSerializableObject[]>,
-> extends GeneralOptionBuilder<Output, Properties<Output>> {
-    constructor(templateSchema: GroupStructFromOutput<ChildType<Output>>) {
+export class MultifieldBuilder<Output extends Undefinable<AvailableValue[]>> extends GeneralOptionBuilder<Output, Properties<Output>> {
+    constructor(templateSchema: OptionsBuilder<ChildType<Output>>) {
         super({ type: 'multifield', properties: getInitialProperties<Output>() })
         this.properties.template = templateSchema
     }
@@ -74,8 +72,6 @@ export class MultifieldBuilder<
     }
 }
 
-export const multifield = <T extends GroupStruct>(struct: T) => {
-    type Output = Unwrap<OutputFromGroupStruct<T>>
-
-    return new MultifieldBuilder<Undefinable<Output[]>>(struct as GroupStructFromOutput<Output>)
+export const multifield = <T extends OptionsBuilder>(struct: T) => {
+    return new MultifieldBuilder<Undefinable<T['__outputType'][]>>(struct)
 }

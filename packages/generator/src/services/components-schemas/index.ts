@@ -2,6 +2,7 @@ import { ComponentsSchemas, EntityId } from '@form-crafter/core'
 import { createEvent } from 'effector'
 
 import { init } from './init'
+import { createChangeViewsModel } from './models/change-views-model'
 import { createComponentsModels } from './models/components'
 import { createComponentsModel } from './models/components-model'
 import { createComponentsValidationErrorsModel } from './models/components-validation-errors-model'
@@ -68,6 +69,14 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
         schemaService,
     })
 
+    const changeViewsModel = createChangeViewsModel({
+        componentsModel,
+        depsOfRulesModel,
+        visabilityComponentsModel,
+        themeService,
+        schemaService,
+    })
+
     init({
         componentsModel,
         visabilityComponentsModel,
@@ -76,6 +85,7 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
         readyConditionalValidationRulesModel,
         formValidationModel,
         mutationsRulesModel,
+        changeViewsModel,
         initServiceEvent,
         runMutationsRulesOnUserActionsEvent,
     })

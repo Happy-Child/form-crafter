@@ -1,12 +1,12 @@
-import { EntityId, ViewDefinition, Views, ViewsDefinitions } from '@form-crafter/core'
+import { EntityId, ViewResponsive, Views, ViewsDefinitions } from '@form-crafter/core'
 import { EventCallable, Store, StoreWritable } from 'effector'
 
 export type ViewsService = {
-    $curentViewId: StoreWritable<EntityId>
-    $views: StoreWritable<ViewsDefinitions>
+    $curentViewId: StoreWritable<EntityId | null>
+    $views: StoreWritable<ViewsDefinitions | null>
     setCurrentViewIdEvent: EventCallable<EntityId>
     setViewsEvent: EventCallable<ViewsDefinitions>
-    currentView: Store<ViewDefinition>
+    currentView: Store<ViewResponsive>
 }
 
 export type ViewsServiceParams = {

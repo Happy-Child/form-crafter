@@ -9,7 +9,7 @@ export const employeeFormSchema: Schema = {
         schemas: [
             {
                 id: genId(),
-                ruleName: 'oneOfNotEmpty',
+                key: 'oneOfNotEmpty',
                 options: {
                     componentMessage: 'Одно из полей обязательно',
                     formMessage: 'Одно из полей {componentLabels} должно быть заполнено',
@@ -19,8 +19,8 @@ export const employeeFormSchema: Schema = {
                     type: 'operator',
                     operator: 'and',
                     operands: [
-                        { type: 'component', componentId: 'email', operatorName: 'isEmpty' },
-                        { type: 'component', componentId: 'input-position', operatorName: 'isEmpty' },
+                        { type: 'component', componentId: 'email', operatorKey: 'isEmpty' },
+                        { type: 'component', componentId: 'input-position', operatorKey: 'isEmpty' },
                     ],
                 },
             },
@@ -31,10 +31,13 @@ export const employeeFormSchema: Schema = {
         rowsSpanPx: { default: 36 },
     },
     views: {
-        initialViewId: 'main-view',
-        definitions: {
-            'main-view': {
+        default: {
+            xxl: {
                 rows: {
+                    row_id_0: {
+                        id: 'row_id_0',
+                        children: [{ id: 'gender' }],
+                    },
                     row_id_1: {
                         id: 'row_id_1',
                         children: [{ id: 'input-first-name' }, { id: 'input-last-name' }],
@@ -73,6 +76,9 @@ export const employeeFormSchema: Schema = {
                         id: rootComponentId,
                         rows: [
                             {
+                                id: 'row_id_0',
+                            },
+                            {
                                 id: 'row_id_1',
                             },
                             {
@@ -88,6 +94,13 @@ export const employeeFormSchema: Schema = {
                                 id: 'row_id_4',
                             },
                         ],
+                    },
+                    gender: {
+                        id: 'gender',
+                        parentId: rootComponentId,
+                        params: {
+                            layout: { col: { default: 24 } },
+                        },
                     },
                     'input-first-name': {
                         id: 'input-first-name',
@@ -176,157 +189,194 @@ export const employeeFormSchema: Schema = {
                     },
                 },
             },
+        },
+        additionals: {
             'second-view': {
-                rows: {
-                    row_id_1: {
-                        id: 'row_id_1',
-                        children: [{ id: 'group-work' }],
-                    },
-                    'group-work_1': {
-                        id: 'row_id_5',
-                        children: [{ id: 'input-position' }, { id: 'select-department' }],
-                    },
-                    'group-work_2': {
-                        id: 'row_id_5',
-                        children: [{ id: 'date-start' }],
-                    },
-                },
-                components: {
-                    [rootComponentId]: {
-                        id: rootComponentId,
-                        rows: [{ id: 'row_id_1' }],
-                    },
-                    'group-work': {
-                        id: 'group-work',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 24 } },
+                condition: { type: 'component', componentId: 'gender', operatorKey: 'equal', enteredComponentValue: 'female' },
+                responsive: {
+                    xxl: {
+                        rows: {
+                            row_id_0: {
+                                id: 'row_id_0',
+                                children: [{ id: 'gender' }],
+                            },
+                            row_id_1: {
+                                id: 'row_id_1',
+                                children: [{ id: 'group-work' }],
+                            },
+                            'group-work_1': {
+                                id: 'row_id_5',
+                                children: [{ id: 'input-position' }, { id: 'select-department' }],
+                            },
+                            'group-work_2': {
+                                id: 'row_id_5',
+                                children: [{ id: 'date-start' }],
+                            },
                         },
-                        rows: [{ id: 'group-work_1' }, { id: 'group-work_2' }],
-                    },
-                    'input-position': {
-                        id: 'input-position',
-                        parentId: 'group-work',
-                        params: {
-                            layout: { col: { default: 12 } },
-                        },
-                    },
-                    country: {
-                        id: 'country',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 12 } },
-                        },
-                    },
-                    region: {
-                        id: 'region',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 12 } },
-                        },
-                    },
-                    'select-department': {
-                        id: 'select-department',
-                        parentId: 'group-work',
-                        params: {
-                            layout: { col: { default: 12 } },
-                        },
-                    },
-                    'date-start': {
-                        id: 'date-start',
-                        parentId: 'group-work',
-                        params: {
-                            layout: { col: { default: 12 } },
+                        components: {
+                            [rootComponentId]: {
+                                id: rootComponentId,
+                                rows: [{ id: 'row_id_1' }],
+                            },
+                            gender: {
+                                id: 'gender',
+                                parentId: rootComponentId,
+                                params: {
+                                    layout: { col: { default: 24 } },
+                                },
+                            },
+                            'group-work': {
+                                id: 'group-work',
+                                parentId: rootComponentId,
+                                params: {
+                                    layout: { col: { default: 24 } },
+                                },
+                                rows: [{ id: 'group-work_1' }, { id: 'group-work_2' }],
+                            },
+                            'input-position': {
+                                id: 'input-position',
+                                parentId: 'group-work',
+                                params: {
+                                    layout: { col: { default: 12 } },
+                                },
+                            },
+                            country: {
+                                id: 'country',
+                                parentId: rootComponentId,
+                                params: {
+                                    layout: { col: { default: 12 } },
+                                },
+                            },
+                            region: {
+                                id: 'region',
+                                parentId: rootComponentId,
+                                params: {
+                                    layout: { col: { default: 12 } },
+                                },
+                            },
+                            'select-department': {
+                                id: 'select-department',
+                                parentId: 'group-work',
+                                params: {
+                                    layout: { col: { default: 12 } },
+                                },
+                            },
+                            'date-start': {
+                                id: 'date-start',
+                                parentId: 'group-work',
+                                params: {
+                                    layout: { col: { default: 12 } },
+                                },
+                            },
                         },
                     },
                 },
             },
             'third-view': {
-                rows: {
-                    row_id_1: {
-                        id: 'row_id_1',
-                        children: [{ id: 'input-first-name' }],
-                    },
-                    row_id_2: {
-                        id: 'row_id_2',
-                        children: [{ id: 'email' }],
-                    },
-                    row_id_3: {
-                        id: 'row_id_3',
-                        children: [{ id: 'input-salary' }],
-                    },
-                    row_id_4: {
-                        id: 'row_id_4',
-                        children: [{ id: 'group-work' }],
-                    },
-                    'group-work_1': {
-                        id: 'row_id_5',
-                        children: [{ id: 'input-position' }],
-                    },
-                    'group-work_2': {
-                        id: 'row_id_5',
-                        children: [{ id: 'date-start' }],
-                    },
-                },
-                components: {
-                    [rootComponentId]: {
-                        id: rootComponentId,
-                        rows: [
-                            {
+                condition: { type: 'component', componentId: 'gender', operatorKey: 'equal', enteredComponentValue: 'other' },
+                responsive: {
+                    xxl: {
+                        rows: {
+                            row_id_0: {
+                                id: 'row_id_0',
+                                children: [{ id: 'gender' }],
+                            },
+                            row_id_1: {
                                 id: 'row_id_1',
+                                children: [{ id: 'input-first-name' }],
                             },
-                            {
+                            row_id_2: {
                                 id: 'row_id_2',
+                                children: [{ id: 'email' }],
                             },
-                            {
+                            row_id_3: {
                                 id: 'row_id_3',
+                                children: [{ id: 'input-salary' }],
                             },
-                            {
+                            row_id_4: {
                                 id: 'row_id_4',
+                                children: [{ id: 'group-work' }],
                             },
-                        ],
-                    },
-                    'input-first-name': {
-                        id: 'input-first-name',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 12 } },
+                            'group-work_1': {
+                                id: 'row_id_5',
+                                children: [{ id: 'input-position' }],
+                            },
+                            'group-work_2': {
+                                id: 'row_id_5',
+                                children: [{ id: 'date-start' }],
+                            },
                         },
-                    },
-                    email: {
-                        id: 'email',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 19 } },
-                        },
-                    },
-                    'input-salary': {
-                        id: 'input-salary',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 12 } },
-                        },
-                    },
-                    'group-work': {
-                        id: 'group-work',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 24 } },
-                        },
-                        rows: [{ id: 'group-work_1' }, { id: 'group-work_2' }],
-                    },
-                    'input-position': {
-                        id: 'input-position',
-                        parentId: 'group-work',
-                        params: {
-                            layout: { col: { default: 12 } },
-                        },
-                    },
-                    'date-start': {
-                        id: 'date-start',
-                        parentId: 'group-work',
-                        params: {
-                            layout: { col: { default: 12 } },
+                        components: {
+                            [rootComponentId]: {
+                                id: rootComponentId,
+                                rows: [
+                                    {
+                                        id: 'row_id_0',
+                                    },
+                                    {
+                                        id: 'row_id_1',
+                                    },
+                                    {
+                                        id: 'row_id_2',
+                                    },
+                                    {
+                                        id: 'row_id_3',
+                                    },
+                                    {
+                                        id: 'row_id_4',
+                                    },
+                                ],
+                            },
+                            gender: {
+                                id: 'gender',
+                                parentId: rootComponentId,
+                                params: {
+                                    layout: { col: { default: 24 } },
+                                },
+                            },
+                            'input-first-name': {
+                                id: 'input-first-name',
+                                parentId: rootComponentId,
+                                params: {
+                                    layout: { col: { default: 12 } },
+                                },
+                            },
+                            email: {
+                                id: 'email',
+                                parentId: rootComponentId,
+                                params: {
+                                    layout: { col: { default: 19 } },
+                                },
+                            },
+                            'input-salary': {
+                                id: 'input-salary',
+                                parentId: rootComponentId,
+                                params: {
+                                    layout: { col: { default: 12 } },
+                                },
+                            },
+                            'group-work': {
+                                id: 'group-work',
+                                parentId: rootComponentId,
+                                params: {
+                                    layout: { col: { default: 24 } },
+                                },
+                                rows: [{ id: 'group-work_1' }, { id: 'group-work_2' }],
+                            },
+                            'input-position': {
+                                id: 'input-position',
+                                parentId: 'group-work',
+                                params: {
+                                    layout: { col: { default: 12 } },
+                                },
+                            },
+                            'date-start': {
+                                id: 'date-start',
+                                parentId: 'group-work',
+                                params: {
+                                    layout: { col: { default: 12 } },
+                                },
+                            },
                         },
                     },
                 },
@@ -334,35 +384,71 @@ export const employeeFormSchema: Schema = {
         },
     },
     componentsSchemas: {
+        gender: {
+            meta: { id: 'gender', type: 'select', name: 'radio' },
+            properties: {
+                label: 'Пол',
+                value: 'male',
+                options: [
+                    {
+                        label: 'Мужской',
+                        value: 'male',
+                    },
+                    {
+                        label: 'Женский',
+                        value: 'female',
+                    },
+                    {
+                        label: 'Другой',
+                        value: 'other',
+                    },
+                ],
+            },
+            validations: {
+                schemas: [
+                    {
+                        id: genId(),
+                        key: 'isRequired',
+                        options: { message: 'Обязательное поле' },
+                    },
+                ],
+            },
+        },
         'input-first-name': {
-            meta: { id: 'input-first-name', type: 'editable', name: 'text-field' },
+            meta: { id: 'input-first-name', type: 'text-input', name: 'text-input' },
             properties: { label: 'Имя', value: 'Egor' },
             validations: {
                 schemas: [
                     {
                         id: genId(),
-                        ruleName: 'minLength',
+                        key: 'isRequired',
+                        options: { message: 'Обязательное поле' },
+                        condition: { type: 'component', componentId: 'date-birth', operatorKey: 'isNotEmpty' },
+                    },
+                    {
+                        id: genId(),
+                        key: 'minLength',
                         options: { message: 'Минимальная длинна {minLength}', minLength: 4 },
                     },
                 ],
             },
         },
         'input-last-name': {
-            meta: { id: 'input-last-name', type: 'editable', name: 'text-field' },
-            visability: { condition: { type: 'component', componentId: 'input-salary', operatorName: 'isNotEmpty' } },
+            meta: { id: 'input-last-name', type: 'text-input', name: 'text-input' },
+            visability: { condition: { type: 'component', componentId: 'input-salary', operatorKey: 'isNotEmpty' } },
             properties: { label: 'Фамилия', value: '' },
             mutations: {
                 schemas: [
                     {
                         id: genId(),
-                        ruleName: 'duplicateValue',
+                        key: 'duplicateValue',
                         options: { duplicateValueComponentId: 'input-first-name' },
                         condition: {
                             type: 'operator',
                             operator: 'or',
                             operands: [
-                                { type: 'component', componentId: 'country', operatorName: 'isNotEmpty' },
-                                { type: 'component', componentId: 'input-position', operatorName: 'isEmpty' },
+                                { type: 'component', componentId: 'country', operatorKey: 'isNotEmpty' },
+                                { type: 'component', componentId: 'input-position', operatorKey: 'isEmpty' },
                             ],
                         },
                     },
@@ -372,45 +458,39 @@ export const employeeFormSchema: Schema = {
                 schemas: [
                     {
                         id: genId(),
-                        ruleName: 'isRequired',
-                        options: { message: 'Обязательное поле' },
-                        condition: { type: 'component', componentId: 'date-birth', operatorName: 'isNotEmpty' },
-                    },
-                    {
-                        id: genId(),
-                        ruleName: 'minLength',
+                        key: 'minLength',
                         options: { message: 'Минимальная длинна {minLength}', minLength: 6 },
                     },
                 ],
             },
         },
         'date-birth': {
-            meta: { id: 'date-birth', type: 'editable', name: 'date-field' },
+            meta: { id: 'date-birth', type: 'date-input', name: 'date-input' },
             properties: { label: 'Дата рождения', value: '25.10.2005' },
         },
         email: {
-            meta: { id: 'email', type: 'editable', name: 'text-field' },
+            meta: { id: 'email', type: 'text-input', name: 'text-input' },
             properties: { label: 'Email', value: '' },
             validations: {
                 schemas: [
                     {
                         id: genId(),
-                        ruleName: 'isRequired',
+                        key: 'isRequired',
                         options: { message: 'Обязательное поле' },
                         condition: {
                             type: 'operator',
                             operator: 'and',
                             operands: [
-                                { type: 'component', componentId: 'date-birth', operatorName: 'isNotEmpty' },
-                                { type: 'component', componentId: 'input-salary', operatorName: 'isNotEmpty' },
+                                { type: 'component', componentId: 'date-birth', operatorKey: 'isNotEmpty' },
+                                { type: 'component', componentId: 'input-salary', operatorKey: 'isNotEmpty' },
                             ],
                         },
                     },
                     {
                         id: genId(),
-                        ruleName: 'isEmail',
+                        key: 'isEmail',
                         options: { message: 'Неверный формат поты' },
-                        condition: { type: 'component', componentId: 'input-first-name', operatorName: 'startsWith', options: { startsWith: 'egor' } },
+                        condition: { type: 'component', componentId: 'input-first-name', operatorKey: 'startsWith', options: { startsWith: 'egor' } },
                     },
                 ],
             },
@@ -420,17 +500,17 @@ export const employeeFormSchema: Schema = {
             properties: { title: 'Рабочая информация' },
         },
         'input-position': {
-            meta: { id: 'input-position', type: 'editable', name: 'text-field' },
+            meta: { id: 'input-position', type: 'text-input', name: 'text-input' },
             properties: { label: 'Должность', value: '' },
         },
         'input-salary': {
-            meta: { id: 'input-salary', type: 'editable', name: 'number-field' },
+            meta: { id: 'input-salary', type: 'number-input', name: 'number-input' },
             properties: { label: 'Зарплата', value: '' },
         },
         country: {
-            meta: { id: 'country', type: 'editable', name: 'select' },
+            meta: { id: 'country', type: 'select', name: 'select' },
             properties: {
-                value: [],
+                value: '',
                 label: 'Страна',
                 options: [
                     { label: 'Беларусь', value: 'belarus' },
@@ -438,12 +518,12 @@ export const employeeFormSchema: Schema = {
                     { label: 'Чили', value: 'chili' },
                 ],
             },
-            visability: { condition: { type: 'component', componentId: 'date-start', operatorName: 'isNotEmpty' } },
         },
         region: {
-            meta: { id: 'region', type: 'editable', name: 'select' },
+            meta: { id: 'region', type: 'select', name: 'select' },
+            visability: { condition: { type: 'component', componentId: 'date-start', operatorKey: 'isNotEmpty' } },
             properties: {
-                value: [],
+                value: '',
                 label: 'Область',
                 options: [],
             },
@@ -451,7 +531,7 @@ export const employeeFormSchema: Schema = {
                 schemas: [
                     {
                         id: genId(),
-                        ruleName: 'changeSelectOptions',
+                        key: 'changeSelectOptions',
                         options: {
                             newOptions: [
                                 { label: 'Брестская область', value: 'brest' },
@@ -465,12 +545,12 @@ export const employeeFormSchema: Schema = {
                         condition: {
                             type: 'operator',
                             operator: 'or',
-                            operands: [{ type: 'component', componentId: 'country', operatorName: 'equalString', options: { equalTo: 'belarus' } }],
+                            operands: [{ type: 'component', componentId: 'country', operatorKey: 'equal', enteredComponentValue: 'belarus' }],
                         },
                     },
                     {
                         id: genId(),
-                        ruleName: 'changeSelectOptions',
+                        key: 'changeSelectOptions',
                         options: {
                             newOptions: [
                                 { label: 'Арагацотн', value: 'aragatsotn' },
@@ -488,12 +568,12 @@ export const employeeFormSchema: Schema = {
                         condition: {
                             type: 'operator',
                             operator: 'or',
-                            operands: [{ type: 'component', componentId: 'country', operatorName: 'equalString', options: { equalTo: 'armeny' } }],
+                            operands: [{ type: 'component', componentId: 'country', operatorKey: 'equal', enteredComponentValue: 'armeny' }],
                         },
                     },
                     {
                         id: genId(),
-                        ruleName: 'changeSelectOptions',
+                        key: 'changeSelectOptions',
                         options: {
                             newOptions: [
                                 { label: 'Аріка-и-Парінакота', value: 'arica_parinacota' },
@@ -516,16 +596,16 @@ export const employeeFormSchema: Schema = {
                         condition: {
                             type: 'operator',
                             operator: 'or',
-                            operands: [{ type: 'component', componentId: 'country', operatorName: 'equalString', options: { equalTo: 'chili' } }],
+                            operands: [{ type: 'component', componentId: 'country', operatorKey: 'equal', enteredComponentValue: 'chili' }],
                         },
                     },
                 ],
             },
         },
         'select-department': {
-            meta: { id: 'select-department', type: 'editable', name: 'select' },
+            meta: { id: 'select-department', type: 'select', name: 'select' },
             properties: {
-                value: [],
+                value: '',
                 label: 'Отдел',
                 options: [
                     { label: 'Разработка', value: 'dev' },
@@ -537,7 +617,7 @@ export const employeeFormSchema: Schema = {
                 schemas: [
                     {
                         id: genId(),
-                        ruleName: 'changeSelectOptions',
+                        key: 'changeSelectOptions',
                         options: {
                             newOptions: [
                                 { label: 'Менеджмент', value: 'manager' },
@@ -549,8 +629,8 @@ export const employeeFormSchema: Schema = {
                             type: 'operator',
                             operator: 'or',
                             operands: [
-                                { type: 'component', componentId: 'input-last-name', operatorName: 'startsWith', options: { startsWith: 'lazuka' } },
-                                { type: 'component', componentId: 'input-position', operatorName: 'startsWith', options: { startsWith: 'egor' } },
+                                { type: 'component', componentId: 'input-last-name', operatorKey: 'startsWith', options: { startsWith: 'lazuka' } },
+                                { type: 'component', componentId: 'input-position', operatorKey: 'startsWith', options: { startsWith: 'egor' } },
                             ],
                         },
                     },
@@ -558,79 +638,81 @@ export const employeeFormSchema: Schema = {
             },
         },
         'date-start': {
-            meta: { id: 'date-start', type: 'editable', name: 'date-field' },
+            meta: { id: 'date-start', type: 'date-input', name: 'date-input' },
             properties: { label: 'Дата начала работы', value: '25.10.1999' },
         },
         contacts: {
             meta: { id: 'contacts', type: 'repeater', name: 'multifield' },
             template: {
                 views: {
-                    'main-view': {
-                        rows: {
-                            row_id_1: {
-                                id: 'row_id_1',
-                                children: [{ id: 'input-first-name' }, { id: 'input-last-name' }],
-                            },
-                            row_id_2: {
-                                id: 'row_id_2',
-                                children: [{ id: 'date-birth' }, { id: 'email' }],
-                            },
-                            row_id_3: {
-                                id: 'row_id_3',
-                                children: [{ id: 'education' }],
-                            },
-                        },
-                        components: {
-                            [rootComponentId]: {
-                                id: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 24 } },
+                    default: {
+                        xxl: {
+                            rows: {
+                                row_id_1: {
+                                    id: 'row_id_1',
+                                    children: [{ id: 'input-first-name' }, { id: 'input-last-name' }],
                                 },
-                                rows: [
-                                    {
-                                        id: 'row_id_1',
+                                row_id_2: {
+                                    id: 'row_id_2',
+                                    children: [{ id: 'date-birth' }, { id: 'email' }],
+                                },
+                                row_id_3: {
+                                    id: 'row_id_3',
+                                    children: [{ id: 'education' }],
+                                },
+                            },
+                            components: {
+                                [rootComponentId]: {
+                                    id: rootComponentId,
+                                    params: {
+                                        layout: { col: { default: 24 } },
                                     },
-                                    {
-                                        id: 'row_id_2',
+                                    rows: [
+                                        {
+                                            id: 'row_id_1',
+                                        },
+                                        {
+                                            id: 'row_id_2',
+                                        },
+                                        {
+                                            id: 'row_id_3',
+                                        },
+                                    ],
+                                },
+                                'input-first-name': {
+                                    id: 'input-first-name',
+                                    parentId: rootComponentId,
+                                    params: {
+                                        layout: { col: { default: 12 } },
                                     },
-                                    {
-                                        id: 'row_id_3',
+                                },
+                                'input-last-name': {
+                                    id: 'input-last-name',
+                                    parentId: rootComponentId,
+                                    params: {
+                                        layout: { col: { default: 12 } },
                                     },
-                                ],
-                            },
-                            'input-first-name': {
-                                id: 'input-first-name',
-                                parentId: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 12 } },
                                 },
-                            },
-                            'input-last-name': {
-                                id: 'input-last-name',
-                                parentId: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 12 } },
+                                'date-birth': {
+                                    id: 'date-birth',
+                                    parentId: rootComponentId,
+                                    params: {
+                                        layout: { col: { default: 12 } },
+                                    },
                                 },
-                            },
-                            'date-birth': {
-                                id: 'date-birth',
-                                parentId: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 12 } },
+                                email: {
+                                    id: 'email',
+                                    parentId: rootComponentId,
+                                    params: {
+                                        layout: { col: { default: 12 } },
+                                    },
                                 },
-                            },
-                            email: {
-                                id: 'email',
-                                parentId: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 12 } },
-                                },
-                            },
-                            education: {
-                                id: 'education',
-                                parentId: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 24 } },
+                                education: {
+                                    id: 'education',
+                                    parentId: rootComponentId,
+                                    params: {
+                                        layout: { col: { default: 24 } },
+                                    },
                                 },
                             },
                         },
@@ -648,52 +730,54 @@ export const employeeFormSchema: Schema = {
                         },
                     },
                     'input-first-name': {
-                        meta: { id: 'input-first-name', type: 'editable', name: 'text-field' },
+                        meta: { id: 'input-first-name', type: 'text-input', name: 'text-input' },
                         properties: { label: 'Имя', value: '' },
                     },
                     'input-last-name': {
-                        meta: { id: 'input-last-name', type: 'editable', name: 'text-field' },
+                        meta: { id: 'input-last-name', type: 'text-input', name: 'text-input' },
                         properties: { label: 'Фамилия', value: '' },
                     },
                     'date-birth': {
-                        meta: { id: 'date-birth', type: 'editable', name: 'date-field' },
+                        meta: { id: 'date-birth', type: 'date-input', name: 'date-input' },
                         properties: { label: 'Дата рождения', value: '25.10.2005' },
                     },
                     email: {
-                        meta: { id: 'email', type: 'editable', name: 'email' },
+                        meta: { id: 'email', type: 'text-input', name: 'text-input' },
                         properties: { label: 'Email', value: '' },
                     },
                     education: {
                         meta: { id: 'education', type: 'repeater', name: 'multifield' },
                         template: {
                             views: {
-                                'main-view': {
-                                    rows: {
-                                        row_id_1: {
-                                            id: 'row_id_1',
-                                            children: [{ id: 'uni-name' }, { id: 'uni-position' }],
-                                        },
-                                    },
-                                    components: {
-                                        [rootComponentId]: {
-                                            id: rootComponentId,
-                                            params: {
-                                                layout: { col: { default: 24 } },
-                                            },
-                                            rows: [{ id: 'row_id_1' }],
-                                        },
-                                        'uni-name': {
-                                            id: 'uni-name',
-                                            parentId: rootComponentId,
-                                            params: {
-                                                layout: { col: { default: 12 } },
+                                default: {
+                                    xxl: {
+                                        rows: {
+                                            row_id_1: {
+                                                id: 'row_id_1',
+                                                children: [{ id: 'uni-name' }, { id: 'uni-position' }],
                                             },
                                         },
-                                        'uni-position': {
-                                            id: 'uni-position',
-                                            parentId: rootComponentId,
-                                            params: {
-                                                layout: { col: { default: 12 } },
+                                        components: {
+                                            [rootComponentId]: {
+                                                id: rootComponentId,
+                                                params: {
+                                                    layout: { col: { default: 24 } },
+                                                },
+                                                rows: [{ id: 'row_id_1' }],
+                                            },
+                                            'uni-name': {
+                                                id: 'uni-name',
+                                                parentId: rootComponentId,
+                                                params: {
+                                                    layout: { col: { default: 12 } },
+                                                },
+                                            },
+                                            'uni-position': {
+                                                id: 'uni-position',
+                                                parentId: rootComponentId,
+                                                params: {
+                                                    layout: { col: { default: 12 } },
+                                                },
                                             },
                                         },
                                     },
@@ -711,11 +795,11 @@ export const employeeFormSchema: Schema = {
                                     },
                                 },
                                 'uni-name': {
-                                    meta: { id: 'uni-name', type: 'editable', name: 'text-field' },
+                                    meta: { id: 'uni-name', type: 'text-input', name: 'text-input' },
                                     properties: { label: 'Название учебного заведения', value: '' },
                                 },
                                 'uni-position': {
-                                    meta: { id: 'uni-position', type: 'editable', name: 'text-field' },
+                                    meta: { id: 'uni-position', type: 'text-input', name: 'text-input' },
                                     properties: { label: 'Специальность', value: '' },
                                 },
                             },

@@ -1,16 +1,18 @@
-import { SerializableObject } from '@form-crafter/utils'
+import { EditableComponentSchema } from '../components'
+import { GroupOptionsBuilder, OptionsBuilderOutput } from '../options-builder'
+import { ComponentConditionOperator, ComponentConditionOperatorToCreate, ConditionOperatorExecute } from './types'
 
-import { OptionsBuilder } from '../options-builder'
-import { ComponentConditionOperator, ComponentConditionOperatorWithoutOptions } from './types'
-
-export function createComponentConditionOperator(params: ComponentConditionOperatorWithoutOptions): ComponentConditionOperatorWithoutOptions
-
-export function createComponentConditionOperator<O extends OptionsBuilder<SerializableObject> = OptionsBuilder<SerializableObject>>(
-    params: ComponentConditionOperator<O>,
-): ComponentConditionOperator<O>
-
-export function createComponentConditionOperator<O extends OptionsBuilder<SerializableObject> = OptionsBuilder<SerializableObject>>(
-    params: ComponentConditionOperator<O> | ComponentConditionOperatorWithoutOptions,
-): ComponentConditionOperator<O> | ComponentConditionOperatorWithoutOptions {
-    return params
+export function createComponentConditionOperator<
+    OptsBuilder,
+    EnterValue,
+    OptsBuilderOptions extends OptsBuilder extends GroupOptionsBuilder ? OptionsBuilderOutput<OptsBuilder> : never,
+    CompSchema extends EditableComponentSchema,
+    Execute extends ConditionOperatorExecute<OptsBuilder, EnterValue, OptsBuilderOptions, CompSchema> = ConditionOperatorExecute<
+        OptsBuilder,
+        EnterValue,
+        OptsBuilderOptions,
+        CompSchema
+    >,
+>(params: ComponentConditionOperatorToCreate<OptsBuilder, EnterValue, Execute>): ComponentConditionOperator {
+    return params as ComponentConditionOperator
 }

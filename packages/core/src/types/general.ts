@@ -23,5 +23,3 @@ export type SelectionOption = {
 }
 
 export type EntityId = string
-
-export type ComponentType = 'editable' | 'container' | 'repeater' | 'uploader' | 'static'

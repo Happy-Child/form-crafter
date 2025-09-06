@@ -1,8 +1,9 @@
-import { createEditableComponentModule, EditableComponentProps, OptionsBuilderOutput } from '@form-crafter/core'
+import { forwardRef, memo } from 'react'
+
+import { createTextInputComponentModule, TextInputComponentProps } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
 import { isNotEmpty } from '@form-crafter/utils'
 import { TextField } from '@mui/material'
-import { forwardRef, memo } from 'react'
 
 import { componentsOperators } from '../../components-operators'
 import { rules } from '../../rules'
@@ -15,7 +16,7 @@ const optionsBuilder = builders.group({
     disabled: builders.checkbox().label('Блокировка ввода'),
 })
 
-type ComponentProps = EditableComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = TextInputComponentProps<typeof optionsBuilder>
 
 const Textarea = memo(
     forwardRef<HTMLDivElement, ComponentProps>(
@@ -44,17 +45,21 @@ const Textarea = memo(
 
 Textarea.displayName = 'Textarea'
 
-export const textareaModule = createEditableComponentModule({
+export const textareaModule = createTextInputComponentModule({
     name: 'textarea',
     label: 'Textarea',
     optionsBuilder,
-    operatorsForConditions: [
+    operators: [
         componentsOperators.isEmptyOperator,
         componentsOperators.isNotEmptyOperator,
         componentsOperators.endsWithOperator,
         componentsOperators.startsWithOperator,
     ],
-    mutationsRules: [rules.mutations.duplicateValueRule],
-    validationsRules: [rules.validations.editable.isRequiredRule, rules.validations.editable.minLengthRule, rules.validations.editable.maxLengthRule],
+    mutations: [rules.mutations.duplicateValueRule],
+    validations: [
+        rules.validations.components.editable.isRequiredRule,
+        rules.validations.components.editable.minLengthRule,
+        rules.validations.components.editable.maxLengthRule,
+    ],
     Component: Textarea,
 })

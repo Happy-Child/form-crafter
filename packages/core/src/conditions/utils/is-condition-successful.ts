@@ -1,31 +1,46 @@
-import { ComponentConditionOperator, ComponentConditionOperatorWithoutOptions } from '../../components-operators'
+import { isNotNull, isNull } from '@form-crafter/utils'
+
+import { ComponentConditionOperator } from '../../components-operators'
 import { RuleExecutorContext } from '../../rules'
-import { ConditionComponentNode, ConditionNode, ConditionOperatorNode, conditionOperetorExecutor, isConditionWithOptions } from '..'
+import { ConditionComponentNode, ConditionNode, ConditionOperatorNode, conditionOperetorExecutor } from '..'
 
 type Params = {
     ctx: RuleExecutorContext
     condition: ConditionNode
-    operators: Record<string, ComponentConditionOperator | ComponentConditionOperatorWithoutOptions>
+    operators: Record<string, ComponentConditionOperator>
 }
 
 const isConditionComponentNode = (condition: ConditionNode): condition is ConditionComponentNode => condition.type === 'component'
 
-// TODO проверить, что operatorName есть в operators
+// TODO проверить, что operatorKey есть в operators
 export const isConditionSuccessful = ({ ctx, condition, operators }: Params) => {
-    const executeCondition = (condition: ConditionNode): boolean => {
+    const executeCondition = (condition: ConditionNode): boolean | null => {
         if (isConditionComponentNode(condition)) {
-            const operator = operators[condition.operatorName]
+            const operator = operators[condition.operatorKey]
 
-            if (isConditionWithOptions(condition)) {
-                return operator.execute(condition.componentId, { ctx, options: condition.options })
+            const componentSchema = ctx.getComponentSchemaById(condition.componentId)
+            if (isNull(componentSchema)) {
+                return null
             }
 
-            return (operator as ComponentConditionOperatorWithoutOptions).execute(condition.componentId, { ctx })
+            if ('options' in condition && 'enteredComponentValue' in condition) {
+                return operator.execute(componentSchema, { ctx, options: condition?.options, enteredComponentValue: condition.enteredComponentValue })
+            }
+
+            if ('enteredComponentValue' in condition) {
+                return operator.execute(componentSchema, { ctx, enteredComponentValue: condition.enteredComponentValue })
+            }
+
+            if ('options' in condition) {
+                return operator.execute(componentSchema, { ctx, options: condition.options })
+            }
+
+            return operator.execute(componentSchema, { ctx })
         }
 
         const { operator, operands } = condition as ConditionOperatorNode
 
-        const results = operands.map(executeCondition)
+        const results = operands.map(executeCondition).filter(isNotNull)
 
         return conditionOperetorExecutor(operator)(results)
     }

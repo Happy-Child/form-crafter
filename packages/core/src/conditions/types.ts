@@ -1,5 +1,6 @@
-import { OptionalSerializableObject } from '@form-crafter/utils'
+import { AvailableObject } from '@form-crafter/utils'
 
+import { ComponentSerializableValue } from '../components'
 import { EntityId } from '../types'
 
 export type ConditionOperator = 'and' | 'or' | 'nand' | 'nor'
@@ -10,15 +11,23 @@ export type ConditionOperatorNode = {
     operands: ConditionNode[]
 }
 
-export type ConditionComponentNode = {
+type GeneralConditionComponentNode = {
     type: 'component'
     componentId: EntityId
-    operatorName: string
-    options?: OptionalSerializableObject
+    operatorKey: string
 }
 
-export type ConditionComponentNodeWithOptions = Omit<ConditionComponentNode, 'options'> & {
-    options: OptionalSerializableObject
-}
+export type ConditionComponentNode =
+    | GeneralConditionComponentNode
+    | (GeneralConditionComponentNode & {
+          options: AvailableObject
+      })
+    | (GeneralConditionComponentNode & {
+          enteredComponentValue: NonNullable<ComponentSerializableValue>
+      })
+    | (GeneralConditionComponentNode & {
+          options: AvailableObject
+          enteredComponentValue: NonNullable<ComponentSerializableValue>
+      })
 
 export type ConditionNode = ConditionComponentNode | ConditionOperatorNode

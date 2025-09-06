@@ -1,20 +1,54 @@
-import { OptionalSerializableObject } from '@form-crafter/utils'
+import { TypeCheckingError, Unwrap } from '@form-crafter/utils'
 
-import { OptionsBuilder } from '../../options-builder'
-import { RuleExecuteParams, RuleExecuteParamsWithoutOptions } from '../types'
+import { ComponentSchema } from '../../components'
+import { GroupOptionsBuilder, OptionsBuilderOutput } from '../../options-builder'
+import { GeneralRuleConfig, RuleExecutorContext } from '../types'
 
-type GeneralMutationRule = {
-    ruleName: string
-    displayName: string
-}
+export type MutationRuleExecute<OptsBuilderOptions, CompSchema extends ComponentSchema> = unknown extends OptsBuilderOptions
+    ? (
+          schema: Unwrap<Pick<CompSchema, 'meta' | 'properties'>>,
+          params: {
+              ctx: RuleExecutorContext
+          },
+      ) => Partial<CompSchema['properties']> | null
+    : (
+          schema: Unwrap<Pick<CompSchema, 'meta' | 'properties'>>,
+          params: {
+              ctx: RuleExecutorContext
+              options: OptsBuilderOptions
+          },
+      ) => Partial<CompSchema['properties']> | null
 
-export type MutationRule<
-    P extends OptionalSerializableObject,
-    O extends OptionsBuilder<OptionalSerializableObject> = OptionsBuilder<OptionalSerializableObject>,
-> = GeneralMutationRule & {
-    optionsBuilder: O
-    execute: (data: P, params: RuleExecuteParams<O>) => Partial<P> | null
-}
-export type MutationRuleWithoutOptions<P extends OptionalSerializableObject> = GeneralMutationRule & {
-    execute: (data: P, params: RuleExecuteParamsWithoutOptions) => Partial<P> | null
-}
+export type MutationRuleToCreate<OptsBuilder, Execute> = unknown extends OptsBuilder
+    ? GeneralRuleConfig & {
+          execute: Execute
+          optionsBuilder?: never
+      }
+    : OptsBuilder extends GroupOptionsBuilder
+      ? GeneralRuleConfig & {
+            execute: Execute
+            optionsBuilder: OptsBuilder
+        }
+      : TypeCheckingError<'optionsBuilder should be a group builder', OptsBuilder>
+
+export type MutationRule<CompSchema extends ComponentSchema = ComponentSchema, OptsBuilder extends GroupOptionsBuilder = GroupOptionsBuilder> =
+    | (GeneralRuleConfig & {
+          execute: (
+              schema: Unwrap<Pick<ComponentSchema, 'meta' | 'properties'>>,
+              params: {
+                  ctx: RuleExecutorContext
+                  options: OptionsBuilderOutput<GroupOptionsBuilder>
+              },
+          ) => Partial<CompSchema['properties']> | null
+          optionsBuilder: OptsBuilder
+      })
+    | (GeneralRuleConfig & {
+          execute: (
+              schema: Unwrap<Pick<ComponentSchema, 'meta' | 'properties'>>,
+              params: {
+                  ctx: RuleExecutorContext
+              },
+          ) => Partial<CompSchema['properties']> | null
+      })
+
+export type MutationRuleWithOptionsBuilder = Extract<MutationRule, { optionsBuilder: GroupOptionsBuilder }>

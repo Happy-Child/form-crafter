@@ -1,7 +1,8 @@
 import { afterDateOperator } from './after-date'
 import { beforeDateOperator } from './before-date'
 import { endsWithOperator } from './ends-with'
-import { equalStringOperator } from './equal-string'
+import { equalOperator } from './equal'
+import { includesOperator } from './includes'
 import { isEmptyOperator } from './is-empty'
 import { isNotEmptyOperator } from './is-not-empty'
 import { startsWithOperator } from './starts-with'
@@ -12,6 +13,7 @@ export const componentsOperators = {
     isNotEmptyOperator,
     startsWithOperator,
     afterDateOperator,
+    equalOperator,
     beforeDateOperator,
-    equalStringOperator,
+    includesOperator,
 }

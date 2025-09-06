@@ -1,21 +1,22 @@
-import { createRepeaterComponentModule, OptionsBuilderOutput, RepeaterComponentProps } from '@form-crafter/core'
+import { forwardRef, memo } from 'react'
+
+import { createRepeaterComponentModule, RepeaterComponentProps } from '@form-crafter/core'
 import { RowsList } from '@form-crafter/generator'
 import { builders } from '@form-crafter/options-builder'
 import { isNotEmpty } from '@form-crafter/utils'
 import { Box, Button, FormHelperText } from '@mui/material'
-import { forwardRef, memo } from 'react'
 
 import { componentsOperators } from '../../components-operators'
-import { initialAddButtonText } from '../../consts'
 import { rules } from '../../rules'
-import { Title } from '../Title'
+import { Title } from '../Group/components/Title'
+import { initialAddButtonText } from './consts'
 
 const optionsBuilder = builders.group({
     title: builders.text().label('Заголовок').nullable(),
     addButtonText: builders.text().label('Текст кнопки добавления').nullable(),
 })
 
-type ComponentProps = RepeaterComponentProps<OptionsBuilderOutput<typeof optionsBuilder>>
+type ComponentProps = RepeaterComponentProps<typeof optionsBuilder>
 
 const Multifield = memo(
     forwardRef<HTMLDivElement, ComponentProps>(({ id, rows, onAddRow, properties: { title, addButtonText }, firstError }, ref) => {
@@ -40,7 +41,11 @@ export const multifieldModule = createRepeaterComponentModule({
     name: 'multifield',
     label: 'Multifield',
     optionsBuilder,
-    operatorsForConditions: [componentsOperators.isEmptyOperator, componentsOperators.isNotEmptyOperator],
-    validationsRules: [rules.validations.repeater.isRequiredRule, rules.validations.repeater.minLengthRule, rules.validations.repeater.maxLengthRule],
+    operators: [componentsOperators.isEmptyOperator, componentsOperators.isNotEmptyOperator],
+    validations: [
+        rules.validations.components.repeater.isRequiredRule,
+        rules.validations.components.repeater.minLengthRule,
+        rules.validations.components.repeater.maxLengthRule,
+    ],
     Component: Multifield,
 })

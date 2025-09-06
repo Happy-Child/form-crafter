@@ -1,6 +1,7 @@
+import {} from 'react'
+
 import { ComponentSchema, EntityId } from '@form-crafter/core'
 import { useStoreMap } from 'effector-react'
-import {} from 'react'
 
 import { useComponentModel } from './useComponentModel'
 

@@ -9,6 +9,7 @@ export const useViewComponent = (id: EntityId): ViewComponent => {
     return useStoreMap({
         store: services.viewsService.currentView,
         keys: [id],
-        fn: ({ components }, [id]) => components[id],
+        // TODO switch on change responsive?
+        fn: ({ xxl }, [id]) => xxl.components[id],
     })
 }

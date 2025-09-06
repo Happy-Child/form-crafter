@@ -1,6 +1,5 @@
 import {
     ComponentSchema,
-    ComponentType,
     ComponentValidationError,
     ContainerComponentProperties,
     ContainerComponentSchema,
@@ -12,7 +11,7 @@ import {
     UploaderComponentSchema,
     ValidationsTriggers,
 } from '@form-crafter/core'
-import { OptionalSerializableObject } from '@form-crafter/utils'
+import { AvailableObject } from '@form-crafter/utils'
 import { Effect, EventCallable, Store, StoreWritable } from 'effector'
 
 import { ThemeService } from '../../../theme'
@@ -27,7 +26,7 @@ export type RunComponentValidationFxFail = { errors: ComponentsValidationErrors[
 
 export type GeneralModelParams = {}
 
-export type SetSchemaPayload = { schema: OptionalSerializableObject; isNewValue?: boolean }
+export type SetSchemaPayload = { schema: AvailableObject; isNewValue?: boolean }
 
 export type ComponentModelParams = {
     runMutationsRulesEvent: EventCallable<RunMutationsRulesOnUserActionsPayload>
@@ -85,14 +84,12 @@ export type StaticModel = {
 
 export type ComponentModel = EditableModel | ContainerModel | RepeaterModel | UploaderModel | StaticModel
 
-export type ComponentModelByType<T extends ComponentType> = T extends 'editable'
-    ? EditableModel
-    : T extends 'container'
-      ? ContainerModel
-      : T extends 'repeater'
-        ? RepeaterModel
-        : T extends 'uploader'
-          ? UploaderModel
-          : T extends 'static'
-            ? StaticModel
-            : never
+export type ComponentModelMap = {
+    editable: EditableModel
+    container: ContainerModel
+    repeater: RepeaterModel
+    uploader: UploaderModel
+    static: StaticModel
+}
+
+export type ComponentModelByType<T extends keyof ComponentModelMap> = ComponentModelMap[T]

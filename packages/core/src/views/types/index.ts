@@ -1,6 +1,8 @@
-import { ColSpan, EntityId, ResponsiveSizes } from '../../types'
+import { ConditionNode } from '../../conditions'
+import { Breakpoint, ColSpan, EntityId, ResponsiveSizes } from '../../types'
 
 export type ViewComponentChild = { id: EntityId }
+
 export type ViewRowChild = { id: EntityId }
 
 export type ViewComponentLayout = {
@@ -39,15 +41,27 @@ export type ViewRow = {
     children: ViewComponentChild[]
 }
 
-export type ViewDefinitionRows = Record<EntityId, ViewRow>
-export type ViewDefinitionComponents = Record<EntityId, ViewComponent>
-export type ViewDefinition = {
+export type ViewElements = {
     rows: ViewDefinitionRows
     components: ViewDefinitionComponents
 }
 
+export type ViewDefinitionRows = Record<EntityId, ViewRow>
+
+export type ViewDefinitionComponents = Record<EntityId, ViewComponent>
+
+export type ViewResponsive = {
+    xxl: ViewElements
+} & Partial<Record<Exclude<Breakpoint, 'xxl'>, ViewElements>>
+
+export type ViewDefinition = {
+    condition: ConditionNode
+    responsive: ViewResponsive
+}
+
 export type ViewsDefinitions = Record<EntityId, ViewDefinition>
+
 export type Views = {
-    initialViewId: EntityId
-    definitions: ViewsDefinitions
+    default: ViewResponsive
+    additionals?: ViewsDefinitions
 }

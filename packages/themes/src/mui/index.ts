@@ -3,31 +3,35 @@ import { FormCrafterTheme } from '@form-crafter/core'
 import { rules } from '../rules'
 import { buttonModule } from './Button'
 import { checkboxModule } from './Checkbox'
-import { dateFieldModule } from './DateField'
+import { dateInputModule } from './DateInput'
+import { datePickerModule } from './DatePicker'
+import { dateRangeModule } from './DateRange'
 import { groupModule } from './Group'
 import { multifieldModule } from './Multifield'
-import { numberFieldModule } from './NumberField'
+import { numberInputModule } from './NumberInput'
 import { radioModule } from './Radio'
 import { selectModule } from './Select'
 import { textModule } from './Text'
 import { textareaModule } from './Textarea'
-import { textFieldModule } from './TextField'
-import { timeFieldModule } from './TimeField'
+import { textInputModule } from './TextInput'
+import { timeInputModule } from './TimeInput'
 
 export const muiTheme: FormCrafterTheme = {
     componentsModules: [
         buttonModule,
         checkboxModule,
-        dateFieldModule,
+        dateInputModule,
+        datePickerModule,
+        dateRangeModule,
         groupModule,
-        textFieldModule,
-        numberFieldModule,
+        textInputModule,
+        numberInputModule,
         multifieldModule,
         radioModule,
         selectModule,
         textModule,
         textareaModule,
-        timeFieldModule,
+        timeInputModule,
     ],
-    groupValidationRules: [rules.validations.group.oneOfNotEmptyRule],
+    groupValidationRules: [rules.validations.groups.oneOfNotEmptyRule],
 }

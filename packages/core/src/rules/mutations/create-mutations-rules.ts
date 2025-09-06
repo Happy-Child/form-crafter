@@ -1,20 +1,12 @@
-import { OptionalSerializableObject, SerializableObject } from '@form-crafter/utils'
-
-import { OptionsBuilder } from '../../options-builder'
-import { MutationRule, MutationRuleWithoutOptions } from './types'
-
-export function createMutationRule(params: MutationRuleWithoutOptions<OptionalSerializableObject>): MutationRuleWithoutOptions<OptionalSerializableObject>
-
-export function createMutationRule<P extends OptionalSerializableObject>(params: MutationRuleWithoutOptions<P>): MutationRuleWithoutOptions<P>
+import { ComponentSchema } from '../../components'
+import { GroupOptionsBuilder, OptionsBuilderOutput } from '../../options-builder'
+import { MutationRule, MutationRuleExecute, MutationRuleToCreate } from './types'
 
 export function createMutationRule<
-    P extends OptionalSerializableObject = OptionalSerializableObject,
-    O extends OptionsBuilder<SerializableObject> = OptionsBuilder<SerializableObject>,
->(params: MutationRule<P, O>): MutationRule<P, O>
-
-export function createMutationRule<
-    P extends OptionalSerializableObject = OptionalSerializableObject,
-    O extends OptionsBuilder<SerializableObject> = OptionsBuilder<SerializableObject>,
->(params: MutationRule<P, O> | MutationRuleWithoutOptions<P>): MutationRule<P, O> | MutationRuleWithoutOptions<P> {
-    return params
+    OptsBuilder,
+    OptsBuilderOptions extends OptsBuilder extends GroupOptionsBuilder ? OptionsBuilderOutput<OptsBuilder> : unknown,
+    CompSchema extends ComponentSchema,
+    Execute extends MutationRuleExecute<OptsBuilderOptions, CompSchema> = MutationRuleExecute<OptsBuilderOptions, CompSchema>,
+>(params: MutationRuleToCreate<OptsBuilder, Execute>): MutationRule {
+    return params as MutationRule
 }
