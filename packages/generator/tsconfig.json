@@ -1,4 +1,4 @@
 {
-    "include": ["src"],
+    "include": ["src", "src/services/components-schemas/models/deps-of-rules-model/utils/extract-condition-deps/index.ts"],
     "extends": "../../tsconfig.json"
 }

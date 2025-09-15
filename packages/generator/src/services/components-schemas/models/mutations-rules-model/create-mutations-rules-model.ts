@@ -1,8 +1,9 @@
-import { ComponentSchema, EntityId, isConditionSuccessful } from '@form-crafter/core'
+import { ComponentSchema, EntityId } from '@form-crafter/core'
 import { isEmpty, isNotEmpty } from '@form-crafter/utils'
 import { createEvent, createStore, sample, StoreValue } from 'effector'
 import { cloneDeep, isEqual, pick } from 'lodash-es'
 
+import { isConditionSuccessful } from '../../../../utils'
 import { SchemaService } from '../../../schema'
 import { ThemeService } from '../../../theme'
 import { isChangedValue } from '../components'
@@ -35,7 +36,7 @@ export const createMutationsRulesModel = ({ componentsModel, depsOfRulesModel, v
             getExecutorContextBuilder: componentsModel.$getExecutorContextBuilder,
             initialComponentsSchemas: schemaService.$initialComponentsSchemas,
             rulesOverridesCache: $rulesOverridesCache,
-            componentsDepsTriggeredMutationRules: depsOfRulesModel.$componentsDepsTriggeredMutationRules,
+            depsTriggeringMutations: depsOfRulesModel.$depsTriggeringMutations,
             operators: themeService.$operators,
             mutationsRules: themeService.$mutationsRules,
             hiddenComponentsIds: visabilityComponentsModel.$hiddenComponentsIds,
@@ -46,15 +47,13 @@ export const createMutationsRulesModel = ({ componentsModel, depsOfRulesModel, v
                 getExecutorContextBuilder,
                 initialComponentsSchemas,
                 rulesOverridesCache,
-                componentsDepsTriggeredMutationRules,
+                depsTriggeringMutations,
                 operators,
                 mutationsRules,
                 hiddenComponentsIds,
             },
-            { curComponentsSchemas, newComponentsSchemas, componentsIdsToUpdate, componentsForMutationResolution },
+            { curComponentsSchemas, newComponentsSchemas, componentsIdsToUpdate, depsForMutationResolution },
         ) => {
-            console.log('start runMutationRulesEvent: ', curComponentsSchemas, newComponentsSchemas)
-
             const componentsIdsToUpdates: Set<EntityId> = new Set(componentsIdsToUpdate)
 
             const newRulesOverridesCache = cloneDeep(rulesOverridesCache)
@@ -63,8 +62,6 @@ export const createMutationsRulesModel = ({ componentsModel, depsOfRulesModel, v
             const executorContext = getExecutorContextBuilder({ componentsSchemas: newComponentsSchemas })
 
             const runCalcMutations = (componentId: EntityId) => {
-                console.log('depComponentId ', componentId)
-
                 const componentSchema = newComponentsSchemas[componentId]
                 const componentMutations = componentSchema.mutations
 
@@ -75,7 +72,6 @@ export const createMutationsRulesModel = ({ componentsModel, depsOfRulesModel, v
                         return
                     }
 
-                    // console.log('componentId ruleKey ruleId options: ', componentId, key, ruleId, options)
                     const canBeApply = isConditionSuccessful({ ctx: executorContext, condition, operators: operators })
                     const isActiveRule = ruleId in newRulesOverridesCache
 
@@ -134,15 +130,12 @@ export const createMutationsRulesModel = ({ componentsModel, depsOfRulesModel, v
             }
 
             const finalHiddenComponentsIds: Set<EntityId> = new Set(hiddenComponentsIds)
-            console.log('componentsIdsToUpdate: ', componentsIdsToUpdate)
 
-            console.log('componentsForMutationResolution: ', componentsForMutationResolution)
-            componentsForMutationResolution.forEach((depComponentId) => {
+            depsForMutationResolution.forEach((depComponentId) => {
                 // 1.1 Проверить есть ли не скрытые зависимости. Если есть - идём дальше. Если нет - выход.
                 // 1.2 Так же идём дальше если нет зависимостей вообще.
-                const dependents = componentsDepsTriggeredMutationRules.componentIdToDependents[depComponentId]
-                const existsVisibleDep = isNotEmpty(dependents) ? dependents.some((componentId) => !finalHiddenComponentsIds.has(componentId)) : true
-                console.log('dependents: ', dependents, existsVisibleDep)
+                const deps = depsTriggeringMutations.componentIdToDeps[depComponentId]
+                const existsVisibleDep = isNotEmpty(deps) ? deps.some((componentId) => !finalHiddenComponentsIds.has(componentId)) : true
 
                 if (!existsVisibleDep) {
                     return
@@ -159,6 +152,7 @@ export const createMutationsRulesModel = ({ componentsModel, depsOfRulesModel, v
                 const shouldBeHidden = isConditionSuccessful({ ctx: executorContext, condition: visabilityCondition, operators: operators })
                 const componentIsHiddenNow = !!newComponentsSchemas[depComponentId].visability?.hidden
                 const isNewVisabilityStatus = componentIsHiddenNow !== shouldBeHidden
+
                 if (!isNewVisabilityStatus) {
                     if (!componentIsHiddenNow) {
                         runCalcMutations(depComponentId)

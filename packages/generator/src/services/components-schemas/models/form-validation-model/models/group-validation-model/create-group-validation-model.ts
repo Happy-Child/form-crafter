@@ -43,13 +43,8 @@ export const createGroupValidationModel = ({
 
             for (const [, validationSchema] of Object.entries(groupValidationSchemas)) {
                 const { id: validationSchemaId, key, options, condition } = validationSchema
-                console.log('key', key)
-                console.log('validationSchemaId', validationSchemaId)
 
                 const ruleIsReady = isNotEmpty(condition) ? readyConditionalValidationRules?.has(validationSchemaId) : true
-                console.log('ruleIsReady', ruleIsReady)
-                console.log('readyConditionalValidationRules', readyConditionalValidationRules)
-
                 if (!ruleIsReady) {
                     continue
                 }
@@ -58,7 +53,6 @@ export const createGroupValidationModel = ({
                 const validationResult = rule.validate({ ctx: executorContext, options: options || {} })
 
                 // TODO если null то по сути success валидация и убараются все ошибки, НО НУЖНО ОСТАВЬ ИХ. Проверить есть ои ошибки с validationSchemaId и добавь в переменные.
-
                 if (isNotNull(validationResult) && !validationResult.isValid) {
                     if (isNotEmpty(validationResult.message)) {
                         finalGroupsErrors.set(validationSchemaId, { id: validationSchemaId, key, message: validationResult.message })

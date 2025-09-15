@@ -23,3 +23,5 @@ export type SelectionOption = {
 }
 
 export type EntityId = string
+
+export type PathToRulesDeps = Record<string, string[][]>

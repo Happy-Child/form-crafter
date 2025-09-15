@@ -34,15 +34,10 @@ export const init = ({
     readyConditionalValidationRulesModel,
     formValidationModel,
     mutationsRulesModel,
-    // changeViewsModel,
+    changeViewsModel,
     initServiceEvent,
     runMutationsRulesOnUserActionsEvent,
 }: Params) => {
-    // sample({
-    //     clock: readyConditionalValidationRulesModel.calcReadyRulesEvent,
-    //     fn: (aaa, bbb) => ({}),
-    // })
-
     sample({
         source: {
             componentsSchemas: componentsModel.$componentsSchemas,
@@ -62,23 +57,23 @@ export const init = ({
     sample({
         source: {
             componentsSchemas: componentsModel.$componentsSchemas,
-            componentsByResolutionMutationRules: depsOfRulesModel.$componentsByResolutionMutationRules,
+            depsGraphForMutationResolution: depsOfRulesModel.$depsGraphForMutationResolution,
         },
         clock: runMutationsRulesOnUserActionsEvent,
-        fn: ({ componentsSchemas, componentsByResolutionMutationRules }, { id: componentIdToUpdate, data: propertiesToUpdate }) => {
+        fn: ({ componentsSchemas, depsGraphForMutationResolution }, { id: componentIdToUpdate, data: propertiesToUpdate }) => {
             const finalComponentsSchemas = cloneDeep(componentsSchemas)
             finalComponentsSchemas[componentIdToUpdate].properties = {
                 ...finalComponentsSchemas[componentIdToUpdate].properties,
                 ...propertiesToUpdate,
             }
 
-            const componentsForMutationResolution = componentsByResolutionMutationRules[componentIdToUpdate] || []
+            const depsForMutationResolution = depsGraphForMutationResolution[componentIdToUpdate] || []
 
             return {
                 curComponentsSchemas: componentsSchemas,
                 newComponentsSchemas: finalComponentsSchemas,
                 componentsIdsToUpdate: [componentIdToUpdate],
-                componentsForMutationResolution,
+                depsForMutationResolution,
             }
         },
         target: mutationsRulesModel.runMutationRulesEvent,
@@ -102,14 +97,14 @@ export const init = ({
     sample({
         source: {
             componentsSchemas: componentsModel.$componentsSchemas,
-            componentsByResolutionAllMutationRules: depsOfRulesModel.$componentsByResolutionAllMutationRules,
+            depsForAllMutationResolution: depsOfRulesModel.$depsForAllMutationResolution,
         },
         clock: combineEvents([initServiceEvent, readyConditionalValidationRulesModel.resultOfCalcReadyRulesEvent]),
-        fn: ({ componentsSchemas, componentsByResolutionAllMutationRules }) => ({
+        fn: ({ componentsSchemas, depsForAllMutationResolution }) => ({
             curComponentsSchemas: componentsSchemas,
             newComponentsSchemas: componentsSchemas,
             componentsIdsToUpdate: [],
-            componentsForMutationResolution: componentsByResolutionAllMutationRules,
+            depsForMutationResolution: depsForAllMutationResolution,
         }),
         target: mutationsRulesModel.runMutationRulesEvent,
     })

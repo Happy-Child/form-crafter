@@ -1,6 +1,6 @@
 export * from './consts'
-export * from './create-modules'
 export * from './generator'
+export * from './modules'
 export * from './schema'
 export * from './types'
 export * from './utils'

@@ -14,6 +14,7 @@ export type ConditionOperatorNode = {
 type GeneralConditionComponentNode = {
     type: 'component'
     componentId: EntityId
+    strategyIfHidden?: 'skip' | 'resolve' | 'reject'
     operatorKey: string
 }
 

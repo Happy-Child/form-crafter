@@ -1,4 +1,4 @@
 export * from './components'
 export * from './contexts'
+export * from './deps-viewer'
 export * from './hooks'
-export { genId } from './utils'

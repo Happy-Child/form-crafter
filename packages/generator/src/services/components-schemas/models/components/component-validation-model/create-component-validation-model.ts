@@ -39,9 +39,6 @@ export const createComponentValidationModel = <S extends ComponentSchema>({
         readyConditionalValidationRulesModel.$readyComponentsRules,
         $componentId,
         (readyConditionalValidationRules, componentId) => {
-            // console.log('COMPONENT readyConditionalValidationRules: ', readyConditionalValidationRules)
-            // console.log('COMPONENT componentId: ', componentId)
-
             const rules = readyConditionalValidationRules[componentId]
             return isNotEmpty(rules) ? rules : null
         },
@@ -50,8 +47,6 @@ export const createComponentValidationModel = <S extends ComponentSchema>({
         readyConditionalValidationRulesModel.$readyComponentsRulesByKey,
         $componentId,
         (readyConditionalValidationRulesByKey, componentId) => {
-            // console.log('COMPONENT readyConditionalValidationRulesByKey: ', readyConditionalValidationRulesByKey)
-            // console.log('COMPONENT componentId: ', componentId)
             const rules = readyConditionalValidationRulesByKey[componentId]
             return isNotEmpty(rules) ? rules : null
         },
@@ -89,11 +84,6 @@ export const createComponentValidationModel = <S extends ComponentSchema>({
                 const { id: validaionSchemaId, key, options, condition } = validationSchema
 
                 const ruleIsReady = isNotEmpty(condition) ? readyComponentConditionalValidationRules?.has(validaionSchemaId) : true
-                // console.log('COMPONENT readyComponentConditionalValidationRules: ', readyComponentConditionalValidationRules)
-                // console.log('COMPONENT ruleIsReady: ', ruleIsReady)
-                // console.log('COMPONENT validaionSchemaId: ', validaionSchemaId)
-                // console.log('COMPONENT key: ', key)
-
                 if (!ruleIsReady) {
                     continue
                 }

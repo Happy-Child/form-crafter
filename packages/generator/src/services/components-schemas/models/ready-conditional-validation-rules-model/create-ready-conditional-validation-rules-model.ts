@@ -1,8 +1,9 @@
-import { ComponentSchema, EntityId, isConditionSuccessful } from '@form-crafter/core'
+import { ComponentSchema, EntityId } from '@form-crafter/core'
 import { differenceSet, isEmpty, isNotEmpty } from '@form-crafter/utils'
 import { combine, createEvent, createStore, sample, UnitValue } from 'effector'
 import { cloneDeep, isEqual, merge } from 'lodash-es'
 
+import { isConditionSuccessful } from '../../../../utils'
 import { SchemaService } from '../../../schema'
 import { ThemeService } from '../../../theme'
 import { ComponentsModel } from '../components-model'
@@ -80,8 +81,8 @@ export const createReadyConditionalValidationRulesModel = ({ schemaService, them
             validationRuleSchemas: schemaService.$componentsValidationSchemas,
             groupValidationSchemas: schemaService.$groupValidationSchemas,
             operators: themeService.$operators,
-            componentsDepsByValidationRules: depsOfRulesModel.$componentsDepsByValidationRules,
-            componentsDepsByGroupValidationRules: depsOfRulesModel.$componentsDepsByGroupValidationRules,
+            componentsValidationsConditionsDeps: depsOfRulesModel.$componentsValidationsConditionsDeps,
+            groupsValidationsDeps: depsOfRulesModel.$groupsValidationsDeps,
             readyComponentsRules: $readyComponentsRules,
             readyComponentsRulesByKey: $readyComponentsRulesByKey,
             readyComponentsRulesIds: $readyComponentsRulesIds,
@@ -95,8 +96,8 @@ export const createReadyConditionalValidationRulesModel = ({ schemaService, them
             {
                 validationRuleSchemas,
                 groupValidationSchemas,
-                componentsDepsByValidationRules,
-                componentsDepsByGroupValidationRules,
+                componentsValidationsConditionsDeps,
+                groupsValidationsDeps,
                 operators,
                 readyComponentsRules,
                 readyComponentsRulesByKey,
@@ -160,7 +161,7 @@ export const createReadyConditionalValidationRulesModel = ({ schemaService, them
                     return
                 }
 
-                const dependentsValidationsIds = componentsDepsByValidationRules.componentsToDependentsRuleIds[componentId]
+                const dependentsValidationsIds = componentsValidationsConditionsDeps.componentsToDependentsRuleIds[componentId]
 
                 if (!isNotEmpty(dependentsValidationsIds)) {
                     return
@@ -207,7 +208,7 @@ export const createReadyConditionalValidationRulesModel = ({ schemaService, them
                     return
                 }
 
-                const dependentsValidationsIds = componentsDepsByGroupValidationRules.componentsToDependentsRuleIds[componentId]
+                const dependentsValidationsIds = groupsValidationsDeps.componentsToDependentsRuleIds[componentId]
                 if (!isNotEmpty(dependentsValidationsIds)) {
                     return
                 }
@@ -260,8 +261,6 @@ export const createReadyConditionalValidationRulesModel = ({ schemaService, them
             }
         },
     })
-
-    resultOfCalcReadyRulesEvent.watch((data) => console.log('resultOfCalcReadyRulesEvent', data))
 
     sample({
         clock: resultOfCalcReadyRulesEvent,

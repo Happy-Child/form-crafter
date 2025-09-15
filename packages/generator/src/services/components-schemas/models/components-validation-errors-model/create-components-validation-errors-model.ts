@@ -57,11 +57,7 @@ export const createComponentsValidationErrorsModel = ({ visabilityComponentsMode
     $componentsErrors.on(removeComponentErrorsEvent, removeValidationErrors)
 
     $componentsGroupsErrors.on(filterAllErrorsEvent, filterValidationErrors)
-    $componentsErrors.on(filterAllErrorsEvent, (A, B) => {
-        const sd = filterValidationErrors(A, B)
-        console.log('asd: ', sd, A, B)
-        return sd
-    })
+    $componentsErrors.on(filterAllErrorsEvent, filterValidationErrors)
 
     sample({
         clock: removeAllErrorsEvent,

@@ -1,7 +1,7 @@
 import { ComponentConditionOperator } from '../../../../components-operators'
 import { GroupOptionsBuilder, OptionsBuilderOutput } from '../../../../options-builder'
 import { ComponentValidationRule, MutationRule } from '../../../../rules'
-import { GeneralComponentModule } from '../../../create-modules'
+import { GeneralComponentModule } from '../../../modules'
 import { RepeaterComponent } from '../generator'
 import { RepeaterComponentProperties } from '../schema'
 

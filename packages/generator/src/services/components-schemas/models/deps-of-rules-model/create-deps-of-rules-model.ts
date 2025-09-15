@@ -1,67 +1,87 @@
-import { ComponentsSchemas } from '@form-crafter/core'
-import { combine, createStore } from 'effector'
-import { cloneDeep, merge } from 'lodash-es'
+import { ComponentsSchemas, errorCodes, getErrorMessage } from '@form-crafter/core'
+import { genId } from '@form-crafter/utils'
+import { combine, createEvent, createStore, sample } from 'effector'
 
+import { AppErrorsService } from '../../../app-errors'
 import { SchemaService } from '../../../schema'
 import { GroupValidationRuleSchemas } from '../../../schema'
 import { ThemeService } from '../../../theme'
 import { DepsByValidationRules } from './types'
 import {
+    buildFlattenGraphAndFindCycles,
     buildReverseDepsGraph,
-    buildSortedDependents,
-    extractComponentsDepsByMutationRules,
-    extractComponentsDepsByValidationRules,
-    extractComponentsDepsByVisabilityConditions,
-    extractValidationDeps,
-    topologicalSortDeps,
+    buildTopologicalSortedGraph,
+    extractComponentsMutationsDeps,
+    extractComponentsValidationsConditionsDeps,
+    extractComponentsVisabilityConditionsDeps,
+    extractValidationsSchemasConditionsDeps,
+    mergeDeps,
 } from './utils'
 
 type Params = {
     themeService: ThemeService
     schemaService: SchemaService
     initialComponentsSchemas: ComponentsSchemas
+    appErrorsService: AppErrorsService
 }
 
 export type DepsOfRulesModel = ReturnType<typeof createDepsOfRulesModel>
 
-export const createDepsOfRulesModel = ({ initialComponentsSchemas, themeService, schemaService }: Params) => {
-    const $componentsDepsByVisabilityConditions = createStore(extractComponentsDepsByVisabilityConditions(initialComponentsSchemas))
-
-    const $componentsDepsByValidationRules = createStore(extractComponentsDepsByValidationRules(initialComponentsSchemas))
-
-    const $componentsDepsByMutationRules = combine(themeService.$mutationsRules, (rules) =>
-        extractComponentsDepsByMutationRules(initialComponentsSchemas, rules),
+export const createDepsOfRulesModel = ({ initialComponentsSchemas, themeService, schemaService, appErrorsService }: Params) => {
+    const $componentsMutationsDeps = combine(themeService.$pathsToMutationsRulesDeps, (pathsToDeps) =>
+        extractComponentsMutationsDeps(initialComponentsSchemas, pathsToDeps),
     )
 
-    const $componentsDepsTriggeredMutationRules = combine(
-        $componentsDepsByMutationRules,
-        $componentsDepsByVisabilityConditions,
-        (depsByMutation, depsByVisability) => merge(cloneDeep(depsByMutation), depsByVisability),
-    )
+    const $componentsVisabilityConditionsDeps = createStore(extractComponentsVisabilityConditionsDeps(initialComponentsSchemas))
 
-    const $componentsByResolutionAllMutationRules = combine($componentsDepsTriggeredMutationRules, ({ componentIdToDeps }) => {
-        const componentsIdsWithMutationRules = Object.keys(componentIdToDeps)
-        return topologicalSortDeps(componentsIdsWithMutationRules, componentIdToDeps)
+    const $componentsValidationsConditionsDeps = createStore(extractComponentsValidationsConditionsDeps(initialComponentsSchemas))
+
+    const $depsTriggeringMutations = combine($componentsMutationsDeps, $componentsVisabilityConditionsDeps, (depsByMutation, depsByVisability) => ({
+        componentIdToDeps: mergeDeps(depsByMutation.componentIdToDeps, depsByVisability.componentIdToDeps),
+        componentIdToDependents: mergeDeps(depsByMutation.componentIdToDependents, depsByVisability.componentIdToDependents),
+    }))
+
+    const $infoOfGraphMutationResolution = combine($depsTriggeringMutations, ({ componentIdToDependents }) => {
+        const flattenGraphInfo = buildFlattenGraphAndFindCycles(componentIdToDependents)
+        return { ...flattenGraphInfo, graph: componentIdToDependents }
     })
-    const $componentsByResolutionMutationRules = combine($componentsDepsTriggeredMutationRules, ({ componentIdToDependents, componentIdToDeps }) =>
-        buildSortedDependents(componentIdToDeps, componentIdToDependents),
-    )
+    const $depsGraphForMutationResolution = combine($infoOfGraphMutationResolution, ({ flattenGraph }) => flattenGraph)
 
-    const $componentsDepsByGroupValidationRules = combine<GroupValidationRuleSchemas, DepsByValidationRules>(
+    const $depsForAllMutationResolution = combine($depsTriggeringMutations, ({ componentIdToDeps }) => {
+        const dependentsGraph = { root: Object.keys(componentIdToDeps) }
+        const { root } = buildTopologicalSortedGraph(dependentsGraph, componentIdToDeps)
+        return root
+    })
+
+    const $groupsValidationsDeps = combine<GroupValidationRuleSchemas, DepsByValidationRules>(
         schemaService.$groupValidationSchemas,
         (groupValidationSchemas) => {
             const schemas = Object.entries(groupValidationSchemas).map(([, schema]) => schema)
-            const ruleIdToDepsComponents = extractValidationDeps(schemas)
+            const ruleIdToDepsComponents = extractValidationsSchemasConditionsDeps(schemas)
             return { ruleIdToDepsComponents, componentsToDependentsRuleIds: buildReverseDepsGraph(ruleIdToDepsComponents) }
         },
     )
 
+    const initCheckCyclesEvent = createEvent('initCheckCyclesEvent')
+    sample({
+        source: $infoOfGraphMutationResolution,
+        clock: [$infoOfGraphMutationResolution, initCheckCyclesEvent],
+        filter: ({ hasCycle }) => hasCycle,
+        fn: ({ cycles }) => ({
+            id: genId(),
+            message: `${getErrorMessage(errorCodes.circularDepDetected)} in $infoOfGraphMutationResolution. Deps: ${cycles.map((c) => c.join(' -> ')).join('; ')}`,
+        }),
+        target: appErrorsService.addErrorEvent,
+    })
+    initCheckCyclesEvent()
+
     return {
-        $componentsDepsTriggeredMutationRules,
-        $componentsByResolutionAllMutationRules,
-        $componentsByResolutionMutationRules,
-        $componentsDepsByGroupValidationRules,
-        $componentsDepsByValidationRules,
-        $componentsDepsByVisabilityConditions,
+        $depsTriggeringMutations,
+        $infoOfGraphMutationResolution,
+        $depsGraphForMutationResolution,
+        $depsForAllMutationResolution,
+        $groupsValidationsDeps,
+        $componentsValidationsConditionsDeps,
+        $componentsVisabilityConditionsDeps,
     }
 }

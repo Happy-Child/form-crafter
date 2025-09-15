@@ -15,7 +15,12 @@ import { ComponentsSchemasService, ComponentsSchemasServiceParams, RunMutationsR
 
 export type { ComponentsSchemasService }
 
-export const createComponentsSchemasService = ({ initial, themeService, schemaService }: ComponentsSchemasServiceParams): ComponentsSchemasService => {
+export const createComponentsSchemasService = ({
+    initial,
+    themeService,
+    schemaService,
+    appErrorsService,
+}: ComponentsSchemasServiceParams): ComponentsSchemasService => {
     const additionalTriggers = schemaService.$schema.getState().validations?.additionalTriggers || null
 
     const initServiceEvent = createEvent('initServiceEvent')
@@ -30,6 +35,7 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
     const depsOfRulesModel = createDepsOfRulesModel({
         themeService,
         schemaService,
+        appErrorsService,
         initialComponentsSchemas: initial,
     })
 
@@ -106,6 +112,7 @@ export const createComponentsSchemasService = ({ initial, themeService, schemaSe
 
     return {
         componentsModel,
+        depsOfRulesModel,
         visabilityComponentsModel,
         formValidationModel,
         initServiceEvent,

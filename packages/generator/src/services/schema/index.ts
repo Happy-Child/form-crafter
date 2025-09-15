@@ -8,14 +8,14 @@ import { ComponentsValidationRuleSchemas, GroupValidationRuleSchemas, SchemaServ
 
 const defaultSchemaLayout = getDefaultSchemaLayout()
 
-const getLayout = (layout: SchemaServiceParams['layout']): Required<SchemaLayout> => ({
+const getLayout = (layout: Schema['layout']): Required<SchemaLayout> => ({
     rowsSpanPx: layout?.rowsSpanPx || defaultSchemaLayout.rowsSpanPx,
     colsSpanPx: layout?.colsSpanPx || defaultSchemaLayout.colsSpanPx,
 })
 
 export type { GroupValidationRuleSchemas, SchemaService }
 
-export const createSchemaService = (schema: Schema): SchemaService => {
+export const createSchemaService = ({ schema }: SchemaServiceParams): SchemaService => {
     const $schema = readonly(createStore<Schema>(schema))
 
     const $layout = readonly(createStore<Required<SchemaLayout>>(getLayout(schema.layout)))

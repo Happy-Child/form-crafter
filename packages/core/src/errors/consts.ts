@@ -6,4 +6,4 @@ export const errorMessages: Record<string, string> = {
     circularDepDetected: 'Circular dependency detected',
 }
 
-export const getErrorMessages = (code: string) => errorMessages[code]
+export const getErrorMessage = (code: string) => errorMessages[code]

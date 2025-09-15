@@ -6,6 +6,6 @@ export type RulesOverridesCache = Record<EntityId, AvailableObject | null>
 export type RunMutationRulesPayload = {
     curComponentsSchemas: ComponentsSchemas
     newComponentsSchemas: ComponentsSchemas
-    componentsForMutationResolution: EntityId[]
+    depsForMutationResolution: EntityId[]
     componentsIdsToUpdate: EntityId[]
 }

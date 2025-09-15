@@ -1,4 +1,7 @@
 export * from './difference-set'
+export * from './gen-component-id'
+export * from './gen-id'
+export * from './gen-row-id'
 export * from './is-file'
 export * from './is-files-list'
 export * from './remove-object-keys'

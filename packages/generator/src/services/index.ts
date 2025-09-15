@@ -1,3 +1,4 @@
+import { createAppErrorsService } from './app-errors'
 import { createComponentsSchemasService } from './components-schemas'
 import { createFormService } from './form'
 import { createRepeaterService } from './repeater'
@@ -7,11 +8,13 @@ import { RootServices, RootServicesParams } from './types'
 import { createViewsService } from './views'
 
 export const createRootServices = ({ schema, theme, PlaceholderComponent, onSubmit }: RootServicesParams): RootServices => {
+    const appErrorsService = createAppErrorsService()
+
     const themeService = createThemeService({ theme, PlaceholderComponent })
 
-    const schemaService = createSchemaService(schema)
+    const schemaService = createSchemaService({ schema })
 
-    const componentsSchemasService = createComponentsSchemasService({ initial: schema.componentsSchemas, themeService, schemaService })
+    const componentsSchemasService = createComponentsSchemasService({ initial: schema.componentsSchemas, themeService, schemaService, appErrorsService })
 
     const viewsService = createViewsService({ initial: schema.views })
 
@@ -32,5 +35,6 @@ export const createRootServices = ({ schema, theme, PlaceholderComponent, onSubm
         formService,
         themeService,
         repeaterService,
+        appErrorsService,
     }
 }

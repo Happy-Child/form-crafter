@@ -14,4 +14,6 @@ export type SchemaService = {
     $componentsValidationSchemas: Store<ComponentsValidationRuleSchemas>
 }
 
-export type SchemaServiceParams = Pick<Schema, 'layout'> & {}
+export type SchemaServiceParams = {
+    schema: Schema
+}

@@ -7,16 +7,21 @@ import { combine, createStore } from 'effector'
 import { init } from './init'
 import { OperatorsStore, ThemeService, ThemeServiceParams } from './types'
 import { extractMutations } from './utils'
-import { extractOperators } from './utils/extract-operators-for-conditions'
+import { buildPathsToMutationsRulesDeps } from './utils/build-paths-to-mutations-rules-deps'
+import { extractOperators } from './utils/extract-operators'
 
 export type { OperatorsStore, ThemeService, ThemeServiceParams }
+
+export * from './utils/public-api'
 
 export const createThemeService = ({ theme, PlaceholderComponent }: ThemeServiceParams): ThemeService => {
     const $theme = createStore<FormCrafterTheme>(theme)
 
     const $componentsModules = $theme.map(({ componentsModules }) => componentsModules)
     const $componentsModulesMap = $theme.map(({ componentsModules }) => componentsModules.reduce((map, module) => ({ ...map, [module.name]: module }), {}))
+
     const $mutationsRules = combine($componentsModules, extractMutations)
+    const $pathsToMutationsRulesDeps = combine($mutationsRules, buildPathsToMutationsRulesDeps)
 
     const $groupValidationRules = $theme.map(({ groupValidationRules }) =>
         isNotEmpty(groupValidationRules)
@@ -54,6 +59,7 @@ export const createThemeService = ({ theme, PlaceholderComponent }: ThemeService
         $groupValidationRules,
         $operators,
         $mutationsRules,
+        $pathsToMutationsRulesDeps,
         $placeholderComponent,
     }
 }

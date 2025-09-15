@@ -1,6 +1,7 @@
 import { Schema } from '@form-crafter/core'
 import { AvailableObject } from '@form-crafter/utils'
 
+import { AppErrorsService } from './app-errors'
 import { ComponentsSchemasService } from './components-schemas'
 import { FormService } from './form'
 import { RepeaterService } from './repeater'
@@ -20,4 +21,5 @@ export type RootServices = {
     formService: FormService
     repeaterService: RepeaterService
     themeService: ThemeService
+    appErrorsService: AppErrorsService
 }

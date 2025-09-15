@@ -51,6 +51,10 @@ export const isNotEmpty = <T>(value: Maybe<T>): value is T => {
     return !isEmpty(value)
 }
 
+export const isEmptyArray = <T extends unknown[]>(arr: T) => {
+    return arr.length === 0
+}
+
 export const isFunction = (val: unknown): val is Function => typeof val === 'function'
 
 export const isObject = (value: unknown): value is Record<string, unknown> => {

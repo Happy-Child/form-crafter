@@ -36,7 +36,7 @@ export interface GroupOptionsBuilder<Output extends AvailableObject = AvailableO
 
 export interface MultifieldOptionsBuilder<Output extends AvailableObject = AvailableObject> extends OptionsBuilder<Output> {
     properties: {
-        template: Record<string, OptionsBuilder>
+        template: OptionsBuilder
     }
 }
 

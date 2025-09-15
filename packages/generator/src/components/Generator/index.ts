@@ -1,1 +1,1 @@
-export { GeneratorWithProvider as Generator } from './GeneratorWithProvider'
+export { GeneratorBoundary as Generator } from './GeneratorBoundary'

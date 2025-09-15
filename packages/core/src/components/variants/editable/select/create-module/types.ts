@@ -1,5 +1,5 @@
 import { GroupOptionsBuilder, OptionsBuilderOutput } from '../../../../../options-builder'
-import { EditableComponentModule } from '../../../../create-modules'
+import { EditableComponentModule } from '../../../../modules'
 import { SelectComponent } from '../generator'
 import { SelectComponentProperties } from '../schema'
 

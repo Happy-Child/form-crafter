@@ -1,5 +1,5 @@
 import { rootComponentId, Schema } from '@form-crafter/core'
-import { genId } from '@form-crafter/generator'
+import { genId } from '@form-crafter/utils'
 
 export const employeeFormSchema: Schema = {
     id: 'employee-form',
@@ -446,10 +446,7 @@ export const employeeFormSchema: Schema = {
                         condition: {
                             type: 'operator',
                             operator: 'or',
-                            operands: [
-                                { type: 'component', componentId: 'country', operatorKey: 'isNotEmpty' },
-                                { type: 'component', componentId: 'input-position', operatorKey: 'isEmpty' },
-                            ],
+                            operands: [{ type: 'component', componentId: 'country', operatorKey: 'isNotEmpty' }],
                         },
                     },
                 ],
@@ -471,6 +468,7 @@ export const employeeFormSchema: Schema = {
         email: {
             meta: { id: 'email', type: 'text-input', name: 'text-input' },
             properties: { label: 'Email', value: '' },
+            visability: { condition: { type: 'component', componentId: 'country', operatorKey: 'isNotEmpty' } },
             validations: {
                 schemas: [
                     {
@@ -501,6 +499,7 @@ export const employeeFormSchema: Schema = {
         },
         'input-position': {
             meta: { id: 'input-position', type: 'text-input', name: 'text-input' },
+            visability: { condition: { type: 'component', componentId: 'email', operatorKey: 'isNotEmpty' } },
             properties: { label: 'Должность', value: '' },
         },
         'input-salary': {
@@ -509,6 +508,7 @@ export const employeeFormSchema: Schema = {
         },
         country: {
             meta: { id: 'country', type: 'select', name: 'select' },
+            visability: { condition: { type: 'component', componentId: 'select-department', operatorKey: 'equal', enteredComponentValue: 'dev' } },
             properties: {
                 value: '',
                 label: 'Страна',
@@ -516,6 +516,15 @@ export const employeeFormSchema: Schema = {
                     { label: 'Беларусь', value: 'belarus' },
                     { label: 'Армения', value: 'armeny' },
                     { label: 'Чили', value: 'chili' },
+                ],
+            },
+            mutations: {
+                schemas: [
+                    {
+                        id: genId(),
+                        key: 'disabled',
+                        condition: { type: 'component', componentId: 'select-department', operatorKey: 'equal', enteredComponentValue: 'dev' },
+                    },
                 ],
             },
         },
@@ -628,10 +637,7 @@ export const employeeFormSchema: Schema = {
                         condition: {
                             type: 'operator',
                             operator: 'or',
-                            operands: [
-                                { type: 'component', componentId: 'input-last-name', operatorKey: 'startsWith', options: { startsWith: 'lazuka' } },
-                                { type: 'component', componentId: 'input-position', operatorKey: 'startsWith', options: { startsWith: 'egor' } },
-                            ],
+                            operands: [{ type: 'component', componentId: 'input-position', operatorKey: 'startsWith', options: { startsWith: 'egor' } }],
                         },
                     },
                 ],

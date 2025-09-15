@@ -18,8 +18,6 @@ export const changeSelectOptionsRule = createMutationRule({
     key: 'changeSelectOptions',
     displayName: 'Установка значений выпадающего списка',
     execute: (_, { options }) => {
-        console.log('newOptions: ', _, options)
-
         if (!isNotEmpty(options)) {
             return null
         }
