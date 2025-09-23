@@ -1,6 +1,6 @@
-import { EntityId, ViewResponsive, ViewsDefinitions } from '@form-crafter/core'
-import { isNotNull } from '@form-crafter/utils'
-import { combine, createEvent, createStore } from 'effector'
+import { EntityId, ViewDefinition, ViewResponsive } from '@form-crafter/core'
+import { isNotEmpty, isNotNull } from '@form-crafter/utils'
+import { combine, createEvent, createStore, UnitValue } from 'effector'
 
 import { init } from './init'
 import { ViewsService, ViewsServiceParams } from './types'
@@ -10,24 +10,29 @@ export type { ViewsService }
 export const createViewsService = ({ initial }: ViewsServiceParams): ViewsService => {
     const $curentViewId = createStore<EntityId | null>(null)
     const $defaultView = createStore<ViewResponsive>(initial.default)
-    const $views = createStore<ViewsDefinitions | null>(initial.additionals || null)
+    const $additionalsViews = createStore<ViewDefinition[]>(initial.additionals || [])
 
-    const setViewsEvent = createEvent<ViewsDefinitions>('setViewsEvent')
-    const setCurrentViewIdEvent = createEvent<EntityId>('setCurrentViewIdEvent')
+    const setAdditionalViewsEvent = createEvent<UnitValue<typeof $additionalsViews>>('setAdditionalViewsEvent')
+    const setCurrentViewIdEvent = createEvent<UnitValue<typeof $curentViewId>>('setCurrentViewIdEvent')
 
     $curentViewId.on(setCurrentViewIdEvent, (_, newId) => newId)
-    $views.on(setViewsEvent, (_, newViews) => newViews)
+    $additionalsViews.on(setAdditionalViewsEvent, (_, newViews) => newViews)
 
-    const currentView = combine($curentViewId, $defaultView, $views, (curentViewId, defaultView, views) =>
-        isNotNull(curentViewId) && isNotNull(views) ? views[curentViewId].responsive : defaultView,
+    const $additionalsViewsObj = $additionalsViews.map((additionalsViews) =>
+        additionalsViews.reduce<Record<EntityId, ViewDefinition>>((map, cur) => ({ ...map, [cur.id]: cur }), {}),
+    )
+
+    const currentView = combine($curentViewId, $defaultView, $additionalsViewsObj, (curentViewId, defaultView, additionalsViewsObj) =>
+        isNotNull(curentViewId) && isNotEmpty(additionalsViewsObj) ? additionalsViewsObj[curentViewId].responsive : defaultView,
     )
 
     init({})
 
     return {
         $curentViewId,
-        $views,
-        setViewsEvent,
+        $additionalsViews,
+        $additionalsViewsObj,
+        setAdditionalViewsEvent,
         currentView,
         setCurrentViewIdEvent,
     }

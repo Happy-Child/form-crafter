@@ -27,6 +27,6 @@ export const init = ({ onFormSubmitEvent, invokeUserSubmitHandlerFx, componentsS
 
     sample({
         clock: componentsSchemasService.formValidationModel.runFormValidationFx.fail,
-        fn: console.log,
+        fn: (data) => console.warn('runFormValidationFx.fail: ', data),
     })
 }

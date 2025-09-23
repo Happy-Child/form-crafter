@@ -190,9 +190,17 @@ export const employeeFormSchema: Schema = {
                 },
             },
         },
-        additionals: {
-            'second-view': {
-                condition: { type: 'component', componentId: 'gender', operatorKey: 'equal', enteredComponentValue: 'female' },
+        additionals: [
+            {
+                id: 'second-view',
+                condition: {
+                    type: 'operator',
+                    operator: 'and',
+                    operands: [
+                        { type: 'component', componentId: 'gender', operatorKey: 'equal', enteredComponentValue: 'female' },
+                        { type: 'component', componentId: 'input-position', operatorKey: 'equal', enteredComponentValue: 'HR' },
+                    ],
+                },
                 responsive: {
                     xxl: {
                         rows: {
@@ -216,7 +224,7 @@ export const employeeFormSchema: Schema = {
                         components: {
                             [rootComponentId]: {
                                 id: rootComponentId,
-                                rows: [{ id: 'row_id_1' }],
+                                rows: [{ id: 'row_id_0' }, { id: 'row_id_1' }],
                             },
                             gender: {
                                 id: 'gender',
@@ -272,7 +280,8 @@ export const employeeFormSchema: Schema = {
                     },
                 },
             },
-            'third-view': {
+            {
+                id: 'third-view',
                 condition: { type: 'component', componentId: 'gender', operatorKey: 'equal', enteredComponentValue: 'other' },
                 responsive: {
                     xxl: {
@@ -283,7 +292,7 @@ export const employeeFormSchema: Schema = {
                             },
                             row_id_1: {
                                 id: 'row_id_1',
-                                children: [{ id: 'input-first-name' }],
+                                children: [{ id: 'input-first-name' }, { id: 'some-date' }],
                             },
                             row_id_2: {
                                 id: 'row_id_2',
@@ -341,6 +350,13 @@ export const employeeFormSchema: Schema = {
                                     layout: { col: { default: 12 } },
                                 },
                             },
+                            'some-date': {
+                                id: 'some-date',
+                                parentId: rootComponentId,
+                                params: {
+                                    layout: { col: { default: 12 } },
+                                },
+                            },
                             email: {
                                 id: 'email',
                                 parentId: rootComponentId,
@@ -363,6 +379,7 @@ export const employeeFormSchema: Schema = {
                                 },
                                 rows: [{ id: 'group-work_1' }, { id: 'group-work_2' }],
                             },
+
                             'input-position': {
                                 id: 'input-position',
                                 parentId: 'group-work',
@@ -381,7 +398,7 @@ export const employeeFormSchema: Schema = {
                     },
                 },
             },
-        },
+        ],
     },
     componentsSchemas: {
         gender: {
@@ -417,6 +434,15 @@ export const employeeFormSchema: Schema = {
         'input-first-name': {
             meta: { id: 'input-first-name', type: 'text-input', name: 'text-input' },
             properties: { label: 'Имя', value: 'Egor' },
+            mutations: {
+                schemas: [
+                    {
+                        id: genId(),
+                        key: 'disabled',
+                        condition: { type: 'component', componentId: 'some-date', operatorKey: 'isNotEmpty' },
+                    },
+                ],
+            },
             validations: {
                 schemas: [
                     {
@@ -446,7 +472,7 @@ export const employeeFormSchema: Schema = {
                         condition: {
                             type: 'operator',
                             operator: 'or',
-                            operands: [{ type: 'component', componentId: 'country', operatorKey: 'isNotEmpty' }],
+                            operands: [{ type: 'component', componentId: 'date-birth', operatorKey: 'isNotEmpty' }],
                         },
                     },
                 ],
@@ -463,12 +489,23 @@ export const employeeFormSchema: Schema = {
         },
         'date-birth': {
             meta: { id: 'date-birth', type: 'date-input', name: 'date-input' },
-            properties: { label: 'Дата рождения', value: '25.10.2005' },
+            properties: { label: 'Дата рождения', value: null },
         },
         email: {
             meta: { id: 'email', type: 'text-input', name: 'text-input' },
             properties: { label: 'Email', value: '' },
-            visability: { condition: { type: 'component', componentId: 'country', operatorKey: 'isNotEmpty' } },
+            visability: { condition: { type: 'component', componentId: 'date-birth', operatorKey: 'equal', enteredComponentValue: '25.10.1999' } },
+            // visability: { condition: { type: 'component', componentId: 'country', operatorKey: 'isNotEmpty' } },
+            mutations: {
+                schemas: [
+                    {
+                        id: genId(),
+                        key: 'duplicateValue',
+                        options: { duplicateValueComponentId: 'input-first-name' },
+                        condition: { type: 'component', componentId: 'date-birth', operatorKey: 'isNotEmpty' },
+                    },
+                ],
+            },
             validations: {
                 schemas: [
                     {
@@ -478,10 +515,7 @@ export const employeeFormSchema: Schema = {
                         condition: {
                             type: 'operator',
                             operator: 'and',
-                            operands: [
-                                { type: 'component', componentId: 'date-birth', operatorKey: 'isNotEmpty' },
-                                { type: 'component', componentId: 'input-salary', operatorKey: 'isNotEmpty' },
-                            ],
+                            operands: [{ type: 'component', componentId: 'input-salary', operatorKey: 'isNotEmpty' }],
                         },
                     },
                     {
@@ -646,6 +680,10 @@ export const employeeFormSchema: Schema = {
         'date-start': {
             meta: { id: 'date-start', type: 'date-input', name: 'date-input' },
             properties: { label: 'Дата начала работы', value: '25.10.1999' },
+        },
+        'some-date': {
+            meta: { id: 'some-date', type: 'date-input', name: 'date-input' },
+            properties: { label: 'Другая дата', value: '' },
         },
         contacts: {
             meta: { id: 'contacts', type: 'repeater', name: 'multifield' },

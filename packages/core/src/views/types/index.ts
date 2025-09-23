@@ -55,13 +55,12 @@ export type ViewResponsive = {
 } & Partial<Record<Exclude<Breakpoint, 'xxl'>, ViewElements>>
 
 export type ViewDefinition = {
+    id: EntityId
     condition: ConditionNode
     responsive: ViewResponsive
 }
 
-export type ViewsDefinitions = Record<EntityId, ViewDefinition>
-
 export type Views = {
     default: ViewResponsive
-    additionals?: ViewsDefinitions
+    additionals?: ViewDefinition[]
 }

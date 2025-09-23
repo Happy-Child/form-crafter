@@ -1,8 +1,10 @@
 import { ComponentsSchemas, EntityId } from '@form-crafter/core'
 
-import { DepsByValidationRules } from '../../types'
 import { buildReverseDepsGraph } from '../build-reverse-deps-graph'
 import { extractValidationsSchemasConditionsDeps } from '../extract-validations-schemas-conditions-deps'
+import { DepsByValidationRules } from './types'
+
+export type { DepsByValidationRules }
 
 export const extractComponentsValidationsConditionsDeps = (componentsSchemas: ComponentsSchemas): DepsByValidationRules => {
     let ruleIdToDepsComponents: Record<string, EntityId[]> = {}

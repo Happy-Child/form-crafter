@@ -1,13 +1,19 @@
 import { isNotEmpty } from '@form-crafter/utils'
 import { attach, combine, createEffect, createEvent, createStore, sample, UnitValue } from 'effector'
 
-import { ComponentToUpdate, GetExecutorContextBuilder } from './types'
+import { isConditionSuccessful } from '../../../../utils'
+import { ThemeService } from '../../../theme'
+import { ComponentToUpdate, GetExecutorContextBuilder, GetIsConditionSuccessfulChecker } from './types'
 import { ComponentsModels } from './types'
 import { buildExecutorContext, extractComponentsModels } from './utils'
 
+type Params = {
+    themeService: ThemeService
+}
+
 export type ComponentsModel = ReturnType<typeof createComponentsModel>
 
-export const createComponentsModel = () => {
+export const createComponentsModel = ({ themeService }: Params) => {
     const $models = createStore<ComponentsModels>(new Map())
 
     const $componentsSchemas = combine($models, extractComponentsModels)
@@ -16,6 +22,15 @@ export const createComponentsModel = () => {
         $componentsSchemas,
         (componentsSchemas) => {
             return (params) => buildExecutorContext({ componentsSchemas: params?.componentsSchemas || componentsSchemas })
+        },
+    )
+
+    const $getIsConditionSuccessfulChecker: GetIsConditionSuccessfulChecker = combine(
+        $getExecutorContextBuilder,
+        themeService.$operators,
+        (getExecutorContextBuilder, operators) => (params) => {
+            const ctx = params?.ctx || getExecutorContextBuilder()
+            return ({ condition }) => isConditionSuccessful({ ctx, condition, operators })
         },
     )
 
@@ -60,5 +75,6 @@ export const createComponentsModel = () => {
         $models,
         $componentsSchemas,
         $getExecutorContextBuilder,
+        $getIsConditionSuccessfulChecker,
     }
 }

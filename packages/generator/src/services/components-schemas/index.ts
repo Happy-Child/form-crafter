@@ -11,31 +11,33 @@ import { createFormValidationModel } from './models/form-validation-model'
 import { createMutationsRulesModel } from './models/mutations-rules-model'
 import { createReadyConditionalValidationRulesModel } from './models/ready-conditional-validation-rules-model'
 import { createVisabilityComponentsModel } from './models/visability-components-model'
-import { ComponentsSchemasService, ComponentsSchemasServiceParams, RunMutationsRulesOnUserActionsPayload } from './types'
+import { ComponentsSchemasService, ComponentsSchemasServiceParams, RunMutationsOnUserActionsPayload } from './types'
 
 export type { ComponentsSchemasService }
 
 export const createComponentsSchemasService = ({
     initial,
-    themeService,
-    schemaService,
     appErrorsService,
+    themeService,
+    viewsService,
+    schemaService,
 }: ComponentsSchemasServiceParams): ComponentsSchemasService => {
     const additionalTriggers = schemaService.$schema.getState().validations?.additionalTriggers || null
 
     const initServiceEvent = createEvent('initServiceEvent')
-    const runMutationsRulesOnUserActionsEvent = createEvent<RunMutationsRulesOnUserActionsPayload>('runMutationsRulesOnUserActionsEvent')
+    const runMutationsOnUserActionsEvent = createEvent<RunMutationsOnUserActionsPayload>('runMutationsOnUserActionsEvent')
 
-    const componentsModel = createComponentsModel()
+    const componentsModel = createComponentsModel({ themeService })
 
     const visabilityComponentsModel = createVisabilityComponentsModel({ componentsModel })
 
     const componentsValidationErrorsModel = createComponentsValidationErrorsModel({ visabilityComponentsModel })
 
     const depsOfRulesModel = createDepsOfRulesModel({
-        themeService,
-        schemaService,
         appErrorsService,
+        themeService,
+        viewsService,
+        schemaService,
         initialComponentsSchemas: initial,
     })
 
@@ -48,7 +50,7 @@ export const createComponentsSchemasService = ({
 
     componentsModel.initEvent(
         createComponentsModels({
-            runMutationsRulesEvent: runMutationsRulesOnUserActionsEvent,
+            runMutationsEvent: runMutationsOnUserActionsEvent,
             componentsModel,
             readyConditionalValidationRulesModel,
             componentsValidationErrorsModel,
@@ -69,7 +71,6 @@ export const createComponentsSchemasService = ({
 
     const mutationsRulesModel = createMutationsRulesModel({
         componentsModel,
-        depsOfRulesModel,
         visabilityComponentsModel,
         themeService,
         schemaService,
@@ -78,12 +79,11 @@ export const createComponentsSchemasService = ({
     const changeViewsModel = createChangeViewsModel({
         componentsModel,
         depsOfRulesModel,
-        visabilityComponentsModel,
-        themeService,
-        schemaService,
+        viewsService,
     })
 
     init({
+        viewsService,
         componentsModel,
         visabilityComponentsModel,
         componentsValidationErrorsModel,
@@ -93,7 +93,7 @@ export const createComponentsSchemasService = ({
         mutationsRulesModel,
         changeViewsModel,
         initServiceEvent,
-        runMutationsRulesOnUserActionsEvent,
+        runMutationsOnUserActionsEvent,
     })
 
     // OLD BEGIN

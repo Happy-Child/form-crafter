@@ -4,7 +4,7 @@ import { isNotEmpty } from '@form-crafter/utils'
 import { buildReverseDepsGraph } from '../build-reverse-deps-graph'
 import { extractConditionDeps } from '../extract-condition-deps'
 
-export const extractComponentsVisabilityConditionsDeps = (componentsSchemas: ComponentsSchemas) => {
+export const extractVisabilityConditionsDeps = (componentsSchemas: ComponentsSchemas) => {
     let componentIdToDeps: Record<EntityId, EntityId[]> = {}
 
     Object.entries(componentsSchemas).forEach(([componentId, { visability }]) => {

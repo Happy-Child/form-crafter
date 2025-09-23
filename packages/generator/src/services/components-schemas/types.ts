@@ -5,12 +5,13 @@ import { EventCallable } from 'effector'
 import { AppErrorsService } from '../app-errors'
 import { SchemaService } from '../schema'
 import { ThemeService } from '../theme'
+import { ViewsService } from '../views'
 import { ComponentsModel } from './models/components-model'
 import { DepsOfRulesModel } from './models/deps-of-rules-model'
 import { FormValidationModel } from './models/form-validation-model'
 import { VisabilityComponentsModel } from './models/visability-components-model'
 
-export type RunMutationsRulesOnUserActionsPayload = { id: EntityId; data: AvailableObject }
+export type RunMutationsOnUserActionsPayload = { id: EntityId; data: AvailableObject }
 
 export type ComponentsSchemasService = {
     componentsModel: ComponentsModel
@@ -24,7 +25,8 @@ export type ComponentsSchemasService = {
 
 export type ComponentsSchemasServiceParams = {
     initial: ComponentsSchemas
-    themeService: ThemeService
-    schemaService: SchemaService
     appErrorsService: AppErrorsService
+    themeService: ThemeService
+    viewsService: ViewsService
+    schemaService: SchemaService
 }

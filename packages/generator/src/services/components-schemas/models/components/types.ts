@@ -15,7 +15,7 @@ import { AvailableObject } from '@form-crafter/utils'
 import { Effect, EventCallable, Store, StoreWritable } from 'effector'
 
 import { ThemeService } from '../../../theme'
-import { RunMutationsRulesOnUserActionsPayload } from '../../types'
+import { RunMutationsOnUserActionsPayload } from '../../types'
 import { ComponentsModel } from '../components-model'
 import { ComponentsValidationErrors, ComponentsValidationErrorsModel } from '../components-validation-errors-model'
 import { ReadyConditionalValidationRulesModel } from '../ready-conditional-validation-rules-model'
@@ -29,7 +29,7 @@ export type GeneralModelParams = {}
 export type SetSchemaPayload = { schema: AvailableObject; isNewValue?: boolean }
 
 export type ComponentModelParams = {
-    runMutationsRulesEvent: EventCallable<RunMutationsRulesOnUserActionsPayload>
+    runMutationsEvent: EventCallable<RunMutationsOnUserActionsPayload>
     componentsModel: ComponentsModel
     readyConditionalValidationRulesModel: ReadyConditionalValidationRulesModel
     componentsValidationErrorsModel: ComponentsValidationErrorsModel

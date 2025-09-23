@@ -9,13 +9,7 @@ type Params = Omit<ComponentModelParams, 'schema'> & {
     schema: EditableComponentSchema
 }
 
-export const createEditableModel = ({
-    schema,
-    additionalTriggers,
-    runMutationsRulesEvent,
-    componentsValidationErrorsModel,
-    ...params
-}: Params): EditableModel => {
+export const createEditableModel = ({ schema, additionalTriggers, runMutationsEvent, componentsValidationErrorsModel, ...params }: Params): EditableModel => {
     const validationIsAvailable = isNotEmpty(schema.validations?.schemas)
     const validationOnChangeIsAvailable = validationIsAvailable && additionalTriggers?.includes('onChange')
     const validationOnBlurIsAvailable = validationIsAvailable && additionalTriggers?.includes('onBlur')
@@ -49,7 +43,7 @@ export const createEditableModel = ({
         source: $schema,
         clock: onUpdatePropertiesEvent,
         fn: ({ meta }, data) => ({ id: meta.id, data }),
-        target: runMutationsRulesEvent,
+        target: runMutationsEvent,
     })
 
     sample({

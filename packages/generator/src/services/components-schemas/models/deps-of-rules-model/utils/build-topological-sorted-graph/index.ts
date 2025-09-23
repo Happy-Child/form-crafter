@@ -19,7 +19,7 @@ export const buildTopologicalSortedGraph = (dependentsDraph: DepsGraph, depsGrap
         const visited = new Set<EntityId>()
         const onStack = new Set<EntityId>()
 
-        const executeSort = (componentId: EntityId, node: EntityId, path: string[] = []) => {
+        const executeSort = (node: EntityId, path: string[] = []) => {
             if (onStack.has(node)) {
                 return
             }
@@ -32,7 +32,7 @@ export const buildTopologicalSortedGraph = (dependentsDraph: DepsGraph, depsGrap
             const currentPath = path.concat(node)
 
             for (const supDepId of filteredDepsGraph[node] || []) {
-                executeSort(componentId, supDepId, currentPath)
+                executeSort(supDepId, currentPath)
             }
 
             visited.add(node)
@@ -43,7 +43,7 @@ export const buildTopologicalSortedGraph = (dependentsDraph: DepsGraph, depsGrap
 
         for (const depId of dependentsToSort) {
             if (!visited.has(depId)) {
-                executeSort(componentId, depId)
+                executeSort(depId)
             }
         }
 

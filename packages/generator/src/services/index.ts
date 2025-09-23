@@ -12,11 +12,17 @@ export const createRootServices = ({ schema, theme, PlaceholderComponent, onSubm
 
     const themeService = createThemeService({ theme, PlaceholderComponent })
 
+    const viewsService = createViewsService({ initial: schema.views })
+
     const schemaService = createSchemaService({ schema })
 
-    const componentsSchemasService = createComponentsSchemasService({ initial: schema.componentsSchemas, themeService, schemaService, appErrorsService })
-
-    const viewsService = createViewsService({ initial: schema.views })
+    const componentsSchemasService = createComponentsSchemasService({
+        initial: schema.componentsSchemas,
+        appErrorsService,
+        themeService,
+        viewsService,
+        schemaService,
+    })
 
     const repeaterService = createRepeaterService({ viewsService, componentsSchemasService })
 

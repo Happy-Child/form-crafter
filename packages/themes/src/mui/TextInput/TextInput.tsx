@@ -55,7 +55,7 @@ export const textInputModule = createTextInputComponentModule({
         componentsOperators.endsWithOperator,
         componentsOperators.startsWithOperator,
     ],
-    mutations: [generalRules.mutations.duplicateValueRule],
+    mutations: [generalRules.mutations.duplicateValueRule, generalRules.mutations.disabledRule],
     validations: [
         rules.validations.isEmailRule,
         generalRules.validations.components.editable.isRequiredRule,

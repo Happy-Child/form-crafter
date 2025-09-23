@@ -1,12 +1,12 @@
-import { ComponentSchema, EntityId } from '@form-crafter/core'
+import { EntityId } from '@form-crafter/core'
 import { differenceSet, isEmpty, isNotEmpty } from '@form-crafter/utils'
 import { combine, createEvent, createStore, sample, UnitValue } from 'effector'
-import { cloneDeep, isEqual, merge } from 'lodash-es'
+import { cloneDeep } from 'lodash-es'
 
 import { isConditionSuccessful } from '../../../../utils'
 import { SchemaService } from '../../../schema'
 import { ThemeService } from '../../../theme'
-import { ComponentsModel } from '../components-model'
+import { ComponentsModel, ComponentToUpdate } from '../components-model'
 import { DepsOfRulesModel } from '../deps-of-rules-model'
 import { CalcReadyConditionalValidationRulesPayload, ReadyValidationsRules, ReadyValidationsRulesByKey } from './types'
 import { removeReadyValidationRules } from './utils'
@@ -82,14 +82,14 @@ export const createReadyConditionalValidationRulesModel = ({ schemaService, them
             groupValidationSchemas: schemaService.$groupValidationSchemas,
             operators: themeService.$operators,
             componentsValidationsConditionsDeps: depsOfRulesModel.$componentsValidationsConditionsDeps,
-            groupsValidationsDeps: depsOfRulesModel.$groupsValidationsDeps,
+            groupsValidationsConditionsDeps: depsOfRulesModel.$groupsValidationsConditionsDeps,
             readyComponentsRules: $readyComponentsRules,
             readyComponentsRulesByKey: $readyComponentsRulesByKey,
             readyComponentsRulesIds: $readyComponentsRulesIds,
             readyGroupsRules: $readyGroupsRules,
             readyGroupsByKey: $readyGroupsByKey,
-            componentsSchemas: componentsModel.$componentsSchemas,
             getExecutorContextBuilder: componentsModel.$getExecutorContextBuilder,
+            getIsConditionSuccessfulChecker: componentsModel.$getIsConditionSuccessfulChecker,
         },
         clock: calcReadyRulesEvent,
         fn: (
@@ -97,22 +97,20 @@ export const createReadyConditionalValidationRulesModel = ({ schemaService, them
                 validationRuleSchemas,
                 groupValidationSchemas,
                 componentsValidationsConditionsDeps,
-                groupsValidationsDeps,
+                groupsValidationsConditionsDeps,
                 operators,
                 readyComponentsRules,
                 readyComponentsRulesByKey,
                 readyComponentsRulesIds,
                 readyGroupsRules,
                 readyGroupsByKey,
-                componentsSchemas,
                 getExecutorContextBuilder,
+                getIsConditionSuccessfulChecker,
             },
-            { componentsToUpdate, skipIfValueUnchanged = true },
+            { newComponentsSchemas, componentsToUpdate, skipIfValueUnchanged = true },
         ) => {
-            const componentsSchemasToUpdate = Object.fromEntries(componentsToUpdate.map(({ componentId, schema }) => [componentId, schema]))
-            const newComponentsSchemas = merge(cloneDeep(componentsSchemas), componentsSchemasToUpdate)
-
             const executorContext = getExecutorContextBuilder({ componentsSchemas: newComponentsSchemas })
+            const isConditionSuccessfulChecker = getIsConditionSuccessfulChecker({ ctx: executorContext })
 
             const readyRules = cloneDeep(readyComponentsRules)
             const readyRulesByKey = cloneDeep(readyComponentsRulesByKey)
@@ -122,11 +120,8 @@ export const createReadyConditionalValidationRulesModel = ({ schemaService, them
 
             const rulesToInactive: Set<EntityId> = new Set()
 
-            const canBeContinueValidation = (componentId: EntityId, componentSchema: ComponentSchema) => {
-                const oldValue = componentsSchemas[componentId].properties.value
-                const newValue = componentSchema.properties.value
-
-                if (skipIfValueUnchanged && isEqual(oldValue, newValue)) {
+            const canBeContinueValidation = (isNewValue?: boolean) => {
+                if (skipIfValueUnchanged && !isNewValue) {
                     return false
                 }
 
@@ -154,8 +149,8 @@ export const createReadyConditionalValidationRulesModel = ({ schemaService, them
                 }
             }
 
-            const calcReadyRules = (componentId: EntityId, componentSchema: ComponentSchema) => {
-                const canBeContinue = canBeContinueValidation(componentId, componentSchema)
+            const calcReadyRules = ({ componentId, isNewValue }: ComponentToUpdate) => {
+                const canBeContinue = canBeContinueValidation(isNewValue)
 
                 if (!canBeContinue) {
                     return
@@ -175,10 +170,8 @@ export const createReadyConditionalValidationRulesModel = ({ schemaService, them
                     }
 
                     const { ownerComponentId, schema: validationRuleSchema } = validationRuleSchemas[validationSchemaId]
-                    const ruleIsReady = isConditionSuccessful({
-                        ctx: executorContext,
+                    const ruleIsReady = isConditionSuccessfulChecker({
                         condition: validationRuleSchema.condition!,
-                        operators: operators,
                     })
 
                     const isReadyRuleNow = readyComponentsRulesIds.has(validationSchemaId)
@@ -202,13 +195,13 @@ export const createReadyConditionalValidationRulesModel = ({ schemaService, them
                 })
             }
 
-            const calcReadyGroupRules = (componentId: EntityId, componentSchema: ComponentSchema) => {
-                const canBeContinue = canBeContinueValidation(componentId, componentSchema)
+            const calcReadyGroupRules = ({ componentId, isNewValue }: ComponentToUpdate) => {
+                const canBeContinue = canBeContinueValidation(isNewValue)
                 if (!canBeContinue) {
                     return
                 }
 
-                const dependentsValidationsIds = groupsValidationsDeps.componentsToDependentsRuleIds[componentId]
+                const dependentsValidationsIds = groupsValidationsConditionsDeps.componentsToDependentsRuleIds[componentId]
                 if (!isNotEmpty(dependentsValidationsIds)) {
                     return
                 }
@@ -247,9 +240,9 @@ export const createReadyConditionalValidationRulesModel = ({ schemaService, them
                 })
             }
 
-            componentsToUpdate.forEach(({ componentId, schema }) => {
-                calcReadyRules(componentId, schema)
-                calcReadyGroupRules(componentId, schema)
+            componentsToUpdate.forEach((data) => {
+                calcReadyRules(data)
+                calcReadyGroupRules(data)
             })
 
             return {
