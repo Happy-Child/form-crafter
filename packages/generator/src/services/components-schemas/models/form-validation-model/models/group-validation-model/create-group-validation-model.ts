@@ -6,13 +6,13 @@ import { SchemaService } from '../../../../../schema'
 import { ThemeService } from '../../../../../theme'
 import { ComponentsModel } from '../../../components-model'
 import { ComponentsValidationErrors, ComponentsValidationErrorsModel } from '../../../components-validation-errors-model'
-import { ReadyConditionalValidationRulesModel } from '../../../ready-conditional-validation-rules-model'
+import { ReadyConditionalValidationsModel } from '../../../ready-conditional-validations-model'
 import { RunGroupValidationFxDone, RunGroupValidationFxFail, RunGroupValidationFxParams } from './types'
 
 type Params = {
     componentsModel: ComponentsModel
     componentsValidationErrorsModel: ComponentsValidationErrorsModel
-    readyConditionalValidationRulesModel: ReadyConditionalValidationRulesModel
+    readyConditionalValidationsModel: ReadyConditionalValidationsModel
     themeService: ThemeService
     schemaService: SchemaService
 }
@@ -20,7 +20,7 @@ type Params = {
 export const createGroupValidationModel = ({
     componentsModel,
     componentsValidationErrorsModel,
-    readyConditionalValidationRulesModel,
+    readyConditionalValidationsModel,
     themeService,
     schemaService,
 }: Params) => {
@@ -31,7 +31,7 @@ export const createGroupValidationModel = ({
     const $errors = createStore<Map<EntityId, GroupValidationError>>(new Map())
 
     const baseRunValidationsFx = createEffect<RunGroupValidationFxParams, RunGroupValidationFxDone, RunGroupValidationFxFail>(
-        async ({ componentsGroupsErrors, getExecutorContextBuilder, groupValidationRules, groupValidationSchemas, readyConditionalValidationRules }) => {
+        async ({ componentsGroupsErrors, getExecutorContextBuilder, groupValidationRules, groupValidationSchemas, readyConditionalValidations }) => {
             if (!validationIsAvailable) {
                 return Promise.resolve()
             }
@@ -44,7 +44,7 @@ export const createGroupValidationModel = ({
             for (const [, validationSchema] of Object.entries(groupValidationSchemas)) {
                 const { id: validationSchemaId, key, options, condition } = validationSchema
 
-                const ruleIsReady = isNotEmpty(condition) ? readyConditionalValidationRules?.has(validationSchemaId) : true
+                const ruleIsReady = isNotEmpty(condition) ? readyConditionalValidations?.has(validationSchemaId) : true
                 if (!ruleIsReady) {
                     continue
                 }
@@ -96,7 +96,7 @@ export const createGroupValidationModel = ({
         source: {
             componentsGroupsErrors: componentsValidationErrorsModel.$componentsGroupsErrors,
             getExecutorContextBuilder: componentsModel.$getExecutorContextBuilder,
-            readyConditionalValidationRules: readyConditionalValidationRulesModel.$readyGroupsRules,
+            readyConditionalValidations: readyConditionalValidationsModel.$readyGroupsRules,
             groupValidationRules: themeService.$groupValidationRules,
             groupValidationSchemas: schemaService.$groupValidationSchemas,
         },

@@ -1,10 +1,9 @@
 import { EntityId } from '@form-crafter/core'
 import { combine, createEvent, createStore, sample, UnitValue } from 'effector'
 
-import { isErrorsDifferent } from '../../utils'
 import { VisabilityComponentsModel } from '../visability-components-model'
 import { ComponentsValidationErrors, SetComponentValidationErrorsPayload } from './types'
-import { filterValidationErrors, removeValidationErrors } from './utils'
+import { filterValidationErrors, isErrorsDifferent, removeValidationErrors } from './utils'
 
 type Params = {
     visabilityComponentsModel: VisabilityComponentsModel

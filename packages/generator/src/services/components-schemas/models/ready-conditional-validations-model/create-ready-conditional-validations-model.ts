@@ -8,7 +8,7 @@ import { SchemaService } from '../../../schema'
 import { ThemeService } from '../../../theme'
 import { ComponentsModel, ComponentToUpdate } from '../components-model'
 import { DepsOfRulesModel } from '../deps-of-rules-model'
-import { CalcReadyConditionalValidationRulesPayload, ReadyValidationsRules, ReadyValidationsRulesByKey } from './types'
+import { CalcReadyConditionalValidationsPayload, ReadyValidations, ReadyValidationsByKey } from './types'
 import { removeReadyValidationRules } from './utils'
 
 type Params = {
@@ -18,23 +18,23 @@ type Params = {
     componentsModel: ComponentsModel
 }
 
-export type ReadyConditionalValidationRulesModel = ReturnType<typeof createReadyConditionalValidationRulesModel>
+export type ReadyConditionalValidationsModel = ReturnType<typeof createReadyConditionalValidationsModel>
 
-export const createReadyConditionalValidationRulesModel = ({ schemaService, themeService, depsOfRulesModel, componentsModel }: Params) => {
-    const $readyComponentsRules = createStore<ReadyValidationsRules>({})
-    const $readyComponentsRulesByKey = createStore<ReadyValidationsRulesByKey>({})
+export const createReadyConditionalValidationsModel = ({ schemaService, themeService, depsOfRulesModel, componentsModel }: Params) => {
+    const $readyComponentsRules = createStore<ReadyValidations>({})
+    const $readyComponentsRulesByKey = createStore<ReadyValidationsByKey>({})
     const $readyComponentsRulesIds = combine($readyComponentsRules, (readyRules) =>
-        Object.entries(readyRules).reduce<ReadyValidationsRules[keyof ReadyValidationsRules]>(
+        Object.entries(readyRules).reduce<ReadyValidations[keyof ReadyValidations]>(
             (result, [, readyRulesIds]) => new Set([...result, ...readyRulesIds]),
             new Set(),
         ),
     )
 
-    const $readyGroupsRules = createStore<ReadyValidationsRules[keyof ReadyValidationsRules]>(new Set())
-    const $readyGroupsByKey = createStore<ReadyValidationsRulesByKey[keyof ReadyValidationsRulesByKey]>({})
+    const $readyGroupsRules = createStore<ReadyValidations[keyof ReadyValidations]>(new Set())
+    const $readyGroupsByKey = createStore<ReadyValidationsByKey[keyof ReadyValidationsByKey]>({})
 
-    const calcReadyRulesEvent = createEvent<CalcReadyConditionalValidationRulesPayload>('calcReadyRulesEvent')
-    const calcReadyRulesGuardEvent = createEvent<CalcReadyConditionalValidationRulesPayload>('calcReadyRulesGuardEvent')
+    const calcReadyRulesEvent = createEvent<CalcReadyConditionalValidationsPayload>('calcReadyRulesEvent')
+    const calcReadyRulesGuardEvent = createEvent<CalcReadyConditionalValidationsPayload>('calcReadyRulesGuardEvent')
 
     const setReadyComponentsRulesEvent = createEvent<UnitValue<typeof $readyComponentsRules>>('setReadyComponentsRulesEvent')
     const setReadyComponentsRulesByKeyEvent = createEvent<UnitValue<typeof $readyComponentsRulesByKey>>('setReadyComponentsRulesByKeyEvent')

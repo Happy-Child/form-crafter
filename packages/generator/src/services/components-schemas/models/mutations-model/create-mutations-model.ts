@@ -9,7 +9,7 @@ import { ThemeService } from '../../../theme'
 import { isChangedValue } from '../components'
 import { ComponentsModel } from '../components-model'
 import { VisabilityComponentsModel } from '../visability-components-model'
-import { RulesOverridesCache, RunMutationRulesPayload } from './types'
+import { MutationsOverridesCache, RunMutationsPayload } from './types'
 
 type Params = {
     componentsModel: ComponentsModel
@@ -18,45 +18,44 @@ type Params = {
     schemaService: SchemaService
 }
 
-export type MutationsRulesModel = ReturnType<typeof createMutationsRulesModel>
+export type MutationsModel = ReturnType<typeof createMutationsModel>
 
-export const createMutationsRulesModel = ({ componentsModel, visabilityComponentsModel, themeService, schemaService }: Params) => {
-    const $rulesOverridesCache = createStore<RulesOverridesCache>({})
+export const createMutationsModel = ({ componentsModel, visabilityComponentsModel, themeService, schemaService }: Params) => {
+    const $overridesCache = createStore<MutationsOverridesCache>({})
 
-    const setRulesOverridesCacheEvent = createEvent<RulesOverridesCache>('setRulesOverridesCacheEvent')
+    const setOverridesCacheEvent = createEvent<MutationsOverridesCache>('setOverridesCacheEvent')
 
-    const calcMutationsEvent = createEvent<RunMutationRulesPayload>('calcMutationsEvent')
+    const calcMutationsEvent = createEvent<RunMutationsPayload>('calcMutationsEvent')
 
-    $rulesOverridesCache.on(setRulesOverridesCacheEvent, (_, newCache) => newCache)
+    $overridesCache.on(setOverridesCacheEvent, (_, newCache) => newCache)
 
     const resultOfCalcMutationsEvent = sample({
         source: {
             getExecutorContextBuilder: componentsModel.$getExecutorContextBuilder,
             getIsConditionSuccessfulChecker: componentsModel.$getIsConditionSuccessfulChecker,
             initialComponentsSchemas: schemaService.$initialComponentsSchemas,
-            rulesOverridesCache: $rulesOverridesCache,
-            mutationsRules: themeService.$mutationsRules,
+            overridesCache: $overridesCache,
+            themeMutationsRules: themeService.$mutationsRules,
             hiddenComponentsIds: visabilityComponentsModel.$hiddenComponentsIds,
         },
         clock: calcMutationsEvent,
         fn: (
-            { getExecutorContextBuilder, getIsConditionSuccessfulChecker, initialComponentsSchemas, rulesOverridesCache, mutationsRules, hiddenComponentsIds },
+            { getExecutorContextBuilder, getIsConditionSuccessfulChecker, initialComponentsSchemas, overridesCache, themeMutationsRules, hiddenComponentsIds },
             { curComponentsSchemas, newComponentsSchemas, componentsIdsToUpdate, depsForMutationResolution },
         ) => {
             const componentsIdsToUpdates: Set<EntityId> = new Set(componentsIdsToUpdate)
 
-            const newRulesOverridesCache = cloneDeep(rulesOverridesCache)
+            const newoverridesCache = cloneDeep(overridesCache)
             newComponentsSchemas = cloneDeep(newComponentsSchemas)
 
             const executorContext = getExecutorContextBuilder({ componentsSchemas: newComponentsSchemas })
             const isConditionSuccessfulChecker = getIsConditionSuccessfulChecker({ ctx: executorContext })
 
             const runCalcMutations = (componentId: EntityId) => {
-                console.log('runCalcMutations componentId: ', componentId)
                 const componentSchema = newComponentsSchemas[componentId]
                 const componentMutations = componentSchema.mutations
 
-                const iterationsAppliedCache: StoreValue<typeof $rulesOverridesCache> = {}
+                const iterationsAppliedCache: StoreValue<typeof $overridesCache> = {}
 
                 componentMutations?.schemas?.forEach(({ id: ruleId, key, options, condition }) => {
                     if (isEmpty(condition)) {
@@ -65,10 +64,10 @@ export const createMutationsRulesModel = ({ componentsModel, visabilityComponent
 
                     const canBeApply = isConditionSuccessfulChecker({ condition })
 
-                    const isActiveRule = ruleId in newRulesOverridesCache
+                    const isActiveRule = ruleId in newoverridesCache
 
                     if (canBeApply) {
-                        const rule = mutationsRules[key]
+                        const rule = themeMutationsRules[key]
 
                         const newProperties = rule.execute(componentSchema, { options: options || {}, ctx: executorContext })
 
@@ -77,7 +76,7 @@ export const createMutationsRulesModel = ({ componentsModel, visabilityComponent
                         }
 
                         // но properties могут меняться у компонента после применения правила, что тут тогда? Выглядит как одно из возможный решений.
-                        const isNewProperties = Object.entries(newProperties).some(([key, value]) => !isEqual(value, newRulesOverridesCache[ruleId]?.[key]))
+                        const isNewProperties = Object.entries(newProperties).some(([key, value]) => !isEqual(value, newoverridesCache[ruleId]?.[key]))
                         if (isNewProperties) {
                             componentsIdsToUpdates.add(componentId)
                         }
@@ -90,10 +89,10 @@ export const createMutationsRulesModel = ({ componentsModel, visabilityComponent
                             },
                         } as ComponentSchema
 
-                        newRulesOverridesCache[ruleId] = { ...newRulesOverridesCache[ruleId], ...newProperties }
+                        newoverridesCache[ruleId] = { ...newoverridesCache[ruleId], ...newProperties }
                         iterationsAppliedCache[ruleId] = newProperties
                     } else if (isActiveRule) {
-                        const ruleLatestAppliedKeysCache = Object.keys(newRulesOverridesCache[ruleId] || {})
+                        const ruleLatestAppliedKeysCache = Object.keys(newoverridesCache[ruleId] || {})
 
                         let iterationsUpdatedKeysProperties = Object.entries(iterationsAppliedCache).reduce<string[]>((arr, [, appliedComponentProperties]) => {
                             if (isNotEmpty(appliedComponentProperties)) {
@@ -115,7 +114,7 @@ export const createMutationsRulesModel = ({ componentsModel, visabilityComponent
                             },
                         } as ComponentSchema
 
-                        delete newRulesOverridesCache[ruleId]
+                        delete newoverridesCache[ruleId]
 
                         componentsIdsToUpdates.add(componentId)
                     }
@@ -205,7 +204,7 @@ export const createMutationsRulesModel = ({ componentsModel, visabilityComponent
             return {
                 componentsToUpdate,
                 newComponentsSchemas,
-                rulesOverridesCacheToUpdate: newRulesOverridesCache,
+                overridesCacheToUpdate: newoverridesCache,
                 hiddenComponentsIds: finalHiddenComponentsIds,
             }
         },
@@ -213,8 +212,8 @@ export const createMutationsRulesModel = ({ componentsModel, visabilityComponent
 
     sample({
         clock: resultOfCalcMutationsEvent,
-        fn: ({ rulesOverridesCacheToUpdate }) => rulesOverridesCacheToUpdate,
-        target: setRulesOverridesCacheEvent,
+        fn: ({ overridesCacheToUpdate }) => overridesCacheToUpdate,
+        target: setOverridesCacheEvent,
     })
 
     const componentsIsUpdatedAfterMutationsEvent = sample({

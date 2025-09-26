@@ -4,7 +4,7 @@ import { UnitValue } from 'effector'
 import { SchemaService } from '../../../../../schema'
 import { ThemeService } from '../../../../../theme'
 import { GetExecutorContextBuilder } from '../../../components-model'
-import { ReadyValidationsRules } from '../../../ready-conditional-validation-rules-model'
+import { ReadyValidations } from '../../../ready-conditional-validations-model'
 import { ComponentsValidationErrors } from '../../types'
 
 export type RunGroupValidationFxParams = {
@@ -12,7 +12,7 @@ export type RunGroupValidationFxParams = {
     getExecutorContextBuilder: UnitValue<GetExecutorContextBuilder>
     groupValidationRules: UnitValue<ThemeService['$groupValidationRules']>
     groupValidationSchemas: UnitValue<SchemaService['$groupValidationSchemas']>
-    readyConditionalValidationRules: ReadyValidationsRules[keyof ReadyValidationsRules]
+    readyConditionalValidations: ReadyValidations[keyof ReadyValidations]
 }
 
 export type RunGroupValidationFxDone = {}

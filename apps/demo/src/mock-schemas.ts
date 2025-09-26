@@ -3,7 +3,6 @@ import { genId } from '@form-crafter/utils'
 
 export const employeeFormSchema: Schema = {
     id: 'employee-form',
-    version: '1.0',
     validations: {
         additionalTriggers: ['onBlur'],
         schemas: [
@@ -534,7 +533,7 @@ export const employeeFormSchema: Schema = {
         'input-position': {
             meta: { id: 'input-position', type: 'text-input', name: 'text-input' },
             visability: { condition: { type: 'component', componentId: 'email', operatorKey: 'isNotEmpty' } },
-            properties: { label: 'Должность', value: '' },
+            properties: { label: 'Должность', value: 'HR' },
         },
         'input-salary': {
             meta: { id: 'input-salary', type: 'number-input', name: 'number-input' },

@@ -73,9 +73,6 @@ export const createDepsOfRulesModel = ({ initialComponentsSchemas, appErrorsServ
         return root
     })
 
-    $depsForAllMutationResolution.watch((data) => console.log('depsForAllMutationResolution: ', data))
-    $depsGraphForMutationResolution.watch((data) => console.log('depsGraphForMutationResolution: ', data))
-
     const initCheckCyclesEvent = createEvent('initCheckCyclesEvent')
     sample({
         source: $infoOfGraphMutationResolution,

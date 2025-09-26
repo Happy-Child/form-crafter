@@ -7,7 +7,7 @@ import { ThemeService } from '../../../theme'
 import { isValidableModel, RunComponentValidationFxDone, RunComponentValidationFxFail } from '../components'
 import { ComponentsModel } from '../components-model'
 import { ComponentsValidationErrorsModel } from '../components-validation-errors-model'
-import { ReadyConditionalValidationRulesModel } from '../ready-conditional-validation-rules-model'
+import { ReadyConditionalValidationsModel } from '../ready-conditional-validations-model'
 import { VisabilityComponentsModel } from '../visability-components-model'
 import { createGroupValidationModel } from './models/group-validation-model'
 
@@ -15,7 +15,7 @@ type Params = {
     componentsModel: ComponentsModel
     visabilityComponentsModel: VisabilityComponentsModel
     componentsValidationErrorsModel: ComponentsValidationErrorsModel
-    readyConditionalValidationRulesModel: ReadyConditionalValidationRulesModel
+    readyConditionalValidationsModel: ReadyConditionalValidationsModel
     themeService: ThemeService
     schemaService: SchemaService
 }
@@ -26,7 +26,7 @@ export const createFormValidationModel = ({
     componentsModel,
     componentsValidationErrorsModel,
     visabilityComponentsModel,
-    readyConditionalValidationRulesModel,
+    readyConditionalValidationsModel,
     themeService,
     schemaService,
 }: Params) => {
@@ -46,16 +46,16 @@ export const createFormValidationModel = ({
         RunComponentValidationFxDone[],
         RunComponentValidationFxFail[]
     >(async ({ componentsModels, componentsIdsCanBeValidate }) => {
-        const promises = []
+        const tasks = []
 
         for (const componentId of componentsIdsCanBeValidate) {
             const model = componentsModels.get(componentId)
             if (isNotEmpty(model) && isValidableModel(model)) {
-                promises.push(model.runValidationFx())
+                tasks.push(model.runValidationFx())
             }
         }
 
-        const [resolved, rejected] = await splitAllSettledResult<RunComponentValidationFxDone, RunComponentValidationFxFail>(promises)
+        const [resolved, rejected] = await splitAllSettledResult<RunComponentValidationFxDone, RunComponentValidationFxFail>(tasks)
         if (isNotEmpty(rejected)) {
             return Promise.reject(rejected)
         }
@@ -70,7 +70,7 @@ export const createFormValidationModel = ({
     const groupValidationModel = createGroupValidationModel({
         componentsModel,
         componentsValidationErrorsModel,
-        readyConditionalValidationRulesModel,
+        readyConditionalValidationsModel,
         themeService,
         schemaService,
     })

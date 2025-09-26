@@ -1,76 +1,65 @@
 import { EntityId } from '@form-crafter/core'
-import { isNotEmpty } from '@form-crafter/utils'
-import { createEvent, createStore, sample, split } from 'effector'
+import { isEmpty, isNotEmpty } from '@form-crafter/utils'
+import { createEvent, createStore, sample, split, StoreWritable } from 'effector'
+import { combineEvents } from 'patronum'
 
 import { ViewsService } from '../../../views'
 import { ComponentsModel } from '../components-model'
 import { DepsOfRulesModel } from '../deps-of-rules-model'
+import { MutationsModel } from '../mutations-model'
 import { PrepareDispatcherPayload } from './types'
 
 type Params = {
     viewsService: ViewsService
     componentsModel: ComponentsModel
     depsOfRulesModel: DepsOfRulesModel
+    mutationsModel: MutationsModel
+    $firstMutationsIsDone: StoreWritable<boolean>
 }
 
 export type ChangeViewsModel = ReturnType<typeof createChangeViewsModel>
 
-export const createChangeViewsModel = ({ viewsService, componentsModel, depsOfRulesModel }: Params) => {
-    const $wasChecked = createStore(false)
+export const createChangeViewsModel = ({ viewsService, componentsModel, depsOfRulesModel, mutationsModel, $firstMutationsIsDone }: Params) => {
+    const $changeViewWasChecked = createStore(false)
 
-    const runCalcNextViewEvent = createEvent('runCalcNextViewEvent')
-    const guardForChangeViewEvent = createEvent<PrepareDispatcherPayload>('prepareDispatcherEvent')
+    const runViewChangeCheck = createEvent<PrepareDispatcherPayload>('prepareDispatcherEvent')
 
-    const setTrueWasCheckedEvent = createEvent('setTrueWasCheckedEvent')
-    const setFalseWasCheckedEvent = createEvent('setFalseWasCheckedEvent')
+    const setChangeViewWasChecked = createEvent<boolean>('setChangeViewWasChecked')
+    const resetChangeViewWasChecked = createEvent('resetChangeViewWasChecked')
 
-    $wasChecked.on(setTrueWasCheckedEvent, () => true)
-    $wasChecked.on(setFalseWasCheckedEvent, () => false)
+    const startViewChangeCheck = createEvent('startViewChangeCheck')
 
-    const dispatcherEvent = sample({
-        source: { additionalsViews: viewsService.$additionalsViews, viewsConditionsAllDeps: depsOfRulesModel.$viewsConditionsAllDeps, wasChecked: $wasChecked },
-        clock: guardForChangeViewEvent,
-        fn: (source, clockParams) => ({ ...source, ...clockParams }),
-    })
+    const viewAfterFirstMutationsChanged = createEvent('viewAfterFirstMutationsChanged')
 
-    split({
-        source: dispatcherEvent,
-        match: {
-            exit: ({ wasChecked }) => wasChecked,
-            next: ({ additionalsViews, componentsToUpdate, viewsConditionsAllDeps }) => {
-                if (!isNotEmpty(additionalsViews)) {
-                    return false
-                }
+    $changeViewWasChecked.on(setChangeViewWasChecked, (_, value) => value)
+    $changeViewWasChecked.on(startViewChangeCheck, () => true)
+    $changeViewWasChecked.reset(resetChangeViewWasChecked)
 
-                const someComponentIsChanged = componentsToUpdate.some(({ isNewValue }) => !!isNewValue)
-                if (!someComponentIsChanged) {
-                    return false
-                }
-
-                const componentsToUpdateSet = new Set(componentsToUpdate.map(({ componentId }) => componentId))
-                const someDepsIsChanged = Array.from(viewsConditionsAllDeps).some((depId) => componentsToUpdateSet.has(depId))
-                if (!someDepsIsChanged) {
-                    return false
-                }
-
-                return true
-            },
-        },
-        cases: {
-            exit: setFalseWasCheckedEvent,
-            next: runCalcNextViewEvent,
-        },
-    })
-
-    const resultOfViewChangeCheckEvent = sample({
+    const resultOfViewChangeCheck = sample({
         source: {
             getIsConditionSuccessfulChecker: componentsModel.$getIsConditionSuccessfulChecker,
             viewsConditionsDeps: depsOfRulesModel.$viewsConditionsDeps,
+            viewsConditionsAllDeps: depsOfRulesModel.$viewsConditionsAllDeps,
             additionalsViews: viewsService.$additionalsViews,
             curentViewId: viewsService.$curentViewId,
         },
-        clock: runCalcNextViewEvent,
-        fn: ({ getIsConditionSuccessfulChecker, viewsConditionsDeps, additionalsViews, curentViewId }) => {
+        clock: runViewChangeCheck,
+        fn: ({ getIsConditionSuccessfulChecker, viewsConditionsDeps, viewsConditionsAllDeps, additionalsViews, curentViewId }, { componentsToUpdate }) => {
+            if (!isNotEmpty(additionalsViews)) {
+                return { canBeChange: false }
+            }
+
+            const someComponentIsChanged = componentsToUpdate.some(({ isNewValue }) => !!isNewValue)
+            if (!someComponentIsChanged) {
+                return { canBeChange: false }
+            }
+
+            const componentsToUpdateSet = new Set(componentsToUpdate.map(({ componentId }) => componentId))
+            const someDepsIsChanged = Array.from(viewsConditionsAllDeps).some((depId) => componentsToUpdateSet.has(depId))
+            if (!someDepsIsChanged) {
+                return { canBeChange: false }
+            }
+
             let newViewId: EntityId | null = null
 
             const isConditionSuccessfulChecker = getIsConditionSuccessfulChecker()
@@ -91,25 +80,90 @@ export const createChangeViewsModel = ({ viewsService, componentsModel, depsOfRu
 
             const isNewView = curentViewId !== newViewId
 
-            return { isNewView, viewId: newViewId }
+            return { canBeChange: isNewView, viewId: newViewId }
         },
     })
 
-    const canBeChangeViewEvent = sample({
-        clock: resultOfViewChangeCheckEvent,
-        filter: ({ isNewView }) => isNewView,
-        fn: ({ viewId }) => viewId,
-    })
+    type FilteredParams = { canBeChange: boolean; viewId: EntityId | null }
 
     sample({
-        clock: canBeChangeViewEvent,
-        target: setTrueWasCheckedEvent,
-    })
-
-    sample({
-        clock: canBeChangeViewEvent,
+        clock: resultOfViewChangeCheck,
+        filter: (params): params is FilteredParams => {
+            console.log('params: ', params)
+            return params.canBeChange
+        },
+        fn: ({ viewId }: FilteredParams) => viewId,
         target: viewsService.setCurrentViewIdEvent,
     })
 
-    return { runViewChangeCheckEvent: guardForChangeViewEvent, canBeChangeViewEvent }
+    const splitDispatcher = sample({
+        source: { firstMutationsIsDone: $firstMutationsIsDone },
+        clock: resultOfViewChangeCheck,
+        filter: ({ firstMutationsIsDone }) => firstMutationsIsDone,
+        fn: (_, params) => params,
+    })
+
+    split({
+        source: splitDispatcher,
+        match: {
+            reset: ({ canBeChange }) => !canBeChange,
+        },
+        cases: {
+            reset: resetChangeViewWasChecked,
+            __: viewAfterFirstMutationsChanged,
+        },
+    })
+
+    sample({
+        clock: mutationsModel.resultOfCalcMutationsEvent,
+        filter: ({ componentsToUpdate }) => isEmpty(componentsToUpdate),
+        target: resetChangeViewWasChecked,
+    })
+
+    const checkChangeViewDispatcher = sample({
+        source: { changeViewWasChecked: $changeViewWasChecked },
+        clock: mutationsModel.componentsIsUpdatedAfterMutationsEvent,
+        fn: (source, params) => ({ ...source, ...params }),
+    })
+
+    split({
+        source: checkChangeViewDispatcher,
+        match: {
+            reset: ({ changeViewWasChecked }) => changeViewWasChecked,
+        },
+        cases: {
+            reset: resetChangeViewWasChecked,
+            __: startViewChangeCheck,
+        },
+    })
+
+    sample({
+        clock: combineEvents([mutationsModel.componentsIsUpdatedAfterMutationsEvent, startViewChangeCheck]),
+        fn: ([{ componentsToUpdate }]) => ({ componentsToUpdate }),
+        target: runViewChangeCheck,
+    })
+
+    sample({
+        source: {
+            componentsSchemas: componentsModel.$componentsSchemas,
+            depsForAllMutationResolution: depsOfRulesModel.$depsForAllMutationResolution,
+        },
+        clock: viewAfterFirstMutationsChanged,
+        fn: ({ componentsSchemas, depsForAllMutationResolution }) => ({
+            curComponentsSchemas: componentsSchemas,
+            newComponentsSchemas: componentsSchemas,
+            componentsIdsToUpdate: [],
+            depsForMutationResolution: depsForAllMutationResolution,
+        }),
+        target: mutationsModel.calcMutationsEvent,
+    })
+
+    return {
+        runViewChangeCheck,
+        resultOfViewChangeCheck,
+        viewAfterFirstMutationsChanged,
+        setChangeViewWasChecked,
+        resetChangeViewWasChecked,
+        $changeViewWasChecked,
+    }
 }

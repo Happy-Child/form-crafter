@@ -1,7 +1,7 @@
 import { isNotEmpty } from '@form-crafter/utils'
-import { EventCallable, sample } from 'effector'
+import { EventCallable, sample, StoreWritable } from 'effector'
 import { cloneDeep } from 'lodash-es'
-import { combineEvents } from 'patronum'
+import { combineEvents, once } from 'patronum'
 
 import { ViewsService } from '../views'
 import { ChangeViewsModel } from './models/change-views-model'
@@ -9,8 +9,8 @@ import { ComponentsModel } from './models/components-model'
 import { ComponentsValidationErrorsModel } from './models/components-validation-errors-model'
 import { DepsOfRulesModel } from './models/deps-of-rules-model'
 import { FormValidationModel } from './models/form-validation-model'
-import { MutationsRulesModel } from './models/mutations-rules-model'
-import { ReadyConditionalValidationRulesModel } from './models/ready-conditional-validation-rules-model'
+import { MutationsModel } from './models/mutations-model'
+import { ReadyConditionalValidationsModel } from './models/ready-conditional-validations-model'
 import { VisabilityComponentsModel } from './models/visability-components-model'
 import { RunMutationsOnUserActionsPayload } from './types'
 
@@ -20,30 +20,39 @@ type Params = {
     visabilityComponentsModel: VisabilityComponentsModel
     componentsValidationErrorsModel: ComponentsValidationErrorsModel
     depsOfRulesModel: DepsOfRulesModel
-    readyConditionalValidationRulesModel: ReadyConditionalValidationRulesModel
+    readyConditionalValidationsModel: ReadyConditionalValidationsModel
     formValidationModel: FormValidationModel
-    mutationsRulesModel: MutationsRulesModel
+    mutationsModel: MutationsModel
     changeViewsModel: ChangeViewsModel
     initServiceEvent: EventCallable<void>
+    $firstMutationsIsDone: StoreWritable<boolean>
     runMutationsOnUserActionsEvent: EventCallable<RunMutationsOnUserActionsPayload>
+    setFirstMutationsToDone: EventCallable<void>
 }
 
 export const init = ({
-    viewsService,
     componentsModel,
     visabilityComponentsModel,
     componentsValidationErrorsModel,
     depsOfRulesModel,
-    readyConditionalValidationRulesModel,
+    readyConditionalValidationsModel,
     formValidationModel,
-    mutationsRulesModel,
+    mutationsModel,
     changeViewsModel,
     initServiceEvent,
     runMutationsOnUserActionsEvent,
+    setFirstMutationsToDone,
 }: Params) => {
-    // проверка смены вью
-    // вычисл. готовых валидаций
-    // дальше обычные шаги (только без запуска проверки view) - запуск мутаций (для всего текущего view) и просчёт готовых валидаций
+    sample({
+        source: {
+            componentsSchemas: componentsModel.$componentsSchemas,
+        },
+        clock: initServiceEvent,
+        fn: ({ componentsSchemas }) => ({
+            componentsToUpdate: Object.entries(componentsSchemas).map(([componentId, schema]) => ({ componentId, schema, isNewValue: true })),
+        }),
+        target: changeViewsModel.runViewChangeCheck,
+    })
 
     sample({
         source: {
@@ -55,11 +64,11 @@ export const init = ({
             newComponentsSchemas: componentsSchemas,
             skipIfValueUnchanged: false,
         }),
-        target: readyConditionalValidationRulesModel.calcReadyRulesEvent,
+        target: readyConditionalValidationsModel.calcReadyRulesEvent,
     })
 
     sample({
-        clock: readyConditionalValidationRulesModel.resultOfCalcReadyRulesEvent,
+        clock: readyConditionalValidationsModel.resultOfCalcReadyRulesEvent,
         filter: ({ rulesToInactive }) => isNotEmpty(rulesToInactive),
         fn: ({ rulesToInactive }) => rulesToInactive,
         target: [componentsValidationErrorsModel.filterAllErrorsEvent, formValidationModel.groupValidationModel.filterErrorsEvent],
@@ -70,14 +79,14 @@ export const init = ({
             componentsSchemas: componentsModel.$componentsSchemas,
             depsForAllMutationResolution: depsOfRulesModel.$depsForAllMutationResolution,
         },
-        clock: combineEvents([initServiceEvent, readyConditionalValidationRulesModel.resultOfCalcReadyRulesEvent]),
+        clock: combineEvents([initServiceEvent, readyConditionalValidationsModel.resultOfCalcReadyRulesEvent]),
         fn: ({ componentsSchemas, depsForAllMutationResolution }) => ({
             curComponentsSchemas: componentsSchemas,
             newComponentsSchemas: componentsSchemas,
             componentsIdsToUpdate: [],
             depsForMutationResolution: depsForAllMutationResolution,
         }),
-        target: mutationsRulesModel.calcMutationsEvent,
+        target: mutationsModel.calcMutationsEvent,
     })
 
     sample({
@@ -102,56 +111,35 @@ export const init = ({
                 depsForMutationResolution,
             }
         },
-        target: mutationsRulesModel.calcMutationsEvent,
+        target: mutationsModel.calcMutationsEvent,
     })
 
     sample({
-        clock: mutationsRulesModel.resultOfCalcMutationsEvent,
+        clock: mutationsModel.resultOfCalcMutationsEvent,
+        filter: ({ componentsToUpdate }) => isNotEmpty(componentsToUpdate),
         fn: ({ componentsToUpdate, newComponentsSchemas }) => ({
             componentsToUpdate,
             newComponentsSchemas,
         }),
-        target: readyConditionalValidationRulesModel.calcReadyRulesEvent,
+        target: readyConditionalValidationsModel.calcReadyRulesEvent,
     })
 
     sample({
-        clock: mutationsRulesModel.resultOfCalcMutationsEvent,
+        clock: mutationsModel.resultOfCalcMutationsEvent,
+        filter: ({ componentsToUpdate }) => isNotEmpty(componentsToUpdate),
         fn: ({ hiddenComponentsIds }) => hiddenComponentsIds,
         target: visabilityComponentsModel.setHiddenComponentsIdsEvent,
     })
 
     sample({
-        clock: mutationsRulesModel.resultOfCalcMutationsEvent,
+        clock: mutationsModel.resultOfCalcMutationsEvent,
+        filter: ({ componentsToUpdate }) => isNotEmpty(componentsToUpdate),
         fn: ({ componentsToUpdate }) => componentsToUpdate,
         target: componentsModel.updateModelsFx,
     })
 
     sample({
-        clock: mutationsRulesModel.componentsIsUpdatedAfterMutationsEvent,
-        // filter: if init active -> exit
-        fn: ({ componentsToUpdate }) => ({ componentsToUpdate }),
-        target: changeViewsModel.runViewChangeCheckEvent,
-    })
-
-    // init false
-
-    // нужно сделать sample/combine которйы будет говорить что init false
-    // изначально какой-то стор true, и если он true и мы получили componentsIsUpdatedAfterMutationsEvent - false
-    // componentsIsUpdatedAfterMutationsEvent разместить под sample выше
-
-    sample({
-        source: {
-            componentsSchemas: componentsModel.$componentsSchemas,
-            depsForAllMutationResolution: depsOfRulesModel.$depsForAllMutationResolution,
-        },
-        clock: changeViewsModel.canBeChangeViewEvent,
-        // filter: if init active -> exit
-        fn: ({ componentsSchemas, depsForAllMutationResolution }) => ({
-            curComponentsSchemas: componentsSchemas,
-            newComponentsSchemas: componentsSchemas,
-            componentsIdsToUpdate: [],
-            depsForMutationResolution: depsForAllMutationResolution,
-        }),
-        target: mutationsRulesModel.calcMutationsEvent,
+        clock: once(mutationsModel.resultOfCalcMutationsEvent),
+        target: setFirstMutationsToDone,
     })
 }

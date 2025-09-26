@@ -10,8 +10,8 @@ export type SchemaLayout = {
 }
 
 export type Schema = {
+    // TODO зачем?
     id: string
-    version: string
     layout?: SchemaLayout
     views: Views
     componentsSchemas: ComponentsSchemas

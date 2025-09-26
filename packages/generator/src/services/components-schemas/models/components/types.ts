@@ -18,7 +18,7 @@ import { ThemeService } from '../../../theme'
 import { RunMutationsOnUserActionsPayload } from '../../types'
 import { ComponentsModel } from '../components-model'
 import { ComponentsValidationErrors, ComponentsValidationErrorsModel } from '../components-validation-errors-model'
-import { ReadyConditionalValidationRulesModel } from '../ready-conditional-validation-rules-model'
+import { ReadyConditionalValidationsModel } from '../ready-conditional-validations-model'
 
 export type RunComponentValidationFxDone = {}
 
@@ -31,7 +31,7 @@ export type SetSchemaPayload = { schema: AvailableObject; isNewValue?: boolean }
 export type ComponentModelParams = {
     runMutationsEvent: EventCallable<RunMutationsOnUserActionsPayload>
     componentsModel: ComponentsModel
-    readyConditionalValidationRulesModel: ReadyConditionalValidationRulesModel
+    readyConditionalValidationsModel: ReadyConditionalValidationsModel
     componentsValidationErrorsModel: ComponentsValidationErrorsModel
     themeService: ThemeService
     schema: ComponentSchema
