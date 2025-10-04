@@ -77,14 +77,14 @@ export const init = ({
     sample({
         source: {
             componentsSchemas: componentsModel.$componentsSchemas,
-            depsForAllMutationsResolution: depsOfRulesModel.$depsForAllMutationsResolution,
+            activeViewDepsForAllMutationsResolution: depsOfRulesModel.$activeViewDepsForAllMutationsResolution,
         },
         clock: combineEvents([initServiceEvent, readyConditionalValidationsModel.resultOfCalcReadyValidations]),
-        fn: ({ componentsSchemas, depsForAllMutationsResolution }) => ({
+        fn: ({ componentsSchemas, activeViewDepsForAllMutationsResolution }) => ({
             curComponentsSchemas: componentsSchemas,
             newComponentsSchemas: componentsSchemas,
             componentsIdsToUpdate: [],
-            depsForMutationsResolution: depsForAllMutationsResolution,
+            depsForMutationsResolution: activeViewDepsForAllMutationsResolution,
         }),
         target: mutationsModel.calcMutationsEvent,
     })
@@ -92,17 +92,17 @@ export const init = ({
     sample({
         source: {
             componentsSchemas: componentsModel.$componentsSchemas,
-            depsGraphForMutationsResolution: depsOfRulesModel.$depsGraphForMutationsResolution,
+            activeViewDepsGraphForMutationsResolution: depsOfRulesModel.$activeViewDepsGraphForMutationsResolution,
         },
         clock: runMutationsOnUserActionsEvent,
-        fn: ({ componentsSchemas, depsGraphForMutationsResolution }, { id: componentIdToUpdate, data: propertiesToUpdate }) => {
+        fn: ({ componentsSchemas, activeViewDepsGraphForMutationsResolution }, { id: componentIdToUpdate, data: propertiesToUpdate }) => {
             const finalComponentsSchemas = cloneDeep(componentsSchemas)
             finalComponentsSchemas[componentIdToUpdate].properties = {
                 ...finalComponentsSchemas[componentIdToUpdate].properties,
                 ...propertiesToUpdate,
             }
 
-            const depsForMutationsResolution = depsGraphForMutationsResolution[componentIdToUpdate] || []
+            const depsForMutationsResolution = activeViewDepsGraphForMutationsResolution[componentIdToUpdate] || []
 
             return {
                 curComponentsSchemas: componentsSchemas,

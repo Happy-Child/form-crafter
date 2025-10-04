@@ -2,10 +2,11 @@ import { ComponentsSchemas } from '@form-crafter/core'
 import { isNotEmpty } from '@form-crafter/utils'
 
 import { DepsGraphAsSet } from '../../../../../../types'
+import { DepsByMutationsRules } from '../../types'
 import { buildReverseDepsGraph } from '../build-reverse-deps-graph'
 import { extractComponentConditionDeps } from '../extract-component-condition-deps'
 
-export const extractVisabilityConditionsDeps = (componentsSchemas: ComponentsSchemas) => {
+export const extractVisabilityConditionsDeps = (componentsSchemas: ComponentsSchemas): DepsByMutationsRules => {
     let componentIdToDeps: DepsGraphAsSet = {}
 
     Object.entries(componentsSchemas).forEach(([componentId, { visability }]) => {

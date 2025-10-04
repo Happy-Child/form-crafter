@@ -77,7 +77,7 @@ export const createReadyConditionalValidationsModel = ({ schemaService, depsOfRu
         source: {
             validationRuleSchemas: schemaService.$componentsValidationSchemas,
             groupValidationSchemas: schemaService.$groupValidationSchemas,
-            componentsValidationsConditionsDeps: depsOfRulesModel.$componentsValidationsConditionsDeps,
+            activeViewComponentsValidationsConditionsDeps: depsOfRulesModel.$activeViewComponentsValidationsConditionsDeps,
             groupsValidationsConditionsDeps: depsOfRulesModel.$groupsValidationsConditionsDeps,
             readyComponentsRules: $readyComponentsRules,
             readyComponentsRulesByKey: $readyComponentsRulesByKey,
@@ -92,7 +92,7 @@ export const createReadyConditionalValidationsModel = ({ schemaService, depsOfRu
             {
                 validationRuleSchemas,
                 groupValidationSchemas,
-                componentsValidationsConditionsDeps,
+                activeViewComponentsValidationsConditionsDeps,
                 groupsValidationsConditionsDeps,
                 readyComponentsRules,
                 readyComponentsRulesByKey,
@@ -153,7 +153,7 @@ export const createReadyConditionalValidationsModel = ({ schemaService, depsOfRu
                     return
                 }
 
-                const dependentsValidationsIds = componentsValidationsConditionsDeps.componentsToDependentsRuleIds[componentId]
+                const dependentsValidationsIds = activeViewComponentsValidationsConditionsDeps.componentIdToDependentsRuleIds[componentId]
 
                 if (!isNotEmpty(dependentsValidationsIds)) {
                     return
@@ -196,7 +196,7 @@ export const createReadyConditionalValidationsModel = ({ schemaService, depsOfRu
                     return
                 }
 
-                const dependentsValidationsIds = groupsValidationsConditionsDeps.componentsToDependentsRuleIds[componentId]
+                const dependentsValidationsIds = groupsValidationsConditionsDeps.componentIdToDependentsRuleIds[componentId]
                 if (!isNotEmpty(dependentsValidationsIds)) {
                     return
                 }

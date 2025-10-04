@@ -29,7 +29,7 @@ export const createChangeViewsModel = ({ viewsService, componentsModel, depsOfRu
 
     const startViewChangeCheck = createEvent('startViewChangeCheck')
 
-    const viewAfterFirstMutationsChanged = createEvent('viewAfterFirstMutationsChanged')
+    const calcMutationsAfterViewChanged = createEvent('calcMutationsAfterViewChanged')
 
     $changeViewWasChecked.on(setChangeViewWasChecked, (_, value) => value)
     $changeViewWasChecked.on(startViewChangeCheck, () => true)
@@ -107,7 +107,7 @@ export const createChangeViewsModel = ({ viewsService, componentsModel, depsOfRu
         },
         cases: {
             reset: resetChangeViewWasChecked,
-            __: viewAfterFirstMutationsChanged,
+            __: calcMutationsAfterViewChanged,
         },
     })
 
@@ -143,14 +143,14 @@ export const createChangeViewsModel = ({ viewsService, componentsModel, depsOfRu
     sample({
         source: {
             componentsSchemas: componentsModel.$componentsSchemas,
-            depsForAllMutationsResolution: depsOfRulesModel.$depsForAllMutationsResolution,
+            activeViewDepsForAllMutationsResolution: depsOfRulesModel.$activeViewDepsForAllMutationsResolution,
         },
-        clock: viewAfterFirstMutationsChanged,
-        fn: ({ componentsSchemas, depsForAllMutationsResolution }) => ({
+        clock: calcMutationsAfterViewChanged,
+        fn: ({ componentsSchemas, activeViewDepsForAllMutationsResolution }) => ({
             curComponentsSchemas: componentsSchemas,
             newComponentsSchemas: componentsSchemas,
             componentsIdsToUpdate: [],
-            depsForMutationsResolution: depsForAllMutationsResolution,
+            depsForMutationsResolution: activeViewDepsForAllMutationsResolution,
         }),
         target: mutationsModel.calcMutationsEvent,
     })
@@ -158,7 +158,7 @@ export const createChangeViewsModel = ({ viewsService, componentsModel, depsOfRu
     return {
         runViewChangeCheck,
         resultOfViewChangeCheck,
-        viewAfterFirstMutationsChanged,
+        calcMutationsAfterViewChanged,
         setChangeViewWasChecked,
         resetChangeViewWasChecked,
         $changeViewWasChecked,

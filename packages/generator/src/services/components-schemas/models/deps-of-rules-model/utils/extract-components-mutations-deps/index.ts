@@ -4,11 +4,15 @@ import { UnitValue } from 'effector'
 
 import { DepsGraphAsSet } from '../../../../../../types'
 import { ThemeService } from '../../../../../theme'
+import { DepsByMutationsRules } from '../../types'
 import { buildReverseDepsGraph } from '../build-reverse-deps-graph'
 import { extractComponentConditionDeps } from '../extract-component-condition-deps'
 import { extractValuesByDepsPaths } from '../extract-values-by-deps-paths'
 
-export const extractComponentsMutationsDeps = (componentsSchemas: ComponentsSchemas, pathsToDeps: UnitValue<ThemeService['$pathsToMutationsRulesDeps']>) => {
+export const extractComponentsMutationsDeps = (
+    componentsSchemas: ComponentsSchemas,
+    pathsToDeps: UnitValue<ThemeService['$pathsToMutationsRulesDeps']>,
+): DepsByMutationsRules => {
     const entriesMap: [EntityId, ComponentSchema][] = Object.entries(componentsSchemas)
 
     const componentIdToDeps: DepsGraphAsSet = {}
@@ -36,14 +40,6 @@ export const extractComponentsMutationsDeps = (componentsSchemas: ComponentsSche
             componentIdToDeps[componentId] = componentsDeps
         }
     })
-
-    // TODO3
-    // Кажется я могу тут сразу отсеть тех которых нету на текущем view И ТЕХ, у которых нет ни одной зависимости на текущем view
-
-    // Может быть получиться это и перенести на выполнение мутаций по userAction
-
-    // console.log('componentIdToDeps: ', componentIdToDeps)
-    // филльр нужен по ключам и значениям. И ПРИДУМАТЬ ОЧЕНЬ РАЗНЫЕ ВИЬЮ, НО С ОБЩИМ НЕ БОЛЬШИМ КОЛИЧЕСТВАМ ПОЛЕЙ
 
     return {
         componentIdToDeps,

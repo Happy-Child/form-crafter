@@ -9,7 +9,7 @@ import { DepsChartBase } from '../DepsChartBase'
 const MutationsDepsChartBase: FC = () => {
     const { services } = useGeneratorContext()
 
-    const infoOfGraphMutationsResolution = useUnit(services.componentsSchemasService.depsOfRulesModel.$infoOfGraphMutationsResolution)
+    const infoOfGraphMutationsResolution = useUnit(services.componentsSchemasService.depsOfRulesModel.$activeViewInfoOfGraphMutationsResolution)
 
     const componentsInvolvedInMutations = useMemo(
         () => Array.from(new Set(Object.entries(infoOfGraphMutationsResolution.graph).flatMap(([id, comps]) => [id, ...comps]))),
