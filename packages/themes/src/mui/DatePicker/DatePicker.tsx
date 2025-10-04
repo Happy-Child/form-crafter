@@ -4,6 +4,7 @@ import { createDatePickerComponentModule, DatePickerComponentProps } from '@form
 import { builders } from '@form-crafter/options-builder'
 import { isNotEmpty } from '@form-crafter/utils'
 import { DatePicker as DatePickerBase } from '@mui/x-date-pickers-pro'
+import dayjs from 'dayjs'
 
 import { componentsOperators } from '../../components-operators'
 import { rules } from '../../rules'
@@ -33,10 +34,14 @@ type ComponentProps = DatePickerComponentProps<typeof optionsBuilder>
 const DatePicker = memo(
     forwardRef<HTMLInputElement, ComponentProps>(
         ({ meta, onChangeProperties, onBlur, isRequired, firstError, properties: { value, format, label, disabled, readonly } }, ref) => {
+            const finalValue = dayjs(value)
+
+            console.log('format: ', format)
+
             return (
                 <DatePickerBase
                     inputRef={ref}
-                    value={value}
+                    value={finalValue}
                     name={meta.formKey}
                     disabled={disabled}
                     label={label}

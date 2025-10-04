@@ -6,6 +6,6 @@ export type MutationsOverridesCache = Record<EntityId, AvailableObject | null>
 export type RunMutationsPayload = {
     curComponentsSchemas: ComponentsSchemas
     newComponentsSchemas: ComponentsSchemas
-    depsForMutationResolution: EntityId[]
+    depsForMutationsResolution: EntityId[]
     componentsIdsToUpdate: EntityId[]
 }

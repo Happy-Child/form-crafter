@@ -1,5 +1,5 @@
 import { ComponentsSchemas, Schema, SchemaLayout } from '@form-crafter/core'
-import { combine, createStore } from 'effector'
+import { createStore } from 'effector'
 import { readonly } from 'patronum'
 
 import { getDefaultSchemaLayout } from '../../consts'
@@ -16,37 +16,41 @@ const getLayout = (layout: Schema['layout']): Required<SchemaLayout> => ({
 export type { GroupValidationRuleSchemas, SchemaService }
 
 export const createSchemaService = ({ schema }: SchemaServiceParams): SchemaService => {
-    const $schema = readonly(createStore<Schema>(schema))
+    const $initialSchema = readonly(createStore<Schema>(schema))
 
     const $layout = readonly(createStore<Required<SchemaLayout>>(getLayout(schema.layout)))
 
     const $initialComponentsSchemas = readonly(createStore<ComponentsSchemas>(schema.componentsSchemas))
 
-    const $additionalTriggers = combine($schema, (schema) => schema.validations?.additionalTriggers || [])
+    const $additionalTriggers = readonly($initialSchema.map((schema) => schema.validations?.additionalTriggers || []))
 
-    const $groupValidationSchemas = combine($schema, (schema) =>
-        (schema.validations?.schemas || []).reduce<GroupValidationRuleSchemas>((map, schema) => {
-            map[schema.id] = schema
-            return map
-        }, {}),
+    const $groupValidationSchemas = readonly(
+        $initialSchema.map((schema) =>
+            (schema.validations?.schemas || []).reduce<GroupValidationRuleSchemas>((map, schema) => {
+                map[schema.id] = schema
+                return map
+            }, {}),
+        ),
     )
 
-    const $componentsValidationSchemas = combine($schema, ({ componentsSchemas }) =>
-        Object.entries(componentsSchemas).reduce<ComponentsValidationRuleSchemas>((map, [ownerComponentId, componentSchema]) => {
-            componentSchema?.validations?.schemas.forEach((validationSchema) => {
-                map[validationSchema.id] = {
-                    ownerComponentId,
-                    schema: validationSchema,
-                }
-            })
-            return map
-        }, {}),
+    const $componentsValidationSchemas = readonly(
+        $initialSchema.map(({ componentsSchemas }) =>
+            Object.entries(componentsSchemas).reduce<ComponentsValidationRuleSchemas>((map, [ownerComponentId, componentSchema]) => {
+                componentSchema?.validations?.schemas.forEach((validationSchema) => {
+                    map[validationSchema.id] = {
+                        ownerComponentId,
+                        schema: validationSchema,
+                    }
+                })
+                return map
+            }, {}),
+        ),
     )
 
     init({})
 
     return {
-        $schema,
+        $initialSchema,
         $layout,
         $initialComponentsSchemas,
         $additionalTriggers,

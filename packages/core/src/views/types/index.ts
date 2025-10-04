@@ -1,4 +1,4 @@
-import { ConditionNode } from '../../conditions'
+import { ViewConditionNode } from '../../conditions'
 import { Breakpoint, ColSpan, EntityId, ResponsiveSizes } from '../../types'
 
 export type ViewComponentChild = { id: EntityId }
@@ -56,7 +56,7 @@ export type ViewResponsive = {
 
 export type ViewDefinition = {
     id: EntityId
-    condition: ConditionNode
+    condition: ViewConditionNode
     responsive: ViewResponsive
 }
 

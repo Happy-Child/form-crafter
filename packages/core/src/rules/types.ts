@@ -12,6 +12,7 @@ export type GeneralRuleConfig = {
 
 export type RuleExecutorContext = {
     getComponentSchemaById: (componentId: EntityId) => ComponentSchema | null
+    getCurrentView: () => string | null
     getRepeaterChildIds: (componentId: EntityId) => EntityId[]
     isTemplateComponentId: (componentId: EntityId) => boolean | null
 }

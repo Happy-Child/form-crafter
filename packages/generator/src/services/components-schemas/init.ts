@@ -64,11 +64,11 @@ export const init = ({
             newComponentsSchemas: componentsSchemas,
             skipIfValueUnchanged: false,
         }),
-        target: readyConditionalValidationsModel.calcReadyRulesEvent,
+        target: readyConditionalValidationsModel.calcReadyValidations,
     })
 
     sample({
-        clock: readyConditionalValidationsModel.resultOfCalcReadyRulesEvent,
+        clock: readyConditionalValidationsModel.resultOfCalcReadyValidations,
         filter: ({ rulesToInactive }) => isNotEmpty(rulesToInactive),
         fn: ({ rulesToInactive }) => rulesToInactive,
         target: [componentsValidationErrorsModel.filterAllErrorsEvent, formValidationModel.groupValidationModel.filterErrorsEvent],
@@ -77,14 +77,14 @@ export const init = ({
     sample({
         source: {
             componentsSchemas: componentsModel.$componentsSchemas,
-            depsForAllMutationResolution: depsOfRulesModel.$depsForAllMutationResolution,
+            depsForAllMutationsResolution: depsOfRulesModel.$depsForAllMutationsResolution,
         },
-        clock: combineEvents([initServiceEvent, readyConditionalValidationsModel.resultOfCalcReadyRulesEvent]),
-        fn: ({ componentsSchemas, depsForAllMutationResolution }) => ({
+        clock: combineEvents([initServiceEvent, readyConditionalValidationsModel.resultOfCalcReadyValidations]),
+        fn: ({ componentsSchemas, depsForAllMutationsResolution }) => ({
             curComponentsSchemas: componentsSchemas,
             newComponentsSchemas: componentsSchemas,
             componentsIdsToUpdate: [],
-            depsForMutationResolution: depsForAllMutationResolution,
+            depsForMutationsResolution: depsForAllMutationsResolution,
         }),
         target: mutationsModel.calcMutationsEvent,
     })
@@ -92,23 +92,23 @@ export const init = ({
     sample({
         source: {
             componentsSchemas: componentsModel.$componentsSchemas,
-            depsGraphForMutationResolution: depsOfRulesModel.$depsGraphForMutationResolution,
+            depsGraphForMutationsResolution: depsOfRulesModel.$depsGraphForMutationsResolution,
         },
         clock: runMutationsOnUserActionsEvent,
-        fn: ({ componentsSchemas, depsGraphForMutationResolution }, { id: componentIdToUpdate, data: propertiesToUpdate }) => {
+        fn: ({ componentsSchemas, depsGraphForMutationsResolution }, { id: componentIdToUpdate, data: propertiesToUpdate }) => {
             const finalComponentsSchemas = cloneDeep(componentsSchemas)
             finalComponentsSchemas[componentIdToUpdate].properties = {
                 ...finalComponentsSchemas[componentIdToUpdate].properties,
                 ...propertiesToUpdate,
             }
 
-            const depsForMutationResolution = depsGraphForMutationResolution[componentIdToUpdate] || []
+            const depsForMutationsResolution = depsGraphForMutationsResolution[componentIdToUpdate] || []
 
             return {
                 curComponentsSchemas: componentsSchemas,
                 newComponentsSchemas: finalComponentsSchemas,
                 componentsIdsToUpdate: [componentIdToUpdate],
-                depsForMutationResolution,
+                depsForMutationsResolution,
             }
         },
         target: mutationsModel.calcMutationsEvent,
@@ -121,14 +121,14 @@ export const init = ({
             componentsToUpdate,
             newComponentsSchemas,
         }),
-        target: readyConditionalValidationsModel.calcReadyRulesEvent,
+        target: readyConditionalValidationsModel.calcReadyValidations,
     })
 
     sample({
         clock: mutationsModel.resultOfCalcMutationsEvent,
         filter: ({ componentsToUpdate }) => isNotEmpty(componentsToUpdate),
-        fn: ({ hiddenComponentsIds }) => hiddenComponentsIds,
-        target: visabilityComponentsModel.setHiddenComponentsIdsEvent,
+        fn: ({ hiddenComponents }) => hiddenComponents,
+        target: visabilityComponentsModel.setHiddenComponents,
     })
 
     sample({

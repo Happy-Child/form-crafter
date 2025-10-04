@@ -1,13 +1,13 @@
-import { ComponentsSchemas, errorCodes, getErrorMessage } from '@form-crafter/core'
+import { errorCodes, getErrorMessage } from '@form-crafter/core'
 import { genId } from '@form-crafter/utils'
-import { combine, createEvent, createStore, sample } from 'effector'
-import { componentsBuildersTypes } from 'packages/core/src/options-builder/consts'
+import { combine, createEvent, sample } from 'effector'
 
 import { AppErrorsService } from '../../../app-errors'
 import { SchemaService } from '../../../schema'
 import { GroupValidationRuleSchemas } from '../../../schema'
 import { ThemeService } from '../../../theme'
 import { ViewsService } from '../../../views'
+import { ComponentsModel } from '../components-model'
 import {
     buildFlattenGraphAndFindCycles,
     buildReverseDepsGraph,
@@ -22,23 +22,17 @@ import {
 } from './utils'
 
 type Params = {
-    initialComponentsSchemas: ComponentsSchemas
     appErrorsService: AppErrorsService
     themeService: ThemeService
     viewsService: ViewsService
     schemaService: SchemaService
+    componentsModel: ComponentsModel
 }
 
 export type DepsOfRulesModel = ReturnType<typeof createDepsOfRulesModel>
 
-export const createDepsOfRulesModel = ({ initialComponentsSchemas, appErrorsService, themeService, viewsService, schemaService }: Params) => {
-    const $componentsMutationsDeps = combine(themeService.$pathsToMutationsRulesDeps, (pathsToDeps) =>
-        extractComponentsMutationsDeps(initialComponentsSchemas, pathsToDeps),
-    )
-
-    const $visabilityConditionsDeps = createStore(extractVisabilityConditionsDeps(initialComponentsSchemas))
-
-    const $componentsValidationsConditionsDeps = createStore(extractComponentsValidationsConditionsDeps(initialComponentsSchemas))
+export const createDepsOfRulesModel = ({ appErrorsService, themeService, viewsService, schemaService, componentsModel }: Params) => {
+    const $componentsValidationsConditionsDeps = combine(componentsModel.$viewComponentsSchemas, extractComponentsValidationsConditionsDeps)
 
     const $groupsValidationsConditionsDeps = combine<GroupValidationRuleSchemas, DepsByValidationRules>(
         schemaService.$groupValidationSchemas,
@@ -50,51 +44,82 @@ export const createDepsOfRulesModel = ({ initialComponentsSchemas, appErrorsServ
     )
 
     const $viewsConditionsDeps = combine(viewsService.$additionalsViews, extractViewsConditionsDeps)
-
     const $viewsConditionsAllDeps = combine(
         $viewsConditionsDeps,
-        (viewsConditionsDeps) => new Set(Object.values(viewsConditionsDeps.viewIdToDepsComponents).flat(1)),
+        (viewsConditionsDeps) => new Set(...Object.values(viewsConditionsDeps.viewIdToDepsComponents)),
     )
 
+    const $componentsMutationsDeps = combine(
+        componentsModel.$viewComponentsSchemas,
+        themeService.$pathsToMutationsRulesDeps,
+        (componentsSchemas, pathsToDeps) => extractComponentsMutationsDeps(componentsSchemas, pathsToDeps),
+    )
+    const $visabilityConditionsDeps = combine(componentsModel.$viewComponentsSchemas, extractVisabilityConditionsDeps)
     const $depsTriggeringMutations = combine($componentsMutationsDeps, $visabilityConditionsDeps, (depsByMutation, depsByVisability) => ({
         componentIdToDeps: mergeDeps(depsByMutation.componentIdToDeps, depsByVisability.componentIdToDeps),
         componentIdToDependents: mergeDeps(depsByMutation.componentIdToDependents, depsByVisability.componentIdToDependents),
     }))
 
-    const $infoOfGraphMutationResolution = combine($depsTriggeringMutations, ({ componentIdToDependents }) => {
-        const flattenGraphInfo = buildFlattenGraphAndFindCycles(componentIdToDependents)
-        return { ...flattenGraphInfo, graph: componentIdToDependents }
-    })
-    const $depsGraphForMutationResolution = combine($infoOfGraphMutationResolution, ({ flattenGraph }) => flattenGraph)
+    const $infoOfGraphMutationsResolution = combine($depsTriggeringMutations, ({ componentIdToDependents, componentIdToDeps }) => {
+        const { flattenGraph, cycles, hasCycle } = buildFlattenGraphAndFindCycles(componentIdToDependents)
+        const sortedGraphForResolution = buildTopologicalSortedGraph(flattenGraph, componentIdToDeps)
 
-    const $depsForAllMutationResolution = combine($depsTriggeringMutations, ({ componentIdToDeps }) => {
-        const dependentsGraph = { root: Object.keys(componentIdToDeps) }
+        return { cycles, hasCycle, sortedGraphForResolution, graph: componentIdToDependents }
+    })
+    const $depsGraphForMutationsResolution = combine($infoOfGraphMutationsResolution, ({ sortedGraphForResolution }) => sortedGraphForResolution)
+    const $depsForAllMutationsResolution = combine($depsTriggeringMutations, ({ componentIdToDeps }) => {
+        const dependentsGraph = { root: new Set(Object.keys(componentIdToDeps)) }
         const { root } = buildTopologicalSortedGraph(dependentsGraph, componentIdToDeps)
         return root
     })
 
+    const resultOfBuildingGraphsDeps = sample({
+        clock: componentsModel.componentsAddedOrRemoved,
+        fn: () => {},
+    })
+
+    // sample({
+    //     clock: resultOfBuildingGraphsDeps,
+    //     fn: ({ a }) => a,
+    //     target: b,
+    // })
+
+    // sample({
+    //     clock: resultOfBuildingGraphsDeps,
+    //     fn: ({ a }) => a,
+    //     target: b,
+    // })
+
+    // sample({
+    //     clock: resultOfBuildingGraphsDeps,
+    //     fn: ({ a }) => a,
+    //     target: b,
+    // })
+
     const initCheckCyclesEvent = createEvent('initCheckCyclesEvent')
     sample({
-        source: $infoOfGraphMutationResolution,
-        clock: [$infoOfGraphMutationResolution, initCheckCyclesEvent],
+        source: $infoOfGraphMutationsResolution,
+        clock: [$infoOfGraphMutationsResolution, initCheckCyclesEvent],
         filter: ({ hasCycle }) => hasCycle,
         fn: ({ cycles }) => ({
             id: genId(),
-            message: `${getErrorMessage(errorCodes.circularDepDetected)} in $infoOfGraphMutationResolution. Deps: ${cycles.map((c) => c.join(' -> ')).join('; ')}`,
+            message: `${getErrorMessage(errorCodes.circularDepDetected)} in $infoOfGraphMutationsResolution. Deps: ${cycles.map((c) => c.join(' -> ')).join('; ')}`,
         }),
         target: appErrorsService.addErrorEvent,
     })
     initCheckCyclesEvent()
 
+    $componentsValidationsConditionsDeps.watch((da) => console.log('componentsValidationsConditionsDeps: ', da))
+    $depsGraphForMutationsResolution.watch((da) => console.log('depsGraphForMutationsResolution: ', da))
+    $depsForAllMutationsResolution.watch((da) => console.log('depsForAllMutationsResolution: ', da))
+
     return {
-        $visabilityConditionsDeps,
         $componentsValidationsConditionsDeps,
         $groupsValidationsConditionsDeps,
         $viewsConditionsDeps,
         $viewsConditionsAllDeps,
-        $depsTriggeringMutations,
-        $infoOfGraphMutationResolution,
-        $depsGraphForMutationResolution,
-        $depsForAllMutationResolution,
+        $infoOfGraphMutationsResolution,
+        $depsGraphForMutationsResolution,
+        $depsForAllMutationsResolution,
     }
 }

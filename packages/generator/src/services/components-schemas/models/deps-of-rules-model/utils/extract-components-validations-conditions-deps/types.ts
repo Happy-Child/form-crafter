@@ -1,6 +1,6 @@
-import { EntityId } from '@form-crafter/core'
+import { DepsGraphAsSet } from '../../../../../../types'
 
 export type DepsByValidationRules = {
-    ruleIdToDepsComponents: Record<EntityId, EntityId[]>
-    componentsToDependentsRuleIds: Record<EntityId, EntityId[]>
+    ruleIdToDepsComponents: DepsGraphAsSet
+    componentsToDependentsRuleIds: DepsGraphAsSet
 }

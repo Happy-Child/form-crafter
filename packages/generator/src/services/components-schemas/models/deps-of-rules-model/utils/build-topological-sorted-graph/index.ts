@@ -1,44 +1,38 @@
 import { EntityId } from '@form-crafter/core'
 import { isNotEmpty } from '@form-crafter/utils'
 
-import { DepsGraph } from '../../../../../../types'
+import { DepsGraph, DepsGraphAsSet } from '../../../../../../types'
 
-export const buildTopologicalSortedGraph = (dependentsDraph: DepsGraph, depsGraph: DepsGraph) => {
+export const buildTopologicalSortedGraph = (dependentsDraph: DepsGraphAsSet, depsGraph: DepsGraphAsSet) => {
     const sortedGraph: DepsGraph = {}
 
     for (const [componentId, dependentsToSort] of Object.entries(dependentsDraph)) {
-        const filteredDepsGraph = Object.entries(depsGraph).reduce<DepsGraph>((cur, [componentId, deps]) => {
-            if (!dependentsToSort.includes(componentId)) {
-                return cur
-            }
-            cur[componentId] = deps.filter((depId) => dependentsToSort.includes(depId))
-            return cur
-        }, {})
-
         const sortedDeps: EntityId[] = []
         const visited = new Set<EntityId>()
         const onStack = new Set<EntityId>()
 
-        const executeSort = (node: EntityId, path: string[] = []) => {
-            if (onStack.has(node)) {
+        const executeSort = (depId: EntityId, path: string[] = []) => {
+            if (onStack.has(depId)) {
                 return
             }
 
-            if (visited.has(node)) {
+            if (visited.has(depId)) {
                 return
             }
 
-            onStack.add(node)
-            const currentPath = path.concat(node)
+            onStack.add(depId)
+            const currentPath = path.concat(depId)
 
-            for (const supDepId of filteredDepsGraph[node] || []) {
-                executeSort(supDepId, currentPath)
+            for (const supDepId of depsGraph[depId] || new Set()) {
+                if (dependentsToSort.has(supDepId)) {
+                    executeSort(supDepId, currentPath)
+                }
             }
 
-            visited.add(node)
-            onStack.delete(node)
+            visited.add(depId)
+            onStack.delete(depId)
 
-            sortedDeps.push(node)
+            sortedDeps.push(depId)
         }
 
         for (const depId of dependentsToSort) {

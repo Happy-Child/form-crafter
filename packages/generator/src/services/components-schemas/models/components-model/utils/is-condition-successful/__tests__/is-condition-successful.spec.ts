@@ -8,6 +8,7 @@ const getCtx = (): RuleExecutorContext => ({
         const schema = mockComponentsSchemas[componentId] || null
         return !schema?.visability?.hidden ? schema : null
     },
+    getCurrentView: () => null,
     getRepeaterChildIds: () => {
         return []
     },
@@ -135,6 +136,30 @@ describe('isConditionSuccessful', () => {
                     operators: operatorsMock,
                 }),
             ).toEqual(true)
+
+            expect(
+                isConditionSuccessful({
+                    ctx,
+                    condition: {
+                        type: 'view',
+                        viewId: null,
+                        operatorKey: 'active',
+                    },
+                    operators: operatorsMock,
+                }),
+            ).toEqual(true)
+
+            expect(
+                isConditionSuccessful({
+                    ctx,
+                    condition: {
+                        type: 'view',
+                        viewId: 'view2',
+                        operatorKey: 'notActive',
+                    },
+                    operators: operatorsMock,
+                }),
+            ).toEqual(true)
         })
 
         it('return false', () => {
@@ -147,6 +172,18 @@ describe('isConditionSuccessful', () => {
                         type: 'component',
                         componentId: 'name',
                         operatorKey: 'isNotEmpty',
+                    },
+                    operators: operatorsMock,
+                }),
+            ).toEqual(false)
+
+            expect(
+                isConditionSuccessful({
+                    ctx,
+                    condition: {
+                        type: 'view',
+                        viewId: 'view2',
+                        operatorKey: 'active',
                     },
                     operators: operatorsMock,
                 }),

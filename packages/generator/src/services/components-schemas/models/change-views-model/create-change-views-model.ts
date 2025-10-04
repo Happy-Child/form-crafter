@@ -88,10 +88,7 @@ export const createChangeViewsModel = ({ viewsService, componentsModel, depsOfRu
 
     sample({
         clock: resultOfViewChangeCheck,
-        filter: (params): params is FilteredParams => {
-            console.log('params: ', params)
-            return params.canBeChange
-        },
+        filter: (params): params is FilteredParams => params.canBeChange,
         fn: ({ viewId }: FilteredParams) => viewId,
         target: viewsService.setCurrentViewIdEvent,
     })
@@ -146,14 +143,14 @@ export const createChangeViewsModel = ({ viewsService, componentsModel, depsOfRu
     sample({
         source: {
             componentsSchemas: componentsModel.$componentsSchemas,
-            depsForAllMutationResolution: depsOfRulesModel.$depsForAllMutationResolution,
+            depsForAllMutationsResolution: depsOfRulesModel.$depsForAllMutationsResolution,
         },
         clock: viewAfterFirstMutationsChanged,
-        fn: ({ componentsSchemas, depsForAllMutationResolution }) => ({
+        fn: ({ componentsSchemas, depsForAllMutationsResolution }) => ({
             curComponentsSchemas: componentsSchemas,
             newComponentsSchemas: componentsSchemas,
             componentsIdsToUpdate: [],
-            depsForMutationResolution: depsForAllMutationResolution,
+            depsForMutationsResolution: depsForAllMutationsResolution,
         }),
         target: mutationsModel.calcMutationsEvent,
     })

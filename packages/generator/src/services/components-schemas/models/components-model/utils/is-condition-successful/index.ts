@@ -1,17 +1,11 @@
-import { ComponentConditionOperator, ConditionComponentNode, ConditionNode, RuleExecutorContext } from '@form-crafter/core'
+import { ComponentConditionOperandNode, ComponentConditionOperator, ConditionNode, RuleExecutorContext, ViewConditionOperandNode } from '@form-crafter/core'
 import { isEmptyArray, isNotNull, isNull } from '@form-crafter/utils'
 
-import { conditionOperetorExecutor } from '../../services/components-schemas/models/deps-of-rules-model/utils/condition-operetor-executor'
-
-type Params = {
-    ctx: RuleExecutorContext
-    condition: ConditionNode
-    operators: Record<string, ComponentConditionOperator>
-}
+import { conditionOperetorExecutor } from '../condition-operetor-executor'
 
 const defaultValueOnSkip = false
 
-const getResultIfHidden = (strategy: ConditionComponentNode['strategyIfHidden']) => {
+const getResultIfHidden = (strategy: ComponentConditionOperandNode['strategyIfHidden']) => {
     switch (strategy) {
         case 'skip':
             return null
@@ -24,11 +18,19 @@ const getResultIfHidden = (strategy: ConditionComponentNode['strategyIfHidden'])
     }
 }
 
-const isConditionComponentNode = (condition: ConditionNode): condition is ConditionComponentNode => condition.type === 'component'
+const isComponentConditionNode = (condition: ConditionNode): condition is ComponentConditionOperandNode => condition.type === 'component'
+
+const isViewConditionNode = (condition: ConditionNode): condition is ViewConditionOperandNode => condition.type === 'view'
+
+type Params = {
+    ctx: RuleExecutorContext
+    condition: ConditionNode
+    operators: Record<string, ComponentConditionOperator>
+}
 
 export const isConditionSuccessful = ({ ctx, condition, operators }: Params) => {
     const executeCondition = (condition: ConditionNode): boolean | null => {
-        if (isConditionComponentNode(condition)) {
+        if (isComponentConditionNode(condition)) {
             const operator = operators[condition.operatorKey]
 
             const componentSchema = ctx.getComponentSchemaById(condition.componentId)
@@ -49,6 +51,17 @@ export const isConditionSuccessful = ({ ctx, condition, operators }: Params) => 
             }
 
             return operator.execute(componentSchema, { ctx })
+        }
+
+        if (isViewConditionNode(condition)) {
+            const currentView = ctx.getCurrentView()
+
+            switch (condition.operatorKey) {
+                case 'active':
+                    return currentView === condition.viewId
+                case 'notActive':
+                    return currentView !== condition.viewId
+            }
         }
 
         const { operator, operands } = condition

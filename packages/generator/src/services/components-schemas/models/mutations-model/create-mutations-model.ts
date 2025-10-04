@@ -1,7 +1,7 @@
 import { ComponentSchema, EntityId } from '@form-crafter/core'
 import { isEmpty, isNotEmpty } from '@form-crafter/utils'
 import { createEvent, createStore, sample, StoreValue } from 'effector'
-import { cloneDeep, isEqual, pick } from 'lodash-es'
+import { cloneDeep, isEqual, omit, pick } from 'lodash-es'
 import { combineEvents } from 'patronum'
 
 import { SchemaService } from '../../../schema'
@@ -36,16 +36,16 @@ export const createMutationsModel = ({ componentsModel, visabilityComponentsMode
             initialComponentsSchemas: schemaService.$initialComponentsSchemas,
             overridesCache: $overridesCache,
             themeMutationsRules: themeService.$mutationsRules,
-            hiddenComponentsIds: visabilityComponentsModel.$hiddenComponentsIds,
+            hiddenComponents: visabilityComponentsModel.$hiddenComponents,
         },
         clock: calcMutationsEvent,
         fn: (
-            { getExecutorContextBuilder, getIsConditionSuccessfulChecker, initialComponentsSchemas, overridesCache, themeMutationsRules, hiddenComponentsIds },
-            { curComponentsSchemas, newComponentsSchemas, componentsIdsToUpdate, depsForMutationResolution },
+            { getExecutorContextBuilder, getIsConditionSuccessfulChecker, initialComponentsSchemas, overridesCache, themeMutationsRules, hiddenComponents },
+            { curComponentsSchemas, newComponentsSchemas, componentsIdsToUpdate, depsForMutationsResolution },
         ) => {
             const componentsIdsToUpdates: Set<EntityId> = new Set(componentsIdsToUpdate)
 
-            const newoverridesCache = cloneDeep(overridesCache)
+            const newOverridesCache = cloneDeep(overridesCache)
             newComponentsSchemas = cloneDeep(newComponentsSchemas)
 
             const executorContext = getExecutorContextBuilder({ componentsSchemas: newComponentsSchemas })
@@ -63,8 +63,7 @@ export const createMutationsModel = ({ componentsModel, visabilityComponentsMode
                     }
 
                     const canBeApply = isConditionSuccessfulChecker({ condition })
-
-                    const isActiveRule = ruleId in newoverridesCache
+                    const isActiveRule = ruleId in newOverridesCache
 
                     if (canBeApply) {
                         const rule = themeMutationsRules[key]
@@ -75,8 +74,34 @@ export const createMutationsModel = ({ componentsModel, visabilityComponentsMode
                             return
                         }
 
-                        // но properties могут меняться у компонента после применения правила, что тут тогда? Выглядит как одно из возможный решений.
-                        const isNewProperties = Object.entries(newProperties).some(([key, value]) => !isEqual(value, newoverridesCache[ruleId]?.[key]))
+                        // TODO2
+                        // 1. Но properties могут меняться у компонента после применения правила, что тут тогда? Выглядит как одно из возможный решений.
+
+                        // 2. Проблема так же имеется с мутацией duplicateValue:
+                        // В поле Б дублируется значение из А
+                        // В какой-то момент срабатывает мутаций на Б
+                        // - Если поле Б пустое -> rule.execute возвращает properties: {value: valueA}
+                        // - Если поле Б не пустое -> rule.execute возвращает null
+                        // Проблема:
+                        // Если правило становиться не активным (condition дали false), и если правило было активно ранее(то есть один раз вернуло valueA)
+                        // и пользователь ввёл потом своё значение вместо valueA - МЫ ВЕРНЁМ VALUE ЗНАЧЕНИЕ ИЗ INITIAL SCHEMA перезаписал значение юзера.
+                        // 2.1. И нужно дать возможность не возвращать initial значения когда правило неактивно.
+
+                        // 3. Нужно сделать примнения одноразовым. Если поле Б не dirty и не touched -> менять значение value из поля А.
+                        // Но это касаптся только поля value или любых поле properties? И выглядит так что это только на mutation duplicate value нужно.
+                        // Сейчас мне кажется верным сделать это общим функционалом, но как дать юзеру выбиратт это тогда?
+
+                        // 4. С change options select мутацией что делать? Ей нужно другое поведение совсем - постоянная проверка condition и если true -> применяем, false -> созвращаем initial.
+
+                        // 5. bank account disabled if inn empty. но если на inn была данные, что-то ввели в bankAcctount и НО БИЗНЕСУ НУЖНО и очистить и disabled если inn пустой окажется, как?
+                        // !!!! ЭТО СНОВА ГОВОРИТ ЧТО НУЖНО ДЕЛАТЬ МУТАЦИИ ПОСТОЯННЫЕ ПРИ CONIDTION=TRUE, и одноразовые даже если продолжает condition быть true
+                        // НО ВОТ ГЛАВНАЯ ПРОБЛЕМА! Если одноразовая мутация стала true -> применалась, далее false, а через вреся СНОВА TRUE, что тогда?
+                        // Решение - сделать 2 типа поведениия: 1. постоянное, 2. единоразовое. Единоразовые в свою очередь: 1. только первое срабатывание и ВСЁ, 2. Срабатывают при каждой активации.
+                        // Выглядит ок, но а значения возвращаем при inactive? Иногда нужно, иногда нет. Снова нагружать юзера инфой (checkbox мол вызвращаться или нет)
+                        // ААААААААААААА. Я в постоянные засунул те, у которых нельзя изменить значение после применения, так как cindition всё ещё true.
+
+                        // Проверять dirty или touched можно из констекста (только это именно от юзера должны быть инфа, что из-за рук юзера обновили значение)
+                        const isNewProperties = Object.entries(newProperties).some(([key, value]) => !isEqual(value, newOverridesCache[ruleId]?.[key]))
                         if (isNewProperties) {
                             componentsIdsToUpdates.add(componentId)
                         }
@@ -89,10 +114,10 @@ export const createMutationsModel = ({ componentsModel, visabilityComponentsMode
                             },
                         } as ComponentSchema
 
-                        newoverridesCache[ruleId] = { ...newoverridesCache[ruleId], ...newProperties }
+                        newOverridesCache[ruleId] = { ...newOverridesCache[ruleId], ...newProperties }
                         iterationsAppliedCache[ruleId] = newProperties
                     } else if (isActiveRule) {
-                        const ruleLatestAppliedKeysCache = Object.keys(newoverridesCache[ruleId] || {})
+                        const ruleLatestAppliedKeysCache = Object.keys(newOverridesCache[ruleId] || {})
 
                         let iterationsUpdatedKeysProperties = Object.entries(iterationsAppliedCache).reduce<string[]>((arr, [, appliedComponentProperties]) => {
                             if (isNotEmpty(appliedComponentProperties)) {
@@ -103,30 +128,31 @@ export const createMutationsModel = ({ componentsModel, visabilityComponentsMode
                         iterationsUpdatedKeysProperties = Array.from(new Set(iterationsUpdatedKeysProperties))
 
                         const propertiesKeysToRollback = ruleLatestAppliedKeysCache.filter((key) => !iterationsUpdatedKeysProperties.includes(key))
-
                         const propertiesToRollback = pick(initialComponentsSchemas[componentId].properties, propertiesKeysToRollback)
+
+                        const finalProperties = omit(newComponentsSchemas[componentId].properties, propertiesKeysToRollback)
 
                         newComponentsSchemas[componentId] = {
                             ...newComponentsSchemas[componentId],
                             properties: {
-                                ...newComponentsSchemas[componentId].properties,
+                                ...finalProperties,
                                 ...propertiesToRollback,
                             },
                         } as ComponentSchema
 
-                        delete newoverridesCache[ruleId]
+                        delete newOverridesCache[ruleId]
 
                         componentsIdsToUpdates.add(componentId)
                     }
                 })
             }
 
-            const finalHiddenComponentsIds: Set<EntityId> = new Set(hiddenComponentsIds)
+            const finalHiddenComponents: Set<EntityId> = new Set(hiddenComponents)
 
-            depsForMutationResolution.forEach((depComponentId) => {
+            depsForMutationsResolution.forEach((depComponentId) => {
                 // 1.1 Проверить есть ли обновлённые и не скрытые зависимости. Если есть или если вообще нет зависимостей - идём дальше. Если нет таких - выход.
                 // const subDeps = depsTriggeringMutations.componentIdToDeps[depComponentId]
-                // const someDepIsVisible = subDeps.some((componentId) => !finalHiddenComponentsIds.has(componentId))
+                // const someDepIsVisible = subDeps.some((componentId) => !finalHiddenComponents.has(componentId))
                 // const someDepIsUpdated = subDeps.some((componentId) => componentsIdsToUpdates.has(componentId))
 
                 // const someDepIsUpdatedAndVisible = isNotEmpty(subDeps) ? someDepIsVisible && someDepIsUpdated : true
@@ -164,14 +190,14 @@ export const createMutationsModel = ({ componentsModel, visabilityComponentsMode
                 }
                 const isVisibleToHidden = newComponentsSchemas[depComponentId].visability?.hidden !== true && shouldBeHidden
                 if (isVisibleToHidden) {
-                    finalHiddenComponentsIds.add(depComponentId)
+                    finalHiddenComponents.add(depComponentId)
 
                     newComponentSchema.visability.hidden = true
                     newComponentsSchemas[depComponentId] = newComponentSchema
 
                     componentsIdsToUpdates.add(depComponentId)
                 } else {
-                    finalHiddenComponentsIds.delete(depComponentId)
+                    finalHiddenComponents.delete(depComponentId)
 
                     newComponentSchema.visability.hidden = false
                     newComponentsSchemas[depComponentId] = newComponentSchema
@@ -204,8 +230,8 @@ export const createMutationsModel = ({ componentsModel, visabilityComponentsMode
             return {
                 componentsToUpdate,
                 newComponentsSchemas,
-                overridesCacheToUpdate: newoverridesCache,
-                hiddenComponentsIds: finalHiddenComponentsIds,
+                overridesCacheToUpdate: newOverridesCache,
+                hiddenComponents: finalHiddenComponents,
             }
         },
     })

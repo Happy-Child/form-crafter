@@ -5,30 +5,33 @@ import { EntityId } from '../types'
 
 export type ConditionOperator = 'and' | 'or' | 'nand' | 'nor'
 
-export type ConditionOperatorNode = {
-    type: 'operator'
-    operator: ConditionOperator
-    operands: ConditionNode[]
-}
-
-type GeneralConditionComponentNode = {
+export type ComponentConditionOperandNode = {
     type: 'component'
     componentId: EntityId
     strategyIfHidden?: 'skip' | 'resolve' | 'reject'
     operatorKey: string
+    options?: AvailableObject
+    enteredComponentValue?: NonNullable<ComponentSerializableValue>
 }
 
-export type ConditionComponentNode =
-    | GeneralConditionComponentNode
-    | (GeneralConditionComponentNode & {
-          options: AvailableObject
-      })
-    | (GeneralConditionComponentNode & {
-          enteredComponentValue: NonNullable<ComponentSerializableValue>
-      })
-    | (GeneralConditionComponentNode & {
-          options: AvailableObject
-          enteredComponentValue: NonNullable<ComponentSerializableValue>
-      })
+export type ViewConditionOperandNode = {
+    type: 'view'
+    viewId: EntityId | null
+    operatorKey: 'active' | 'notActive'
+}
 
-export type ConditionNode = ConditionComponentNode | ConditionOperatorNode
+type ConditionOperandNode = ComponentConditionOperandNode | ViewConditionOperandNode
+
+export type ConditionOperatorNode<O extends ConditionOperandNode = ConditionOperandNode> = {
+    type: 'operator'
+    operator: ConditionOperator
+    operands: (ConditionOperatorNode<O> | O)[]
+}
+
+export type ValidationConditionNode = ConditionOperatorNode | ConditionOperandNode
+
+export type MutationConditionNode = ConditionOperatorNode | ConditionOperandNode
+
+export type ViewConditionNode = ConditionOperatorNode<ComponentConditionOperandNode> | ComponentConditionOperandNode
+
+export type ConditionNode = ValidationConditionNode | MutationConditionNode | ViewConditionNode

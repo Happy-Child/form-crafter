@@ -1,15 +1,16 @@
-import { EntityId, ViewDefinition } from '@form-crafter/core'
+import { ViewDefinition } from '@form-crafter/core'
 
+import { DepsGraphAsSet } from '../../../../../../types'
 import { buildReverseDepsGraph } from '../build-reverse-deps-graph'
-import { extractConditionDeps } from '../extract-condition-deps'
+import { extractComponentConditionDeps } from '../extract-component-condition-deps'
 
 export const extractViewsConditionsDeps = (views: ViewDefinition[]) => {
-    let viewIdToDepsComponents: Record<string, EntityId[]> = {}
+    let viewIdToDepsComponents: DepsGraphAsSet = {}
 
     views.forEach(({ id: viewId, condition }) => {
         viewIdToDepsComponents = {
             ...viewIdToDepsComponents,
-            [viewId]: extractConditionDeps([], condition),
+            [viewId]: extractComponentConditionDeps(condition),
         }
     })
 

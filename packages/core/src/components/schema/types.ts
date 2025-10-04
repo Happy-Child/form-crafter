@@ -1,11 +1,9 @@
 import { AvailableObject } from '@form-crafter/utils'
 
-import { ConditionNode } from '../../conditions'
+import { MutationConditionNode, ValidationConditionNode } from '../../conditions'
 import { OptionsBuilder, OptionsBuilderOutput } from '../../options-builder'
 import { EntityId } from '../../types'
 import { ComponentType } from '../types'
-
-export type ComponentVisability = { hidden?: boolean; condition?: ConditionNode }
 
 export type ValidationsConfigs = {
     disableSelf?: boolean
@@ -16,15 +14,17 @@ export type ValidationRuleSchema = {
     id: EntityId
     key: string
     options?: OptionsBuilderOutput<OptionsBuilder<AvailableObject>>
-    condition?: ConditionNode
+    condition?: ValidationConditionNode
 }
 
 export type MutationRuleSchema = {
     id: EntityId
     key: string
     options?: OptionsBuilderOutput<OptionsBuilder<AvailableObject>>
-    condition?: ConditionNode
+    condition?: MutationConditionNode
 }
+
+export type ComponentVisability = { hidden?: boolean; condition?: MutationConditionNode }
 
 export type ComponentValidations = {
     configs?: ValidationsConfigs

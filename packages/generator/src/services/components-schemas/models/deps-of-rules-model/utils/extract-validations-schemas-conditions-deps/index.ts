@@ -1,10 +1,11 @@
-import { EntityId, ValidationRuleSchema } from '@form-crafter/core'
+import { ValidationRuleSchema } from '@form-crafter/core'
 import { isNotEmpty } from '@form-crafter/utils'
 
-import { extractConditionDeps } from '../extract-condition-deps'
+import { DepsGraphAsSet } from '../../../../../../types'
+import { extractComponentConditionDeps } from '../extract-component-condition-deps'
 
 export const extractValidationsSchemasConditionsDeps = (validationSchemas: Pick<ValidationRuleSchema, 'id' | 'condition'>[] | undefined) => {
-    const schemaIdToDeps: Record<string, EntityId[]> = {}
+    const schemaIdToDeps: DepsGraphAsSet = {}
 
     if (!isNotEmpty(validationSchemas)) {
         return schemaIdToDeps
@@ -14,8 +15,8 @@ export const extractValidationsSchemasConditionsDeps = (validationSchemas: Pick<
         if (!isNotEmpty(schema.condition)) {
             return
         }
-        const deps = extractConditionDeps([], schema.condition)
-        schemaIdToDeps[schema.id] = deps
+        const componentsDeps = extractComponentConditionDeps(schema.condition)
+        schemaIdToDeps[schema.id] = new Set(componentsDeps)
     })
 
     return schemaIdToDeps

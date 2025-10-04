@@ -134,7 +134,7 @@ export type GeneratorComponentSchemaMap = {
 
 export type GeneratorComponentSchemaByType<T extends keyof GeneratorComponentSchemaMap> = GeneratorComponentSchemaMap[T]
 
-export type TemplateComponentSchema<Schema extends ComponentSchema> = Omit<Schema, 'meta'> & {
+export type TemplateComponentSchema<Schema extends ComponentSchema = ComponentSchema> = Omit<Schema, 'meta'> & {
     meta: Omit<Schema['meta'], 'id' | 'templateId'> & {
         templateId: EntityId
     }

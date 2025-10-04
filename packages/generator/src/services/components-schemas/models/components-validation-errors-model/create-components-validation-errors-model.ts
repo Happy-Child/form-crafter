@@ -30,7 +30,7 @@ export const createComponentsValidationErrorsModel = ({ visabilityComponentsMode
 
     const removeAllErrorsEvent = createEvent<EntityId>('removeAllErrorsEvent')
 
-    const $visibleErrors = combine($mergedErrors, visabilityComponentsModel.$hiddenComponentsIds, (validationErrors, hiddenComponentsIds) => {
+    const $visibleErrors = combine($mergedErrors, visabilityComponentsModel.$hiddenComponents, (validationErrors, hiddenComponentsIds) => {
         const filteredErrors: UnitValue<typeof $mergedErrors> = { ...validationErrors }
         let wasDeleted = false
 

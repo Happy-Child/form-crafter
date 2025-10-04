@@ -5,9 +5,10 @@ export type ViewsService = {
     $curentViewId: StoreWritable<EntityId | null>
     $additionalsViews: StoreWritable<ViewDefinition[]>
     $additionalsViewsObj: Store<Record<EntityId, ViewDefinition>>
+    $currentView: Store<ViewResponsive>
+    $currentViewComponents: Store<Set<EntityId>>
     setCurrentViewIdEvent: EventCallable<EntityId | null>
     setAdditionalViewsEvent: EventCallable<ViewDefinition[]>
-    currentView: Store<ViewResponsive>
 }
 
 export type ViewsServiceParams = {

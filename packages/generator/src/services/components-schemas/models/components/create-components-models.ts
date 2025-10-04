@@ -1,4 +1,4 @@
-import { ComponentsSchemas, isContainerComponentSchema, isEditableComponentSchema, isRepeaterComponentSchema } from '@form-crafter/core'
+import { isContainerComponentSchema, isEditableComponentSchema, isRepeaterComponentSchema } from '@form-crafter/core'
 
 import { ComponentsModels } from '../components-model'
 import { createContainerModel } from './container-model'
@@ -23,12 +23,10 @@ const createComponentModel = ({ schema, ...args }: ComponentModelParams): Compon
     return createStaticModel({ schema, ...args })
 }
 
-type Params = Omit<ComponentModelParams, 'schema'> & {
-    initialComponentsSchemas: ComponentsSchemas
-}
+type Params = Omit<ComponentModelParams, 'schema'>
 
-export const createComponentsModels = ({ initialComponentsSchemas, ...params }: Params) =>
-    Object.entries(initialComponentsSchemas).reduce<ComponentsModels>((map, [componentId, componentSchema]) => {
+export const createComponentsModels = (params: Params) =>
+    Object.entries(params.schemaService.$initialSchema.getState().componentsSchemas).reduce<ComponentsModels>((map, [componentId, componentSchema]) => {
         const model = createComponentModel({
             ...params,
             schema: componentSchema,

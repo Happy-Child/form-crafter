@@ -1,4 +1,4 @@
 {
-  "include": ["src", "../generator/src/services/theme/utils/build-paths-to-mutations-rules-deps", "../generator/src/services/theme/utils/extract-mutations", "../generator/src/services/theme/utils/extract-operators", "../generator/src/services/components-schemas/models/deps-of-rules-model/utils/condition-operetor-executor", "../generator/src/services/components-schemas/models/deps-of-rules-model/utils/extract-condition-deps", "../generator/src/services/components-schemas/models/deps-of-rules-model/utils/is-condition-successful"],
+  "include": ["src", "../generator/src/services/theme/utils/build-paths-to-mutations-rules-deps", "../generator/src/services/theme/utils/extract-mutations", "../generator/src/services/theme/utils/extract-operators", "../generator/src/services/components-schemas/models/components-model/utils/condition-operetor-executor", "../generator/src/services/components-schemas/models/deps-of-rules-model/utils/extract-component-condition-deps", "../generator/src/services/components-schemas/models/deps-of-rules-model/utils/is-condition-successful"],
   "extends": "../../tsconfig.json"
 }

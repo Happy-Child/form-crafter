@@ -1,12 +1,12 @@
-import { EntityId } from '@form-crafter/core'
+import { DepsGraphAsSet } from '../../../../../../types'
 
-export const buildReverseDepsGraph = (depsGraph: Record<EntityId, EntityId[]>) =>
-    Object.entries(depsGraph).reduce<Record<EntityId, EntityId[]>>((graph, [entityId, deps]) => {
+export const buildReverseDepsGraph = (depsGraph: DepsGraphAsSet) =>
+    Object.entries(depsGraph).reduce<DepsGraphAsSet>((graph, [entityId, deps]) => {
         deps.forEach((depId) => {
-            if (!graph[depId]) {
-                graph[depId] = []
+            if (!(depId in graph)) {
+                graph[depId] = new Set()
             }
-            graph[depId].push(entityId)
+            graph[depId].add(entityId)
         })
 
         return graph

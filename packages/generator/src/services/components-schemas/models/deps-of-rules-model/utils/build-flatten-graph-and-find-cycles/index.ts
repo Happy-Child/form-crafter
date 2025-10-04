@@ -1,12 +1,12 @@
 import { EntityId } from '@form-crafter/core'
 import { isNotEmpty } from '@form-crafter/utils'
 
-import { DepsGraph } from '../../../../../../types'
+import { DepsGraphAsSet } from '../../../../../../types'
 
-export const buildFlattenGraphAndFindCycles = (graph: DepsGraph) => {
+export const buildFlattenGraphAndFindCycles = (rawDeps: DepsGraphAsSet) => {
     const visited = new Set<EntityId>()
     const onStack = new Set<EntityId>()
-    const flattenGraph: DepsGraph = {}
+    const flattenGraph: DepsGraphAsSet = {}
     const cycles: EntityId[][] = []
 
     const dfs = (node: EntityId, path: EntityId[] = []) => {
@@ -23,7 +23,7 @@ export const buildFlattenGraphAndFindCycles = (graph: DepsGraph) => {
 
         onStack.add(node)
         const currentPath = path.concat(node)
-        const deps = graph[node] || []
+        const deps = rawDeps[node] || []
         let sortedDeps = new Set<EntityId>()
 
         for (const dep of deps) {
@@ -32,18 +32,17 @@ export const buildFlattenGraphAndFindCycles = (graph: DepsGraph) => {
             sortedDeps = new Set([...Array.from(sortedDeps), ...(flattenGraph[dep] || [])])
         }
 
-        const resultDeps = Array.from(sortedDeps)
-        if (isNotEmpty(resultDeps)) {
-            flattenGraph[node] = resultDeps
+        if (isNotEmpty(sortedDeps)) {
+            flattenGraph[node] = sortedDeps
         }
 
         visited.add(node)
         onStack.delete(node)
     }
 
-    for (const node in graph) {
-        if (!visited.has(node)) {
-            dfs(node)
+    for (const dep in rawDeps) {
+        if (!visited.has(dep)) {
+            dfs(dep)
         }
     }
 

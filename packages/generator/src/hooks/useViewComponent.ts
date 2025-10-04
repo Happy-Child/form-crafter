@@ -7,7 +7,7 @@ export const useViewComponent = (id: EntityId): ViewComponent => {
     const { services } = useGeneratorContext()
 
     return useStoreMap({
-        store: services.viewsService.currentView,
+        store: services.viewsService.$currentView,
         keys: [id],
         // TODO switch on change responsive?
         fn: ({ xxl }, [id]) => xxl.components[id],

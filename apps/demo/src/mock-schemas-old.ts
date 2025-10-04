@@ -63,7 +63,7 @@ export const employeeFormSchema: Schema = {
                     },
                     'group-work_1': {
                         id: 'row_id_5',
-                        children: [{ id: 'input-position' }, { id: 'select-department' }],
+                        children: [{ id: 'select-department' }],
                     },
                     'group-work_2': {
                         id: 'row_id_5',
@@ -143,13 +143,6 @@ export const employeeFormSchema: Schema = {
                             layout: { col: { default: 24 } },
                         },
                         rows: [{ id: 'group-work_1' }, { id: 'group-work_2' }],
-                    },
-                    'input-position': {
-                        id: 'input-position',
-                        parentId: 'group-work',
-                        params: {
-                            layout: { col: { default: 12 } },
-                        },
                     },
                     country: {
                         id: 'country',

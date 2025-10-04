@@ -5,7 +5,7 @@ import { useGeneratorContext } from '../contexts'
 
 export const useRootViewComponent = (): ViewComponent => {
     const { services } = useGeneratorContext()
-    const viewResponsive = useUnit(services.viewsService.currentView)
+    const viewResponsive = useUnit(services.viewsService.$currentView)
     // TODO switch on change responsive?
     return viewResponsive.xxl.components[rootComponentId]
 }

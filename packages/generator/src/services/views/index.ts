@@ -22,8 +22,13 @@ export const createViewsService = ({ initial }: ViewsServiceParams): ViewsServic
         additionalsViews.reduce<Record<EntityId, ViewDefinition>>((map, cur) => ({ ...map, [cur.id]: cur }), {}),
     )
 
-    const currentView = combine($curentViewId, $defaultView, $additionalsViewsObj, (curentViewId, defaultView, additionalsViewsObj) =>
+    const $currentView = combine($curentViewId, $defaultView, $additionalsViewsObj, (curentViewId, defaultView, additionalsViewsObj) =>
         isNotNull(curentViewId) && isNotEmpty(additionalsViewsObj) ? additionalsViewsObj[curentViewId].responsive : defaultView,
+    )
+
+    const $currentViewComponents = combine(
+        $currentView,
+        (currentView) => new Set(Object.entries(currentView.xxl.components).map(([componentId]) => componentId)),
     )
 
     init({})
@@ -32,8 +37,9 @@ export const createViewsService = ({ initial }: ViewsServiceParams): ViewsServic
         $curentViewId,
         $additionalsViews,
         $additionalsViewsObj,
+        $currentView,
+        $currentViewComponents,
         setAdditionalViewsEvent,
-        currentView,
         setCurrentViewIdEvent,
     }
 }

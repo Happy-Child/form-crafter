@@ -3,22 +3,22 @@ import { buildFlattenGraphAndFindCycles } from '.'
 describe('buildFlattenGraphAndFindCycles', () => {
     it('should be build correct flatten graph', () => {
         const graph = {
-            a: ['b', 'c', 'd'],
-            b: ['x', 'c'],
-            c: ['z', 'k', 'd'],
-            k: ['d'],
-            t: [],
-            o: [],
+            a: new Set(['b', 'c', 'd']),
+            b: new Set(['x', 'c']),
+            c: new Set(['z', 'k', 'd']),
+            k: new Set(['d']),
+            t: new Set<string>(),
+            o: new Set<string>(),
         }
 
         const result = buildFlattenGraphAndFindCycles(graph)
 
         expect(result).toEqual({
             flattenGraph: {
-                a: ['b', 'x', 'c', 'z', 'k', 'd'],
-                b: ['x', 'c', 'z', 'k', 'd'],
-                c: ['z', 'k', 'd'],
-                k: ['d'],
+                a: new Set(['b', 'x', 'c', 'z', 'k', 'd']),
+                b: new Set(['x', 'c', 'z', 'k', 'd']),
+                c: new Set(['z', 'k', 'd']),
+                k: new Set(['d']),
             },
             cycles: [],
             hasCycle: false,
@@ -27,28 +27,28 @@ describe('buildFlattenGraphAndFindCycles', () => {
 
     it('should give the same result with different key orders', () => {
         const result1 = buildFlattenGraphAndFindCycles({
-            a: ['b'],
-            c: ['b', 'a'],
-            b: [],
+            a: new Set(['b']),
+            c: new Set(['b', 'a']),
+            b: new Set<string>(),
         })
         const result2 = buildFlattenGraphAndFindCycles({
-            c: ['b', 'a'],
-            b: [],
-            a: ['b'],
+            c: new Set(['b', 'a']),
+            b: new Set<string>(),
+            a: new Set(['b']),
         })
 
         expect(result1).toEqual({
             flattenGraph: {
-                a: ['b'],
-                c: ['b', 'a'],
+                a: new Set(['b']),
+                c: new Set(['b', 'a']),
             },
             cycles: [],
             hasCycle: false,
         })
         expect(result2).toEqual({
             flattenGraph: {
-                a: ['b'],
-                c: ['b', 'a'],
+                a: new Set(['b']),
+                c: new Set(['b', 'a']),
             },
             cycles: [],
             hasCycle: false,
@@ -57,30 +57,30 @@ describe('buildFlattenGraphAndFindCycles', () => {
 
     it('should be found cycles', () => {
         const result1 = buildFlattenGraphAndFindCycles({
-            a: ['b', 'c', 'd'],
-            b: ['x', 'c'],
-            c: ['z', 'k', 'd'],
-            k: ['d'],
-            d: ['a'],
+            a: new Set(['b', 'c', 'd']),
+            b: new Set(['x', 'c']),
+            c: new Set(['z', 'k', 'd']),
+            k: new Set(['d']),
+            d: new Set(['a']),
         })
         expect(result1).toEqual({
             flattenGraph: {
-                a: ['b', 'x', 'c', 'z', 'k', 'd', 'a'],
-                b: ['x', 'c', 'z', 'k', 'd', 'a'],
-                c: ['z', 'k', 'd', 'a'],
-                k: ['d', 'a'],
-                d: ['a'],
+                a: new Set(['b', 'x', 'c', 'z', 'k', 'd', 'a']),
+                b: new Set(['x', 'c', 'z', 'k', 'd', 'a']),
+                c: new Set(['z', 'k', 'd', 'a']),
+                k: new Set(['d', 'a']),
+                d: new Set(['a']),
             },
             cycles: [['a', 'b', 'c', 'k', 'd', 'a']],
             hasCycle: true,
         })
 
         const result2 = buildFlattenGraphAndFindCycles({
-            a: ['a'],
+            a: new Set(['a']),
         })
         expect(result2).toEqual({
             flattenGraph: {
-                a: ['a'],
+                a: new Set(['a']),
             },
             cycles: [['a', 'a']],
             hasCycle: true,
@@ -89,22 +89,22 @@ describe('buildFlattenGraphAndFindCycles', () => {
 
     it('should be found cycles', () => {
         const graph = {
-            a: ['b', 'c', 'd'],
-            b: ['x', 'c'],
-            c: ['z', 'a', 'k', 'd'],
-            k: ['d'],
-            d: ['a'],
+            a: new Set(['b', 'c', 'd']),
+            b: new Set(['x', 'c']),
+            c: new Set(['z', 'a', 'k', 'd']),
+            k: new Set(['d']),
+            d: new Set(['a']),
         }
 
         const result = buildFlattenGraphAndFindCycles(graph)
 
         expect(result).toEqual({
             flattenGraph: {
-                a: ['b', 'x', 'c', 'z', 'a', 'k', 'd'],
-                b: ['x', 'c', 'z', 'a', 'k', 'd'],
-                c: ['z', 'a', 'k', 'd'],
-                k: ['d', 'a'],
-                d: ['a'],
+                a: new Set(['b', 'x', 'c', 'z', 'a', 'k', 'd']),
+                b: new Set(['x', 'c', 'z', 'a', 'k', 'd']),
+                c: new Set(['z', 'a', 'k', 'd']),
+                k: new Set(['d', 'a']),
+                d: new Set(['a']),
             },
             cycles: [
                 ['a', 'b', 'c', 'a'],
@@ -122,11 +122,11 @@ describe('buildFlattenGraphAndFindCycles', () => {
         }
 
         const result1 = buildFlattenGraphAndFindCycles({
-            a: [],
-            b: [],
-            c: [],
-            k: [],
-            d: [],
+            a: new Set(),
+            b: new Set(),
+            c: new Set(),
+            k: new Set(),
+            d: new Set(),
         })
         expect(result1).toEqual(emptyResult)
 

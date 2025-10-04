@@ -6,7 +6,7 @@ export type GroupValidationRuleSchemas = Record<EntityId, ValidationRuleSchema>
 export type ComponentsValidationRuleSchemas = Record<EntityId, { ownerComponentId: EntityId; schema: ValidationRuleSchema }>
 
 export type SchemaService = {
-    $schema: Store<Schema>
+    $initialSchema: Store<Schema>
     $layout: Store<Required<SchemaLayout>>
     $initialComponentsSchemas: Store<ComponentsSchemas>
     $additionalTriggers: Store<string[]>

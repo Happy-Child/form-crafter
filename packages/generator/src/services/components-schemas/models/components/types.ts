@@ -14,6 +14,7 @@ import {
 import { AvailableObject } from '@form-crafter/utils'
 import { Effect, EventCallable, Store, StoreWritable } from 'effector'
 
+import { SchemaService } from '../../../schema'
 import { ThemeService } from '../../../theme'
 import { RunMutationsOnUserActionsPayload } from '../../types'
 import { ComponentsModel } from '../components-model'
@@ -34,8 +35,8 @@ export type ComponentModelParams = {
     readyConditionalValidationsModel: ReadyConditionalValidationsModel
     componentsValidationErrorsModel: ComponentsValidationErrorsModel
     themeService: ThemeService
+    schemaService: SchemaService
     schema: ComponentSchema
-    additionalTriggers: ValidationsTriggers[] | null
 }
 
 export type EditableModel = {

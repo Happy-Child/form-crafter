@@ -3,9 +3,7 @@ import { differenceSet, isEmpty, isNotEmpty } from '@form-crafter/utils'
 import { combine, createEvent, createStore, sample, UnitValue } from 'effector'
 import { cloneDeep } from 'lodash-es'
 
-import { isConditionSuccessful } from '../../../../utils'
 import { SchemaService } from '../../../schema'
-import { ThemeService } from '../../../theme'
 import { ComponentsModel, ComponentToUpdate } from '../components-model'
 import { DepsOfRulesModel } from '../deps-of-rules-model'
 import { CalcReadyConditionalValidationsPayload, ReadyValidations, ReadyValidationsByKey } from './types'
@@ -13,14 +11,13 @@ import { removeReadyValidationRules } from './utils'
 
 type Params = {
     schemaService: SchemaService
-    themeService: ThemeService
     depsOfRulesModel: DepsOfRulesModel
     componentsModel: ComponentsModel
 }
 
 export type ReadyConditionalValidationsModel = ReturnType<typeof createReadyConditionalValidationsModel>
 
-export const createReadyConditionalValidationsModel = ({ schemaService, themeService, depsOfRulesModel, componentsModel }: Params) => {
+export const createReadyConditionalValidationsModel = ({ schemaService, depsOfRulesModel, componentsModel }: Params) => {
     const $readyComponentsRules = createStore<ReadyValidations>({})
     const $readyComponentsRulesByKey = createStore<ReadyValidationsByKey>({})
     const $readyComponentsRulesIds = combine($readyComponentsRules, (readyRules) =>
@@ -33,7 +30,7 @@ export const createReadyConditionalValidationsModel = ({ schemaService, themeSer
     const $readyGroupsRules = createStore<ReadyValidations[keyof ReadyValidations]>(new Set())
     const $readyGroupsByKey = createStore<ReadyValidationsByKey[keyof ReadyValidationsByKey]>({})
 
-    const calcReadyRulesEvent = createEvent<CalcReadyConditionalValidationsPayload>('calcReadyRulesEvent')
+    const calcReadyValidations = createEvent<CalcReadyConditionalValidationsPayload>('calcReadyValidations')
     const calcReadyRulesGuardEvent = createEvent<CalcReadyConditionalValidationsPayload>('calcReadyRulesGuardEvent')
 
     const setReadyComponentsRulesEvent = createEvent<UnitValue<typeof $readyComponentsRules>>('setReadyComponentsRulesEvent')
@@ -73,14 +70,13 @@ export const createReadyConditionalValidationsModel = ({ schemaService, themeSer
         clock: calcReadyRulesGuardEvent,
         filter: ({ componentsToUpdate }) => componentsToUpdate.some(({ isNewValue }) => !!isNewValue),
         fn: ({ componentsToUpdate, ...params }) => ({ ...params, componentsToUpdate: componentsToUpdate.filter(({ isNewValue }) => !!isNewValue) }),
-        target: calcReadyRulesEvent,
+        target: calcReadyValidations,
     })
 
-    const resultOfCalcReadyRulesEvent = sample({
+    const resultOfCalcReadyValidations = sample({
         source: {
             validationRuleSchemas: schemaService.$componentsValidationSchemas,
             groupValidationSchemas: schemaService.$groupValidationSchemas,
-            operators: themeService.$operators,
             componentsValidationsConditionsDeps: depsOfRulesModel.$componentsValidationsConditionsDeps,
             groupsValidationsConditionsDeps: depsOfRulesModel.$groupsValidationsConditionsDeps,
             readyComponentsRules: $readyComponentsRules,
@@ -91,14 +87,13 @@ export const createReadyConditionalValidationsModel = ({ schemaService, themeSer
             getExecutorContextBuilder: componentsModel.$getExecutorContextBuilder,
             getIsConditionSuccessfulChecker: componentsModel.$getIsConditionSuccessfulChecker,
         },
-        clock: calcReadyRulesEvent,
+        clock: calcReadyValidations,
         fn: (
             {
                 validationRuleSchemas,
                 groupValidationSchemas,
                 componentsValidationsConditionsDeps,
                 groupsValidationsConditionsDeps,
-                operators,
                 readyComponentsRules,
                 readyComponentsRulesByKey,
                 readyComponentsRulesIds,
@@ -119,6 +114,8 @@ export const createReadyConditionalValidationsModel = ({ schemaService, themeSer
             const readyGroupRulesByKey = cloneDeep(readyGroupsByKey)
 
             const rulesToInactive: Set<EntityId> = new Set()
+
+            const evokedValidationsRules: Set<EntityId> = new Set()
 
             const canBeContinueValidation = (isNewValue?: boolean) => {
                 if (skipIfValueUnchanged && !isNewValue) {
@@ -161,8 +158,6 @@ export const createReadyConditionalValidationsModel = ({ schemaService, themeSer
                 if (!isNotEmpty(dependentsValidationsIds)) {
                     return
                 }
-
-                const evokedValidationsRules: Set<EntityId> = new Set()
 
                 dependentsValidationsIds.forEach((validationSchemaId) => {
                     if (evokedValidationsRules.has(validationSchemaId)) {
@@ -214,11 +209,8 @@ export const createReadyConditionalValidationsModel = ({ schemaService, themeSer
                     }
 
                     const validationRuleSchema = groupValidationSchemas[validationSchemaId]
-
-                    const ruleIsReady = isConditionSuccessful({
-                        ctx: executorContext,
+                    const ruleIsReady = isConditionSuccessfulChecker({
                         condition: validationRuleSchema.condition!,
-                        operators: operators,
                     })
 
                     const isReadyRuleNow = readyGroupsRules.has(validationSchemaId)
@@ -256,36 +248,36 @@ export const createReadyConditionalValidationsModel = ({ schemaService, themeSer
     })
 
     sample({
-        clock: resultOfCalcReadyRulesEvent,
+        clock: resultOfCalcReadyValidations,
         filter: ({ readyRules }) => isNotEmpty(readyRules),
         fn: ({ readyRules }) => readyRules,
         target: setReadyComponentsRulesEvent,
     })
 
     sample({
-        clock: resultOfCalcReadyRulesEvent,
+        clock: resultOfCalcReadyValidations,
         filter: ({ readyRulesByKey }) => isNotEmpty(readyRulesByKey),
         fn: ({ readyRulesByKey }) => readyRulesByKey,
         target: setReadyComponentsRulesByKeyEvent,
     })
 
     sample({
-        clock: resultOfCalcReadyRulesEvent,
+        clock: resultOfCalcReadyValidations,
         filter: ({ readyGroupRules }) => isNotEmpty(readyGroupRules),
         fn: ({ readyGroupRules }) => readyGroupRules,
         target: setReadyGroupRulesEvent,
     })
 
     sample({
-        clock: resultOfCalcReadyRulesEvent,
+        clock: resultOfCalcReadyValidations,
         filter: ({ readyGroupRulesByKey }) => isNotEmpty(readyGroupRulesByKey),
         fn: ({ readyGroupRulesByKey }) => readyGroupRulesByKey,
         target: setReadyGroupRulesByKeyEvent,
     })
 
     return {
-        calcReadyRulesEvent: calcReadyRulesGuardEvent,
-        resultOfCalcReadyRulesEvent,
+        calcReadyValidations: calcReadyRulesGuardEvent,
+        resultOfCalcReadyValidations,
         $readyComponentsRules,
         $readyComponentsRulesByKey,
         $readyGroupsRules,

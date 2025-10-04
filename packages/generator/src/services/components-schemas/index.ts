@@ -16,7 +16,6 @@ import { ComponentsSchemasService, ComponentsSchemasServiceParams, RunMutationsO
 export type { ComponentsSchemasService }
 
 export const createComponentsSchemasService = ({
-    initial,
     appErrorsService,
     themeService,
     viewsService,
@@ -26,41 +25,37 @@ export const createComponentsSchemasService = ({
     const setFirstMutationsToDone = createEvent('setFirstMutationsToDone')
     $firstMutationsIsDone.on(setFirstMutationsToDone, () => true)
 
-    const additionalTriggers = schemaService.$schema.getState().validations?.additionalTriggers || null
-
     const initServiceEvent = createEvent('initServiceEvent')
     const runMutationsOnUserActionsEvent = createEvent<RunMutationsOnUserActionsPayload>('runMutationsOnUserActionsEvent')
+
+    const componentsModel = createComponentsModel({ themeService, viewsService })
 
     const depsOfRulesModel = createDepsOfRulesModel({
         appErrorsService,
         themeService,
         viewsService,
         schemaService,
-        initialComponentsSchemas: initial,
+        componentsModel,
     })
 
-    const componentsModel = createComponentsModel({ themeService })
-
-    const visabilityComponentsModel = createVisabilityComponentsModel({ componentsModel })
+    const visabilityComponentsModel = createVisabilityComponentsModel({ componentsModel, viewsService })
 
     const componentsValidationErrorsModel = createComponentsValidationErrorsModel({ visabilityComponentsModel })
 
     const readyConditionalValidationsModel = createReadyConditionalValidationsModel({
         depsOfRulesModel,
         componentsModel,
-        themeService,
         schemaService,
     })
 
-    componentsModel.initEvent(
+    componentsModel.initModels(
         createComponentsModels({
             runMutationsEvent: runMutationsOnUserActionsEvent,
             componentsModel,
             readyConditionalValidationsModel,
             componentsValidationErrorsModel,
             themeService,
-            initialComponentsSchemas: initial,
-            additionalTriggers,
+            schemaService,
         }),
     )
 

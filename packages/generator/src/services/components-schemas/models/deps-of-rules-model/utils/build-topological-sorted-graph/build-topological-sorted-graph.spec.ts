@@ -3,13 +3,13 @@ import { buildTopologicalSortedGraph } from '.'
 describe('buildTopologicalSortedGraph', () => {
     it('should be build correct sorted graph', () => {
         const depsGraph = {
-            a: [],
-            b: ['a'],
-            c: ['a', 'b'],
+            a: new Set([]),
+            b: new Set(['a']),
+            c: new Set(['a', 'b']),
         }
         const flattenDependentsGraph = {
-            a: ['c', 'b'],
-            b: ['c'],
+            a: new Set(['c', 'b']),
+            b: new Set(['c']),
         }
 
         const result = buildTopologicalSortedGraph(flattenDependentsGraph, depsGraph)
@@ -22,18 +22,18 @@ describe('buildTopologicalSortedGraph', () => {
 
     it('should be build correct sorted graph', () => {
         const depsGraph = {
-            a: [],
-            b: ['a'],
-            c: ['b', 'a'],
-            d: ['c', 'b'],
-            e: ['d', 'a', 'c', 'b'],
+            a: new Set([]),
+            b: new Set(['a']),
+            c: new Set(['b', 'a']),
+            d: new Set(['c', 'b']),
+            e: new Set(['d', 'a', 'c', 'b']),
         }
 
         const flattenDependentsGraph = {
-            a: ['b', 'c', 'd', 'e'],
-            b: ['c', 'd', 'e'],
-            c: ['d', 'e'],
-            d: ['e'],
+            a: new Set(['b', 'c', 'd', 'e']),
+            b: new Set(['c', 'd', 'e']),
+            c: new Set(['d', 'e']),
+            d: new Set(['e']),
         }
 
         const result = buildTopologicalSortedGraph(flattenDependentsGraph, depsGraph)
@@ -48,21 +48,21 @@ describe('buildTopologicalSortedGraph', () => {
 
     it('should be build correct sorted graph', () => {
         const depsGraph = {
-            a: ['z'],
-            e: ['c'],
-            c: ['a', 'g', 's', 'j'],
-            g: ['a', 'q'],
-            z: ['r'],
+            a: new Set(['z']),
+            e: new Set(['c']),
+            c: new Set(['a', 'g', 's', 'j']),
+            g: new Set(['a', 'q']),
+            z: new Set(['r']),
         }
         const flattenDependentsGraph = {
-            z: ['a', 'c', 'e', 'g'],
-            c: ['e'],
-            a: ['c', 'e', 'g'],
-            g: ['c', 'e'],
-            s: ['c', 'e'],
-            j: ['c', 'e'],
-            q: ['g', 'c', 'e'],
-            r: ['z', 'a', 'c', 'e', 'g'],
+            z: new Set(['a', 'c', 'e', 'g']),
+            c: new Set(['e']),
+            a: new Set(['c', 'e', 'g']),
+            g: new Set(['c', 'e']),
+            s: new Set(['c', 'e']),
+            j: new Set(['c', 'e']),
+            q: new Set(['g', 'c', 'e']),
+            r: new Set(['z', 'a', 'c', 'e', 'g']),
         }
 
         const result = buildTopologicalSortedGraph(flattenDependentsGraph, depsGraph)
@@ -81,22 +81,22 @@ describe('buildTopologicalSortedGraph', () => {
 
     it('should be build correct sorted graph with different deps orders', () => {
         const depsGraph = {
-            c: ['s', 'a', 'g', 'j'],
-            a: ['z'],
-            e: ['c'],
-            g: ['q', 'a'],
-            z: ['r'],
+            c: new Set(['s', 'a', 'g', 'j']),
+            a: new Set(['z']),
+            e: new Set(['c']),
+            g: new Set(['q', 'a']),
+            z: new Set(['r']),
         }
 
         const flattenDependentsGraph = {
-            q: ['g', 'e', 'c'],
-            j: ['e', 'c'],
-            g: ['e', 'c'],
-            z: ['c', 'e', 'a', 'g'],
-            c: ['e'],
-            r: ['g', 'e', 'z', 'c', 'a'],
-            a: ['g', 'c', 'e'],
-            s: ['c', 'e'],
+            q: new Set(['g', 'e', 'c']),
+            j: new Set(['e', 'c']),
+            g: new Set(['e', 'c']),
+            z: new Set(['c', 'e', 'a', 'g']),
+            c: new Set(['e']),
+            r: new Set(['g', 'e', 'z', 'c', 'a']),
+            a: new Set(['g', 'c', 'e']),
+            s: new Set(['c', 'e']),
         }
 
         const result = buildTopologicalSortedGraph(flattenDependentsGraph, depsGraph)
@@ -114,16 +114,19 @@ describe('buildTopologicalSortedGraph', () => {
     })
 
     it('should be build empty graph', () => {
-        expect(
-            buildTopologicalSortedGraph(
-                { a: [], b: [], c: [] },
-                {
-                    a: [],
-                    b: [],
-                    c: [],
-                },
-            ),
-        ).toEqual({})
+        const depsGraph = {
+            a: new Set([]),
+            b: new Set([]),
+            c: new Set([]),
+        }
+
+        const flattenDependentsGraph = {
+            a: new Set([]),
+            b: new Set([]),
+            c: new Set([]),
+        }
+
+        expect(buildTopologicalSortedGraph(flattenDependentsGraph, depsGraph)).toEqual({})
         expect(buildTopologicalSortedGraph({}, {})).toEqual({})
     })
 })

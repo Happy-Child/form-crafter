@@ -1,35 +1,37 @@
 import { EntityId } from '@form-crafter/core'
 import { combine, createEvent, createStore } from 'effector'
 
+import { ViewsService } from '../../../views'
 import { ComponentsModel } from '../components-model'
 
 type Params = {
     componentsModel: ComponentsModel
+    viewsService: ViewsService
 }
 
 export type VisabilityComponentsModel = ReturnType<typeof createVisabilityComponentsModel>
 
 export const createVisabilityComponentsModel = ({ componentsModel }: Params) => {
-    const $hiddenComponentsIds = createStore<Set<EntityId>>(new Set())
+    const $hiddenComponents = createStore<Set<EntityId>>(new Set())
 
-    const setHiddenComponentsIdsEvent = createEvent<Set<EntityId>>('setHiddenComponentsIdsEvent')
+    const setHiddenComponents = createEvent<Set<EntityId>>('setHiddenComponents')
 
-    $hiddenComponentsIds.on(setHiddenComponentsIdsEvent, (_, newComponentsToHidden) => newComponentsToHidden)
+    $hiddenComponents.on(setHiddenComponents, (_, newComponentsToHidden) => newComponentsToHidden)
 
-    const $visibleComponentsSchemas = combine(componentsModel.$componentsSchemas, $hiddenComponentsIds, (componentsSchemas, hiddenComponentsIds) => {
+    const $visibleComponentsSchemas = combine(componentsModel.$componentsSchemas, $hiddenComponents, (componentsSchemas, hiddenComponents) => {
         const result = { ...componentsSchemas }
-        hiddenComponentsIds.forEach((componentId) => {
+        hiddenComponents.forEach((componentId) => {
             delete result[componentId]
         })
         return result
     })
 
-    const $visibleComponentsIds = combine($visibleComponentsSchemas, (visibleComponentsSchemas) => Object.keys(visibleComponentsSchemas))
+    const $visibleComponents = combine($visibleComponentsSchemas, (visibleComponentsSchemas) => Object.keys(visibleComponentsSchemas))
 
     return {
-        setHiddenComponentsIdsEvent,
+        setHiddenComponents,
         $visibleComponentsSchemas,
-        $visibleComponentsIds,
-        $hiddenComponentsIds,
+        $visibleComponents,
+        $hiddenComponents,
     }
 }
