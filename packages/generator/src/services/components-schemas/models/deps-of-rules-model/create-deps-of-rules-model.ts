@@ -1,10 +1,9 @@
 import { errorCodes, getErrorMessage } from '@form-crafter/core'
-import { genId } from '@form-crafter/utils'
+import { genId, isNotEmpty } from '@form-crafter/utils'
 import { combine, createEvent, createStore, sample } from 'effector'
 
 import { AppErrorsService } from '../../../app-errors'
-import { SchemaService } from '../../../schema'
-import { GroupValidationRuleSchemas } from '../../../schema'
+import { GroupValidationRuleSchemas, SchemaService } from '../../../schema'
 import { ThemeService } from '../../../theme'
 import { ViewsService } from '../../../views'
 import { ComponentsModel } from '../components-model'
@@ -19,6 +18,7 @@ import {
     extractValidationsSchemasConditionsDeps,
     extractViewsConditionsDeps,
     extractVisabilityConditionsDeps,
+    filterDepsGraph,
     mergeDeps,
 } from './utils'
 
@@ -40,8 +40,24 @@ export const createDepsOfRulesModel = ({ appErrorsService, themeService, viewsSe
         $componentsValidationsConditionsDeps,
         viewsService.$currentViewComponents,
         (depsGraphs, viewComponents) => {
-            // TODO
-            return depsGraphs
+            const componentIdToDependentsRuleIds = Object.fromEntries(
+                Object.entries(depsGraphs.componentIdToDependentsRuleIds).filter(([componentId]) => viewComponents.has(componentId)),
+            )
+            const ruleIdToDepsComponentsIds = Object.entries(depsGraphs.ruleIdToDepsComponentsIds).reduce<typeof depsGraphs.ruleIdToDepsComponentsIds>(
+                (result, [ruleId, componentsIds]) => {
+                    const finalComponentsIds = new Set(Array.from(componentsIds).filter((compId) => viewComponents.has(compId)))
+                    if (isNotEmpty(finalComponentsIds)) {
+                        result[ruleId] = finalComponentsIds
+                    }
+                    return result
+                },
+                {},
+            )
+
+            return {
+                componentIdToDependentsRuleIds,
+                ruleIdToDepsComponentsIds,
+            }
         },
     )
     sample({
@@ -54,10 +70,10 @@ export const createDepsOfRulesModel = ({ appErrorsService, themeService, viewsSe
     const $componentsMutationsDeps = createStore<DepsByMutationsRules>({ componentIdToDeps: {}, componentIdToDependents: {} })
     const setComponentsMutationsDeps = createEvent<DepsByMutationsRules>('setComponentsMutationsDeps')
     $componentsMutationsDeps.on(setComponentsMutationsDeps, (_, newValue) => newValue)
-    const $activeViewComponentsMutationsDeps = combine($componentsMutationsDeps, viewsService.$currentViewComponents, (depsGraphs, viewComponents) => {
-        // TODO
-        return depsGraphs
-    })
+    const $activeViewComponentsMutationsDeps = combine($componentsMutationsDeps, viewsService.$currentViewComponents, (depsGraphs, viewComponents) => ({
+        componentIdToDeps: filterDepsGraph(depsGraphs.componentIdToDeps, viewComponents),
+        componentIdToDependents: filterDepsGraph(depsGraphs.componentIdToDependents, viewComponents),
+    }))
     sample({
         source: { componentsSchemas: componentsModel.$componentsSchemas, pathsToMutationsRulesDeps: themeService.$pathsToMutationsRulesDeps },
         clock: componentsModel.componentsAddedOrRemoved,
@@ -68,10 +84,10 @@ export const createDepsOfRulesModel = ({ appErrorsService, themeService, viewsSe
     const $visabilityConditionsDeps = createStore<DepsByMutationsRules>({ componentIdToDeps: {}, componentIdToDependents: {} })
     const setVisabilityConditionsDeps = createEvent<DepsByMutationsRules>('setVisabilityConditionsDeps')
     $visabilityConditionsDeps.on(setVisabilityConditionsDeps, (_, newValue) => newValue)
-    const $activeViewVisabilityConditionsDeps = combine($visabilityConditionsDeps, viewsService.$currentViewComponents, (depsGraphs, viewComponents) => {
-        // TODO
-        return depsGraphs
-    })
+    const $activeViewVisabilityConditionsDeps = combine($visabilityConditionsDeps, viewsService.$currentViewComponents, (depsGraphs, viewComponents) => ({
+        componentIdToDeps: filterDepsGraph(depsGraphs.componentIdToDeps, viewComponents),
+        componentIdToDependents: filterDepsGraph(depsGraphs.componentIdToDependents, viewComponents),
+    }))
     sample({
         source: { componentsSchemas: componentsModel.$componentsSchemas },
         clock: componentsModel.componentsAddedOrRemoved,
@@ -115,7 +131,7 @@ export const createDepsOfRulesModel = ({ appErrorsService, themeService, viewsSe
     )
     const $activeViewDepsForAllMutationsResolution = combine($activeViewDepsTriggeringMutations, ({ componentIdToDeps }) => {
         const dependentsGraph = { root: new Set(Object.keys(componentIdToDeps)) }
-        const { root } = buildTopologicalSortedGraph(dependentsGraph, componentIdToDeps)
+        const { root = [] } = buildTopologicalSortedGraph(dependentsGraph, componentIdToDeps)
         return root
     })
 
@@ -131,10 +147,6 @@ export const createDepsOfRulesModel = ({ appErrorsService, themeService, viewsSe
         target: appErrorsService.addErrorEvent,
     })
     initCheckCyclesEvent()
-
-    $componentsValidationsConditionsDeps.watch((da) => console.log('componentsValidationsConditionsDeps: ', da))
-    $activeViewDepsGraphForMutationsResolution.watch((da) => console.log('depsGraphForMutationsResolution: ', da))
-    $activeViewDepsForAllMutationsResolution.watch((da) => console.log('depsForAllMutationsResolution: ', da))
 
     return {
         $activeViewComponentsValidationsConditionsDeps,

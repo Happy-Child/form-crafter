@@ -9,23 +9,12 @@ import dayjs from 'dayjs'
 import { componentsOperators } from '../../components-operators'
 import { rules } from '../../rules'
 import { dateInputEules } from '../DateInput'
-
-const defaultFormat = 'DD.MM.YYYY'
+import { defaultDateFormat } from '../DateInput/consts'
 
 const optionsBuilder = builders.group({
     value: builders.datePicker().label('Значение').required().nullable(),
     readonly: builders.checkbox().label('Только для чтения').required().nullable(),
     label: builders.text().label('Название'),
-    format: builders
-        .select()
-        .options([
-            {
-                value: defaultFormat,
-                label: defaultFormat,
-            },
-        ])
-        .label('Формат даты')
-        .value(defaultFormat),
     disabled: builders.checkbox().label('Блокировка ввода'),
 })
 
@@ -33,10 +22,8 @@ type ComponentProps = DatePickerComponentProps<typeof optionsBuilder>
 
 const DatePicker = memo(
     forwardRef<HTMLInputElement, ComponentProps>(
-        ({ meta, onChangeProperties, onBlur, isRequired, firstError, properties: { value, format, label, disabled, readonly } }, ref) => {
+        ({ meta, onChangeProperties, onBlur, isRequired, firstError, properties: { value, label, disabled, readonly } }, ref) => {
             const finalValue = dayjs(value)
-
-            console.log('format: ', format)
 
             return (
                 <DatePickerBase
@@ -45,9 +32,9 @@ const DatePicker = memo(
                     name={meta.formKey}
                     disabled={disabled}
                     label={label}
-                    onChange={(newValue) => onChangeProperties({ value: newValue })}
+                    onChange={(newValue) => onChangeProperties({ value: dayjs(newValue).format(defaultDateFormat) })}
                     onClose={onBlur}
-                    format={format}
+                    format={defaultDateFormat}
                     readOnly={!!readonly}
                     slotProps={{
                         textField: {
@@ -76,6 +63,12 @@ export const datePickerModule = createDatePickerComponentModule({
         componentsOperators.afterDateOperator,
     ],
     mutations: [rules.mutations.duplicateValueRule],
-    validations: [rules.validations.components.editable.isRequiredRule, dateInputEules.validations.minDateRule, dateInputEules.validations.maxDateRule],
+    validations: [
+        rules.validations.components.editable.isRequiredRule,
+        dateInputEules.validations.minDateRule,
+        dateInputEules.validations.maxDateRule,
+        dateInputEules.validations.isAdultRule,
+        dateInputEules.validations.isDateRule,
+    ],
     Component: DatePicker,
 })

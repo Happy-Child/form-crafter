@@ -486,13 +486,22 @@ export const clientSchema: Schema = {
         },
         dateBirth: {
             meta: { id: 'dateBirth', type: 'date-picker', name: 'date-picker' },
-            properties: { label: 'Дата рождения', value: '', format: 'DD.MM.YYYY' },
+            properties: { label: 'Дата рождения', value: '' },
             validations: {
                 schemas: [
                     {
                         id: genId(),
                         key: 'isRequired',
                         options: { message: 'Обязательное поле' },
+                    },
+                    {
+                        id: genId(),
+                        key: 'isDate',
+                    },
+                    {
+                        id: genId(),
+                        key: 'isAdult',
+                        options: { message: 'Нет 18-ти лет' },
                     },
                 ],
             },

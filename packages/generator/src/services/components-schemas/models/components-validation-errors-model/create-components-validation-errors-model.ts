@@ -49,8 +49,8 @@ export const createComponentsValidationErrorsModel = ({ visabilityComponentsMode
     $mergedErrors.on(setMergedErrorsEvent, (_, newErrors) => newErrors)
 
     $componentsGroupsErrors.on(setComponentsGroupsErrorsEvent, (curErrors, newErrors) => ({ ...curErrors, ...newErrors }))
-    $componentsGroupsErrors.reset(clearComponentsGroupsErrorsEvent)
     $componentsGroupsErrors.on(removeGroupErrorsEvent, removeValidationErrors)
+    $componentsGroupsErrors.reset(clearComponentsGroupsErrorsEvent)
 
     $componentsErrors.on(setComponentErrorsEvent, (curErrors, { componentId, errors }) => ({ ...curErrors, [componentId]: errors }))
     $componentsErrors.on(removeComponentErrorsEvent, removeValidationErrors)

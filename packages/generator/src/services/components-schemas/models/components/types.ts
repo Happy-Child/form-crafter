@@ -9,7 +9,6 @@ import {
     StaticComponentSchema,
     UploaderComponentProperties,
     UploaderComponentSchema,
-    ValidationsTriggers,
 } from '@form-crafter/core'
 import { AvailableObject } from '@form-crafter/utils'
 import { Effect, EventCallable, Store, StoreWritable } from 'effector'

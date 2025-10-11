@@ -32,8 +32,8 @@ export const createFormValidationModel = ({
 }: Params) => {
     const $isComponentsValidationPending = createStore<boolean>(false)
 
-    const $componentsIdsCanBeValidate = combine(visabilityComponentsModel.$visibleComponentsSchemas, (visibleComponentsSchemas) =>
-        Object.entries(visibleComponentsSchemas).reduce<Set<EntityId>>((result, [componentId, schema]) => {
+    const $componentsIdsCanBeValidate = combine(visabilityComponentsModel.$currentViewVisibleComponentsSchemas, (currentViewVisibleComponentsSchemas) =>
+        Object.entries(currentViewVisibleComponentsSchemas).reduce<Set<EntityId>>((result, [componentId, schema]) => {
             if (isNotEmpty(schema.validations?.schemas)) {
                 result.add(componentId)
             }

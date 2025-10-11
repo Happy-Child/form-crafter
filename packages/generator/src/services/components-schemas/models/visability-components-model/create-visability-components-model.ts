@@ -11,27 +11,26 @@ type Params = {
 
 export type VisabilityComponentsModel = ReturnType<typeof createVisabilityComponentsModel>
 
-export const createVisabilityComponentsModel = ({ componentsModel }: Params) => {
+export const createVisabilityComponentsModel = ({ viewsService, componentsModel }: Params) => {
     const $hiddenComponents = createStore<Set<EntityId>>(new Set())
 
     const setHiddenComponents = createEvent<Set<EntityId>>('setHiddenComponents')
 
     $hiddenComponents.on(setHiddenComponents, (_, newComponentsToHidden) => newComponentsToHidden)
 
-    const $visibleComponentsSchemas = combine(componentsModel.$componentsSchemas, $hiddenComponents, (componentsSchemas, hiddenComponents) => {
-        const result = { ...componentsSchemas }
-        hiddenComponents.forEach((componentId) => {
-            delete result[componentId]
-        })
-        return result
-    })
-
-    const $visibleComponents = combine($visibleComponentsSchemas, (visibleComponentsSchemas) => Object.keys(visibleComponentsSchemas))
+    const $currentViewVisibleComponentsSchemas = combine(
+        componentsModel.$componentsSchemas,
+        viewsService.$currentViewComponents,
+        $hiddenComponents,
+        (componentsSchemas, currentViewComponents, hiddenComponents) =>
+            Object.fromEntries(
+                Object.entries(componentsSchemas).filter(([componentId]) => currentViewComponents.has(componentId) && !hiddenComponents.has(componentId)),
+            ),
+    )
 
     return {
         setHiddenComponents,
-        $visibleComponentsSchemas,
-        $visibleComponents,
         $hiddenComponents,
+        $currentViewVisibleComponentsSchemas,
     }
 }

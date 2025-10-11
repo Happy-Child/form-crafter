@@ -1,13 +1,13 @@
 import { forwardRef, memo, useMemo } from 'react'
 
 import { createDateInputComponentModule, MaskOptions } from '@form-crafter/core'
-import { MaskitoDateMode, maskitoDateOptionsGenerator } from '@maskito/kit'
+import { maskitoDateOptionsGenerator } from '@maskito/kit'
 
 import { GeneralMaskInput } from '../../components'
 import { componentsOperators } from '../../components-operators'
 import { rules as generalRules } from '../../rules'
 import { textInputModule } from '../TextInput'
-import { componentName, defaultMode } from './consts'
+import { componentName, maskDateFormat } from './consts'
 import { optionsBuilder } from './options-builder'
 import { rules } from './rules'
 import { DateInputComponentProps } from './types'
@@ -15,13 +15,14 @@ import { DateInputComponentProps } from './types'
 const { Component: TextField } = textInputModule
 
 const DateInput = memo(
-    forwardRef<HTMLInputElement, DateInputComponentProps>(({ properties: { pattern, showMask, ...properties }, ...props }, ref) => {
+    forwardRef<HTMLInputElement, DateInputComponentProps>(({ properties: { showMask, ...properties }, ...props }, ref) => {
         const maskOptions: MaskOptions = useMemo(
             () =>
                 maskitoDateOptionsGenerator({
-                    mode: (pattern as MaskitoDateMode) || defaultMode,
+                    mode: maskDateFormat,
+                    separator: '.',
                 }),
-            [pattern],
+            [],
         )
 
         return <GeneralMaskInput ref={ref} {...props} maskOptions={maskOptions} Component={TextField} properties={properties} showMask={showMask} />
@@ -40,6 +41,12 @@ export const dateInputModule = createDateInputComponentModule({
         componentsOperators.beforeDateOperator,
         componentsOperators.afterDateOperator,
     ],
-    validations: [rules.validations.minDateRule, rules.validations.maxDateRule, generalRules.validations.components.editable.isRequiredRule],
+    validations: [
+        rules.validations.minDateRule,
+        rules.validations.maxDateRule,
+        rules.validations.isDateRule,
+        rules.validations.isAdultRule,
+        generalRules.validations.components.editable.isRequiredRule,
+    ],
     Component: DateInput,
 })

@@ -17,11 +17,11 @@ export const init = ({ onFormSubmitEvent, invokeUserSubmitHandlerFx, componentsS
     sample({
         source: {
             componentsIsValid: componentsSchemasService.formValidationModel.$formIsValid,
-            visibleComponentsSchemas: componentsSchemasService.visabilityComponentsModel.$visibleComponentsSchemas,
+            currentViewVisibleComponentsSchemas: componentsSchemasService.visabilityComponentsModel.$currentViewVisibleComponentsSchemas,
         },
         clock: componentsSchemasService.formValidationModel.runFormValidationFx.done,
         filter: ({ componentsIsValid }) => componentsIsValid,
-        fn: ({ visibleComponentsSchemas }) => visibleComponentsSchemas,
+        fn: ({ currentViewVisibleComponentsSchemas }) => currentViewVisibleComponentsSchemas,
         target: invokeUserSubmitHandlerFx,
     })
 

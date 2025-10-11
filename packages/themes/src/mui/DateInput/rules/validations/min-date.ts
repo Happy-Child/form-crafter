@@ -2,7 +2,7 @@ import { createComponentValidationRule } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
 import dayjs from 'dayjs'
 
-import { validationErrors } from '../../../../consts'
+import { defaultDateFormat } from '../../consts'
 import { isDateInputSchema } from '../../utils'
 
 const optionsBuilder = builders.group({
@@ -21,12 +21,8 @@ export const minDateRule = createComponentValidationRule({
         const { message, minDate } = options
         const errorMessage = message.replace('{minDate}', minDate.toString())
 
-        const date = dayjs(schema.properties.value)
-        if (date.isValid()) {
-            return { isValid: false, message: validationErrors.invalidValue }
-        }
-
-        if (date.isBefore(minDate)) {
+        const date = dayjs(schema.properties.value, defaultDateFormat)
+        if (!date.isValid() || date.isBefore(minDate)) {
             return { isValid: false, message: errorMessage }
         }
 
