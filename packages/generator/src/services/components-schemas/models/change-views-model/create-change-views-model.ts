@@ -140,6 +140,7 @@ export const createChangeViewsModel = ({ viewsService, componentsModel, depsOfRu
         target: runViewChangeCheck,
     })
 
+    // TODO MOVE_TO_INIT - вынести mutationsModel. Сделать наружу апи которую будет дёргать mutationsModel с отдельном init-change-view.ts файле.
     sample({
         source: {
             componentsSchemas: componentsModel.$componentsSchemas,

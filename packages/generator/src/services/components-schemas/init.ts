@@ -54,6 +54,13 @@ export const init = ({
         target: changeViewsModel.runViewChangeCheck,
     })
 
+    // sample({
+    //     fn: ({ componentsSchemas }) => ({
+    //         componentsToUpdate: Object.entries(componentsSchemas).map(([componentId, schema]) => ({ componentId, schema, isNewValue: true })),
+    //     }),
+    //     target: changeViewsModel.runViewChangeCheck,
+    // })
+
     sample({
         source: {
             componentsSchemas: componentsModel.$componentsSchemas,

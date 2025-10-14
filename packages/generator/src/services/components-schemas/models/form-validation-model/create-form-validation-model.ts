@@ -32,6 +32,7 @@ export const createFormValidationModel = ({
 }: Params) => {
     const $isComponentsValidationPending = createStore<boolean>(false)
 
+    // TODO MOVE_TO_INIT вынести в componentsModel, туда же и ;currentViewVisibleComponentsSchemas. А visabilityComponentsModel выше componentsModel который его и будет использовать
     const $componentsIdsCanBeValidate = combine(visabilityComponentsModel.$currentViewVisibleComponentsSchemas, (currentViewVisibleComponentsSchemas) =>
         Object.entries(currentViewVisibleComponentsSchemas).reduce<Set<EntityId>>((result, [componentId, schema]) => {
             if (isNotEmpty(schema.validations?.schemas)) {

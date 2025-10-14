@@ -172,7 +172,7 @@ export const createReadyConditionalValidationsModel = ({ schemaService, depsOfRu
                     const isReadyRuleNow = readyComponentsRulesIds.has(validationSchemaId)
                     if (!ruleIsReady && isReadyRuleNow) {
                         // TODO не понятно что rulesToInactive для удаления ошибок которые активны сейчас, но правила для них стали не актиаными
-                        // можно убрать это и подписаться на readyComponentsRules + preview и сравнить что пропало, и удалить ошибки для них
+                        // можно убрать это и подписаться на readyComponentsRules + previous и сравнить что пропало, и удалить ошибки для них
                         rulesToInactive.add(validationSchemaId)
                     }
 

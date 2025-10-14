@@ -16,6 +16,7 @@ export type Schema = {
     views: Views
     componentsSchemas: ComponentsSchemas
     validations?: {
+        resetErrorsOnChangeView?: boolean
         additionalTriggers?: ValidationsTriggers[]
         schemas?: ValidationRuleSchema[]
     }

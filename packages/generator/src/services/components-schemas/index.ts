@@ -38,6 +38,7 @@ export const createComponentsSchemasService = ({
         componentsModel,
     })
 
+    // TODO MOVE_TO_INIT - выше над componentsModel. Или соеденить с createComponentsModel? Нам один стор всего + ивент.
     const visabilityComponentsModel = createVisabilityComponentsModel({ componentsModel, viewsService })
 
     const componentsValidationErrorsModel = createComponentsValidationErrorsModel({ visabilityComponentsModel })
@@ -48,16 +49,15 @@ export const createComponentsSchemasService = ({
         schemaService,
     })
 
-    componentsModel.initModels(
-        createComponentsModels({
-            runMutationsEvent: runMutationsOnUserActionsEvent,
-            componentsModel,
-            readyConditionalValidationsModel,
-            componentsValidationErrorsModel,
-            themeService,
-            schemaService,
-        }),
-    )
+    const componentsModels = createComponentsModels({
+        runMutationsEvent: runMutationsOnUserActionsEvent,
+        componentsModel,
+        readyConditionalValidationsModel,
+        componentsValidationErrorsModel,
+        themeService,
+        schemaService,
+    })
+    componentsModel.initModels(componentsModels)
 
     const formValidationModel = createFormValidationModel({
         componentsModel,

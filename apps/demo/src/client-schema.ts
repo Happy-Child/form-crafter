@@ -530,8 +530,6 @@ export const clientSchema: Schema = {
             validations: {
                 schemas: [
                     {
-                        // TODO НУЖНО ДАВАТЬ УКАЗЫВАТЬ В ЗАВИСИМОСТИ VALIDATION компоненты условия валидации для которых и описываем.
-                        // Проверять isEmail если не пустое поле.
                         id: genId(),
                         key: 'isEmail',
                         options: { message: 'Неверный формат поты' },
