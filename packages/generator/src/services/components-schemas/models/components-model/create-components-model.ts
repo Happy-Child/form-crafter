@@ -4,20 +4,24 @@ import { attach, combine, createEffect, createEvent, createStore, sample } from 
 import { once } from 'patronum'
 
 import { isConditionSuccessful } from '../../../../utils'
+import { SchemaService } from '../../../schema'
 import { ThemeService } from '../../../theme'
 import { ViewsService } from '../../../views'
+import { ComponentModelParams, createComponentModel } from './models'
 import { ComponentToUpdate, GetExecutorContextBuilder, GetIsConditionSuccessfulChecker } from './types'
 import { ComponentsModels } from './types'
 import { buildExecutorContext, extractComponentsModels } from './utils'
 
 type Params = {
     themeService: ThemeService
+    schemaService: SchemaService
     viewsService: ViewsService
 }
 
 export type ComponentsModel = ReturnType<typeof createComponentsModel>
 
-export const createComponentsModel = ({ themeService, viewsService }: Params) => {
+export const createComponentsModel = ({ schemaService, themeService, viewsService }: Params) => {
+    const $inited = createStore<boolean>(false)
     const $models = createStore<ComponentsModels>(new Map())
 
     const $componentsSchemas = combine($models, extractComponentsModels)
@@ -39,7 +43,7 @@ export const createComponentsModel = ({ themeService, viewsService }: Params) =>
         },
     )
 
-    const initModels = createEvent<ComponentsModels>('init')
+    const initModels = createEvent<ComponentsModels>('initModels')
     const setModels = createEvent<ComponentsModels>('setModels')
 
     const baseUpdateModelsFx = createEffect<
@@ -106,6 +110,7 @@ export const createComponentsModel = ({ themeService, viewsService }: Params) =>
         effect: baseRemoveComponentsFx,
     })
 
+    $inited.on(initModels, () => true)
     $models.on(setModels, (_, data) => data)
 
     sample({
@@ -120,9 +125,30 @@ export const createComponentsModel = ({ themeService, viewsService }: Params) =>
 
     const componentsAddedOrRemoved = sample({ clock: [once(initModels), createComponentsFx.doneData, removeComponentsFx.doneData] })
 
+    const init = (params: Omit<ComponentModelParams, 'schema' | '$getExecutorContextBuilder'>) => {
+        if ($inited.getState()) {
+            return
+        }
+
+        const models = Object.entries(schemaService.$initialSchema.getState().componentsSchemas).reduce<ComponentsModels>(
+            (map, [componentId, componentSchema]) => {
+                const model = createComponentModel({
+                    ...params,
+                    schema: componentSchema,
+                    $getExecutorContextBuilder,
+                })
+                map.set(componentId, model)
+                return map
+            },
+            new Map(),
+        )
+
+        initModels(models)
+    }
+
     return {
         updateModelsFx,
-        initModels,
+        init,
         componentsAddedOrRemoved,
         $models,
         $componentsSchemas,

@@ -1,5 +1,4 @@
 export * from './container-model'
-export * from './create-components-models'
 export * from './editable-model'
 export * from './repeater-model'
 export * from './static-model'

@@ -8,6 +8,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers-pro'
 
 import { clientSchema } from '../client-schema'
+// import { employeeFormSchema } from '../mock-schemas-old'
 import { AppStyled } from './styles'
 
 const PlaceholderComponent: FC = () => <div>Not found component</div>

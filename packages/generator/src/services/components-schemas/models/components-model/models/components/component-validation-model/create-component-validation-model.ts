@@ -2,14 +2,15 @@ import { ComponentSchema, ComponentValidationResult, EntityId, validationKeys } 
 import { isNotEmpty, isNotNull } from '@form-crafter/utils'
 import { attach, combine, createEffect, createStore, Store, StoreWritable } from 'effector'
 
-import { ComponentsValidationErrors } from '../../components-validation-errors-model'
-import { ComponentModelParams, RunComponentValidationFxDone, RunComponentValidationFxFail } from '../types'
+import { ComponentsValidationErrors } from '../../../../components-validation-errors-model'
+import { ComponentModelParams } from '../../types'
+import { RunComponentValidationFxDone, RunComponentValidationFxFail } from '../types'
 import { RunComponentValidationFxParams } from './types'
 import { getPermanentValidationsByKey } from './utils'
 
 type ComponentValidationModelParams<S extends ComponentSchema> = Pick<
     ComponentModelParams,
-    'componentsModel' | 'componentsValidationErrorsModel' | 'readyConditionalValidationsModel' | 'themeService'
+    '$getExecutorContextBuilder' | 'componentsValidationErrorsModel' | 'readyConditionalValidationsModel' | 'themeService'
 > & {
     $componentId: Store<EntityId>
     $schema: StoreWritable<S>
@@ -17,7 +18,7 @@ type ComponentValidationModelParams<S extends ComponentSchema> = Pick<
 }
 
 export const createComponentValidationModel = <S extends ComponentSchema>({
-    componentsModel,
+    $getExecutorContextBuilder,
     $componentId,
     $schema,
     readyConditionalValidationsModel,
@@ -117,7 +118,7 @@ export const createComponentValidationModel = <S extends ComponentSchema>({
     const runValidationFx = attach({
         source: {
             schema: $schema,
-            getExecutorContextBuilder: componentsModel.$getExecutorContextBuilder,
+            getExecutorContextBuilder: $getExecutorContextBuilder,
             readyComponentConditionalValidations: $readyComponentConditionalValidations,
             componentsValidationsRules: themeService.$componentsValidationsRules,
         },

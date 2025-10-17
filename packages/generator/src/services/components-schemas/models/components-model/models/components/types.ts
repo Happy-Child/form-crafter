@@ -1,5 +1,4 @@
 import {
-    ComponentSchema,
     ComponentValidationError,
     ContainerComponentProperties,
     ContainerComponentSchema,
@@ -13,12 +12,7 @@ import {
 import { AvailableObject } from '@form-crafter/utils'
 import { Effect, EventCallable, Store, StoreWritable } from 'effector'
 
-import { SchemaService } from '../../../schema'
-import { ThemeService } from '../../../theme'
-import { RunMutationsOnUserActionsPayload } from '../../types'
-import { ComponentsModel } from '../components-model'
-import { ComponentsValidationErrors, ComponentsValidationErrorsModel } from '../components-validation-errors-model'
-import { ReadyConditionalValidationsModel } from '../ready-conditional-validations-model'
+import { ComponentsValidationErrors } from '../../../components-validation-errors-model'
 
 export type RunComponentValidationFxDone = {}
 
@@ -27,16 +21,6 @@ export type RunComponentValidationFxFail = { errors: ComponentsValidationErrors[
 export type GeneralModelParams = {}
 
 export type SetSchemaPayload = { schema: AvailableObject; isNewValue?: boolean }
-
-export type ComponentModelParams = {
-    runMutationsEvent: EventCallable<RunMutationsOnUserActionsPayload>
-    componentsModel: ComponentsModel
-    readyConditionalValidationsModel: ReadyConditionalValidationsModel
-    componentsValidationErrorsModel: ComponentsValidationErrorsModel
-    themeService: ThemeService
-    schemaService: SchemaService
-    schema: ComponentSchema
-}
 
 export type EditableModel = {
     $schema: StoreWritable<EditableComponentSchema>

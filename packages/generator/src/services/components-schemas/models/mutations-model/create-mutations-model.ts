@@ -6,8 +6,8 @@ import { combineEvents } from 'patronum'
 
 import { SchemaService } from '../../../schema'
 import { ThemeService } from '../../../theme'
-import { isChangedValue } from '../components'
 import { ComponentsModel } from '../components-model'
+import { isChangedValue } from '../components-model/models/components'
 import { VisabilityComponentsModel } from '../visability-components-model'
 import { MutationsOverridesCache, RunMutationsPayload } from './types'
 

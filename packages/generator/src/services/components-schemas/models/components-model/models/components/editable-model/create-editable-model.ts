@@ -2,8 +2,9 @@ import { EditableComponentProperties, EditableComponentSchema } from '@form-craf
 import { isNotEmpty } from '@form-crafter/utils'
 import { combine, createEvent, createStore, sample } from 'effector'
 
+import { ComponentModelParams } from '../../types'
 import { createComponentValidationModel } from '../component-validation-model'
-import { ComponentModelParams, EditableModel, SetSchemaPayload } from '../types'
+import { EditableModel, SetSchemaPayload } from '../types'
 
 type Params = Omit<ComponentModelParams, 'schema'> & {
     schema: EditableComponentSchema

@@ -3,7 +3,6 @@ import { createEvent, createStore } from 'effector'
 
 import { init } from './init'
 import { createChangeViewsModel } from './models/change-views-model'
-import { createComponentsModels } from './models/components'
 import { createComponentsModel } from './models/components-model'
 import { createComponentsValidationErrorsModel } from './models/components-validation-errors-model'
 import { createDepsOfRulesModel } from './models/deps-of-rules-model'
@@ -28,7 +27,7 @@ export const createComponentsSchemasService = ({
     const initServiceEvent = createEvent('initServiceEvent')
     const runMutationsOnUserActionsEvent = createEvent<RunMutationsOnUserActionsPayload>('runMutationsOnUserActionsEvent')
 
-    const componentsModel = createComponentsModel({ themeService, viewsService })
+    const componentsModel = createComponentsModel({ themeService, viewsService, schemaService })
 
     const depsOfRulesModel = createDepsOfRulesModel({
         appErrorsService,
@@ -49,15 +48,13 @@ export const createComponentsSchemasService = ({
         schemaService,
     })
 
-    const componentsModels = createComponentsModels({
+    componentsModel.init({
         runMutationsEvent: runMutationsOnUserActionsEvent,
-        componentsModel,
         readyConditionalValidationsModel,
         componentsValidationErrorsModel,
         themeService,
         schemaService,
     })
-    componentsModel.initModels(componentsModels)
 
     const formValidationModel = createFormValidationModel({
         componentsModel,
