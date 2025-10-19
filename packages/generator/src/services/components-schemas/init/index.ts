@@ -1,4 +1,3 @@
-import { EntityId } from '@form-crafter/core'
 import { isNotEmpty } from '@form-crafter/utils'
 import { EventCallable, sample, StoreWritable } from 'effector'
 import { cloneDeep } from 'lodash-es'
@@ -43,12 +42,10 @@ export const init = ({
     runMutationsOnUserActionsEvent,
     setFirstMutationsToDone,
 }: Params) => {
-    type FilteredParams = { canBeChange: boolean; viewId: EntityId | null }
     sample({
-        clock: changeViewsModel.resultOfViewChangeCheck,
-        filter: (params): params is FilteredParams => params.canBeChange,
-        fn: ({ viewId }: FilteredParams) => viewId,
-        target: viewsService.setCurrentViewIdEvent,
+        clock: changeViewsModel.viewCanBeChanged,
+        fn: ({ viewId }) => viewId,
+        target: [viewsService.setCurrentViewIdEvent, componentsValidationErrorsModel.removeAllErrors, formValidationModel.groupValidationModel.clearErrors],
     })
 
     sample({

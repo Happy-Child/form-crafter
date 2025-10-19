@@ -72,7 +72,7 @@ export const createEditableModel = ({ schemaService, runMutationsEvent, componen
         clock: valueBeChangedEvent,
         filter: ({ firstError }) => isNotEmpty(firstError),
         fn: ({ componentId }) => componentId,
-        target: componentsValidationErrorsModel.removeAllErrorsEvent,
+        target: componentsValidationErrorsModel.removeAllComponentErrors,
     })
 
     if (validationOnChangeIsAvailable) {

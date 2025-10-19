@@ -24,11 +24,14 @@ export const createComponentsValidationErrorsModel = ({ componentsModel }: Param
     const removeGroupErrorsEvent = createEvent<EntityId>('removeGroupErrorsEvent')
 
     const setComponentErrorsEvent = createEvent<SetComponentValidationErrorsPayload>('setComponentErrorsEvent')
+    const clearComponentsErrors = createEvent<void>('clearComponentsErrors')
     const removeComponentErrorsEvent = createEvent<EntityId>('removeComponentErrorsEvent')
 
     const filterAllErrorsEvent = createEvent<Set<EntityId>>('filterAllErrorsEvent')
 
-    const removeAllErrorsEvent = createEvent<EntityId>('removeAllErrorsEvent')
+    const removeAllComponentErrors = createEvent<EntityId>('removeAllComponentErrors')
+
+    const removeAllErrors = createEvent('removeAllErrors')
 
     const $visibleErrors = combine($mergedErrors, componentsModel.$hiddenComponents, (validationErrors, hiddenComponentsIds) => {
         const filteredErrors: UnitValue<typeof $mergedErrors> = { ...validationErrors }
@@ -54,13 +57,19 @@ export const createComponentsValidationErrorsModel = ({ componentsModel }: Param
 
     $componentsErrors.on(setComponentErrorsEvent, (curErrors, { componentId, errors }) => ({ ...curErrors, [componentId]: errors }))
     $componentsErrors.on(removeComponentErrorsEvent, removeValidationErrors)
+    $componentsErrors.reset(clearComponentsErrors)
 
     $componentsGroupsErrors.on(filterAllErrorsEvent, filterValidationErrors)
     $componentsErrors.on(filterAllErrorsEvent, filterValidationErrors)
 
     sample({
-        clock: removeAllErrorsEvent,
+        clock: removeAllComponentErrors,
         target: [removeGroupErrorsEvent, removeComponentErrorsEvent],
+    })
+
+    sample({
+        clock: removeAllErrors,
+        target: [clearComponentsGroupsErrorsEvent, clearComponentsErrors],
     })
 
     sample({
@@ -101,7 +110,8 @@ export const createComponentsValidationErrorsModel = ({ componentsModel }: Param
         setComponentErrorsEvent,
         setComponentsGroupsErrorsEvent,
         removeComponentErrorsEvent,
-        removeAllErrorsEvent,
+        removeAllComponentErrors,
+        removeAllErrors,
         filterAllErrorsEvent,
         clearComponentsGroupsErrorsEvent,
         $componentsGroupsErrors,

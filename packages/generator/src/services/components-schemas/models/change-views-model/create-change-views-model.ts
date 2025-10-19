@@ -81,6 +81,13 @@ export const createChangeViewsModel = ({ viewsService, componentsModel, depsOfRu
         },
     })
 
+    type FilteredParams = { canBeChange: boolean; viewId: EntityId | null }
+    const viewCanBeChanged = sample({
+        clock: resultOfViewChangeCheck,
+        filter: (params): params is FilteredParams => params.canBeChange,
+        fn: (params: FilteredParams) => params,
+    })
+
     const splitDispatcher = sample({
         source: { firstMutationsIsDone: $firstMutationsIsDone },
         clock: resultOfViewChangeCheck,
@@ -101,6 +108,7 @@ export const createChangeViewsModel = ({ viewsService, componentsModel, depsOfRu
 
     return {
         runViewChangeCheck,
+        viewCanBeChanged,
         resultOfViewChangeCheck,
         calcMutationsAfterViewChanged,
         setChangeViewWasChecked,

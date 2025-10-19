@@ -105,7 +105,7 @@ export const createGroupValidationModel = ({
 
     const setErrorsEvent = createEvent<UnitValue<typeof $errors>>('setErrorsEvent')
 
-    const clearErrorsEvent = createEvent('clearErrorsEvent')
+    const clearErrors = createEvent('clearErrors')
 
     const filterErrorsEvent = createEvent<Set<EntityId>>('filterErrorsEvent')
 
@@ -114,7 +114,7 @@ export const createGroupValidationModel = ({
         $isValidationPending.on(runValidationsFx.finally, () => false)
 
         $errors.on(setErrorsEvent, (_, newErrors) => newErrors)
-        $errors.reset(clearErrorsEvent)
+        $errors.reset(clearErrors)
         $errors.on(filterErrorsEvent, (errors, errorsToRemove) => {
             const newErrors = new Map(errors)
             for (const validationSchemaId of errorsToRemove) {
@@ -139,13 +139,14 @@ export const createGroupValidationModel = ({
 
         sample({
             clock: runValidationsFx.doneData,
-            target: [componentsValidationErrorsModel.clearComponentsGroupsErrorsEvent, clearErrorsEvent],
+            target: [componentsValidationErrorsModel.clearComponentsGroupsErrorsEvent, clearErrors],
         })
     }
 
     return {
         runValidationsFx,
         filterErrorsEvent,
+        clearErrors,
         $errors,
         $isValidationPending,
     }
