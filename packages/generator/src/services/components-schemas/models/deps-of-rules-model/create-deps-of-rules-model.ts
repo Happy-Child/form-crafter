@@ -136,7 +136,6 @@ export const createDepsOfRulesModel = ({ appErrorsService, themeService, viewsSe
     })
 
     const initCheckCyclesEvent = createEvent('initCheckCyclesEvent')
-    // TODO MOVE_TO_INIT - appErrorsService
     sample({
         source: $activeViewInfoOfGraphMutationsResolution,
         clock: [$activeViewInfoOfGraphMutationsResolution, initCheckCyclesEvent],

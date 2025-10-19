@@ -8,19 +8,17 @@ import { SchemaService } from '../../../schema'
 import { ThemeService } from '../../../theme'
 import { ComponentsModel } from '../components-model'
 import { isChangedValue } from '../components-model/models/components'
-import { VisabilityComponentsModel } from '../visability-components-model'
 import { MutationsOverridesCache, RunMutationsPayload } from './types'
 
 type Params = {
     componentsModel: ComponentsModel
-    visabilityComponentsModel: VisabilityComponentsModel
     themeService: ThemeService
     schemaService: SchemaService
 }
 
 export type MutationsModel = ReturnType<typeof createMutationsModel>
 
-export const createMutationsModel = ({ componentsModel, visabilityComponentsModel, themeService, schemaService }: Params) => {
+export const createMutationsModel = ({ componentsModel, themeService, schemaService }: Params) => {
     const $overridesCache = createStore<MutationsOverridesCache>({})
 
     const setOverridesCacheEvent = createEvent<MutationsOverridesCache>('setOverridesCacheEvent')
@@ -36,7 +34,7 @@ export const createMutationsModel = ({ componentsModel, visabilityComponentsMode
             initialComponentsSchemas: schemaService.$initialComponentsSchemas,
             overridesCache: $overridesCache,
             themeMutationsRules: themeService.$mutationsRules,
-            hiddenComponents: visabilityComponentsModel.$hiddenComponents,
+            hiddenComponents: componentsModel.$hiddenComponents,
         },
         clock: calcMutationsEvent,
         fn: (

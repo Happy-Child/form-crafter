@@ -8,12 +8,10 @@ import { ComponentsModel } from '../components-model'
 import { isValidableModel, RunComponentValidationFxDone, RunComponentValidationFxFail } from '../components-model/models/components'
 import { ComponentsValidationErrorsModel } from '../components-validation-errors-model'
 import { ReadyConditionalValidationsModel } from '../ready-conditional-validations-model'
-import { VisabilityComponentsModel } from '../visability-components-model'
 import { createGroupValidationModel } from './models/group-validation-model'
 
 type Params = {
     componentsModel: ComponentsModel
-    visabilityComponentsModel: VisabilityComponentsModel
     componentsValidationErrorsModel: ComponentsValidationErrorsModel
     readyConditionalValidationsModel: ReadyConditionalValidationsModel
     themeService: ThemeService
@@ -25,15 +23,13 @@ export type FormValidationModel = ReturnType<typeof createFormValidationModel>
 export const createFormValidationModel = ({
     componentsModel,
     componentsValidationErrorsModel,
-    visabilityComponentsModel,
     readyConditionalValidationsModel,
     themeService,
     schemaService,
 }: Params) => {
     const $isComponentsValidationPending = createStore<boolean>(false)
 
-    // TODO MOVE_TO_INIT вынести в componentsModel, туда же и ;currentViewVisibleComponentsSchemas. А visabilityComponentsModel выше componentsModel который его и будет использовать
-    const $componentsIdsCanBeValidate = combine(visabilityComponentsModel.$currentViewVisibleComponentsSchemas, (currentViewVisibleComponentsSchemas) =>
+    const $componentsIdsCanBeValidate = combine(componentsModel.$currentViewVisibleComponentsSchemas, (currentViewVisibleComponentsSchemas) =>
         Object.entries(currentViewVisibleComponentsSchemas).reduce<Set<EntityId>>((result, [componentId, schema]) => {
             if (isNotEmpty(schema.validations?.schemas)) {
                 result.add(componentId)

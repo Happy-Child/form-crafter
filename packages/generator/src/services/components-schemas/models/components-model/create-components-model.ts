@@ -24,6 +24,8 @@ export const createComponentsModel = ({ schemaService, themeService, viewsServic
     const $inited = createStore<boolean>(false)
     const $models = createStore<ComponentsModels>(new Map())
 
+    const $hiddenComponents = createStore<Set<EntityId>>(new Set())
+
     const $componentsSchemas = combine($models, extractComponentsModels)
 
     const $viewComponentsSchemas = combine($componentsSchemas, viewsService.$currentViewComponents, (componentsSchemas, currentViewComponents) =>
@@ -42,6 +44,18 @@ export const createComponentsModel = ({ schemaService, themeService, viewsServic
             return ({ condition }) => isConditionSuccessful({ ctx, condition, operators })
         },
     )
+
+    const $currentViewVisibleComponentsSchemas = combine(
+        $componentsSchemas,
+        viewsService.$currentViewComponents,
+        $hiddenComponents,
+        (componentsSchemas, currentViewComponents, hiddenComponents) =>
+            Object.fromEntries(
+                Object.entries(componentsSchemas).filter(([componentId]) => currentViewComponents.has(componentId) && !hiddenComponents.has(componentId)),
+            ),
+    )
+
+    const setHiddenComponents = createEvent<Set<EntityId>>('setHiddenComponents')
 
     const initModels = createEvent<ComponentsModels>('initModels')
     const setModels = createEvent<ComponentsModels>('setModels')
@@ -113,6 +127,8 @@ export const createComponentsModel = ({ schemaService, themeService, viewsServic
     $inited.on(initModels, () => true)
     $models.on(setModels, (_, data) => data)
 
+    $hiddenComponents.on(setHiddenComponents, (_, newComponentsToHidden) => newComponentsToHidden)
+
     sample({
         clock: once(initModels),
         target: setModels,
@@ -150,10 +166,13 @@ export const createComponentsModel = ({ schemaService, themeService, viewsServic
         updateModelsFx,
         init,
         componentsAddedOrRemoved,
+        setHiddenComponents,
         $models,
         $componentsSchemas,
         $viewComponentsSchemas,
         $getExecutorContextBuilder,
         $getIsConditionSuccessfulChecker,
+        $hiddenComponents,
+        $currentViewVisibleComponentsSchemas,
     }
 }

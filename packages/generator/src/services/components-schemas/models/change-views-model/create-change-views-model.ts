@@ -1,25 +1,22 @@
 import { EntityId } from '@form-crafter/core'
-import { isEmpty, isNotEmpty } from '@form-crafter/utils'
+import { isNotEmpty } from '@form-crafter/utils'
 import { createEvent, createStore, sample, split, StoreWritable } from 'effector'
-import { combineEvents } from 'patronum'
 
 import { ViewsService } from '../../../views'
 import { ComponentsModel } from '../components-model'
 import { DepsOfRulesModel } from '../deps-of-rules-model'
-import { MutationsModel } from '../mutations-model'
 import { PrepareDispatcherPayload } from './types'
 
 type Params = {
     viewsService: ViewsService
     componentsModel: ComponentsModel
     depsOfRulesModel: DepsOfRulesModel
-    mutationsModel: MutationsModel
     $firstMutationsIsDone: StoreWritable<boolean>
 }
 
 export type ChangeViewsModel = ReturnType<typeof createChangeViewsModel>
 
-export const createChangeViewsModel = ({ viewsService, componentsModel, depsOfRulesModel, mutationsModel, $firstMutationsIsDone }: Params) => {
+export const createChangeViewsModel = ({ viewsService, componentsModel, depsOfRulesModel, $firstMutationsIsDone }: Params) => {
     const $changeViewWasChecked = createStore(false)
 
     const runViewChangeCheck = createEvent<PrepareDispatcherPayload>('prepareDispatcherEvent')
@@ -84,15 +81,6 @@ export const createChangeViewsModel = ({ viewsService, componentsModel, depsOfRu
         },
     })
 
-    type FilteredParams = { canBeChange: boolean; viewId: EntityId | null }
-
-    sample({
-        clock: resultOfViewChangeCheck,
-        filter: (params): params is FilteredParams => params.canBeChange,
-        fn: ({ viewId }: FilteredParams) => viewId,
-        target: viewsService.setCurrentViewIdEvent,
-    })
-
     const splitDispatcher = sample({
         source: { firstMutationsIsDone: $firstMutationsIsDone },
         clock: resultOfViewChangeCheck,
@@ -111,57 +99,13 @@ export const createChangeViewsModel = ({ viewsService, componentsModel, depsOfRu
         },
     })
 
-    sample({
-        clock: mutationsModel.resultOfCalcMutationsEvent,
-        filter: ({ componentsToUpdate }) => isEmpty(componentsToUpdate),
-        target: resetChangeViewWasChecked,
-    })
-
-    const checkChangeViewDispatcher = sample({
-        source: { changeViewWasChecked: $changeViewWasChecked },
-        clock: mutationsModel.componentsIsUpdatedAfterMutationsEvent,
-        fn: (source, params) => ({ ...source, ...params }),
-    })
-
-    split({
-        source: checkChangeViewDispatcher,
-        match: {
-            reset: ({ changeViewWasChecked }) => changeViewWasChecked,
-        },
-        cases: {
-            reset: resetChangeViewWasChecked,
-            __: startViewChangeCheck,
-        },
-    })
-
-    sample({
-        clock: combineEvents([mutationsModel.componentsIsUpdatedAfterMutationsEvent, startViewChangeCheck]),
-        fn: ([{ componentsToUpdate }]) => ({ componentsToUpdate }),
-        target: runViewChangeCheck,
-    })
-
-    // TODO MOVE_TO_INIT - вынести mutationsModel. Сделать наружу апи которую будет дёргать mutationsModel с отдельном init-change-view.ts файле.
-    sample({
-        source: {
-            componentsSchemas: componentsModel.$componentsSchemas,
-            activeViewDepsForAllMutationsResolution: depsOfRulesModel.$activeViewDepsForAllMutationsResolution,
-        },
-        clock: calcMutationsAfterViewChanged,
-        fn: ({ componentsSchemas, activeViewDepsForAllMutationsResolution }) => ({
-            curComponentsSchemas: componentsSchemas,
-            newComponentsSchemas: componentsSchemas,
-            componentsIdsToUpdate: [],
-            depsForMutationsResolution: activeViewDepsForAllMutationsResolution,
-        }),
-        target: mutationsModel.calcMutationsEvent,
-    })
-
     return {
         runViewChangeCheck,
         resultOfViewChangeCheck,
         calcMutationsAfterViewChanged,
         setChangeViewWasChecked,
         resetChangeViewWasChecked,
+        startViewChangeCheck,
         $changeViewWasChecked,
     }
 }

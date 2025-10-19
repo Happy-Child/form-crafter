@@ -9,7 +9,6 @@ import { createDepsOfRulesModel } from './models/deps-of-rules-model'
 import { createFormValidationModel } from './models/form-validation-model'
 import { createMutationsModel } from './models/mutations-model'
 import { createReadyConditionalValidationsModel } from './models/ready-conditional-validations-model'
-import { createVisabilityComponentsModel } from './models/visability-components-model'
 import { ComponentsSchemasService, ComponentsSchemasServiceParams, RunMutationsOnUserActionsPayload } from './types'
 
 export type { ComponentsSchemasService }
@@ -37,10 +36,7 @@ export const createComponentsSchemasService = ({
         componentsModel,
     })
 
-    // TODO MOVE_TO_INIT - выше над componentsModel. Или соеденить с createComponentsModel? Нам один стор всего + ивент.
-    const visabilityComponentsModel = createVisabilityComponentsModel({ componentsModel, viewsService })
-
-    const componentsValidationErrorsModel = createComponentsValidationErrorsModel({ visabilityComponentsModel })
+    const componentsValidationErrorsModel = createComponentsValidationErrorsModel({ componentsModel })
 
     const readyConditionalValidationsModel = createReadyConditionalValidationsModel({
         depsOfRulesModel,
@@ -58,7 +54,6 @@ export const createComponentsSchemasService = ({
 
     const formValidationModel = createFormValidationModel({
         componentsModel,
-        visabilityComponentsModel,
         componentsValidationErrorsModel,
         readyConditionalValidationsModel,
         themeService,
@@ -67,7 +62,6 @@ export const createComponentsSchemasService = ({
 
     const mutationsModel = createMutationsModel({
         componentsModel,
-        visabilityComponentsModel,
         themeService,
         schemaService,
     })
@@ -76,14 +70,12 @@ export const createComponentsSchemasService = ({
         componentsModel,
         depsOfRulesModel,
         viewsService,
-        mutationsModel,
         $firstMutationsIsDone,
     })
 
     init({
         viewsService,
         componentsModel,
-        visabilityComponentsModel,
         componentsValidationErrorsModel,
         depsOfRulesModel,
         readyConditionalValidationsModel,
@@ -113,7 +105,6 @@ export const createComponentsSchemasService = ({
     return {
         componentsModel,
         depsOfRulesModel,
-        visabilityComponentsModel,
         formValidationModel,
         initServiceEvent,
         updateComponentsSchemasEvent,

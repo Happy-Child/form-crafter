@@ -1,17 +1,17 @@
 import { EntityId } from '@form-crafter/core'
 import { combine, createEvent, createStore, sample, UnitValue } from 'effector'
 
-import { VisabilityComponentsModel } from '../visability-components-model'
+import { ComponentsModel } from '../components-model'
 import { ComponentsValidationErrors, SetComponentValidationErrorsPayload } from './types'
 import { filterValidationErrors, isErrorsDifferent, removeValidationErrors } from './utils'
 
 type Params = {
-    visabilityComponentsModel: VisabilityComponentsModel
+    componentsModel: ComponentsModel
 }
 
 export type ComponentsValidationErrorsModel = ReturnType<typeof createComponentsValidationErrorsModel>
 
-export const createComponentsValidationErrorsModel = ({ visabilityComponentsModel }: Params) => {
+export const createComponentsValidationErrorsModel = ({ componentsModel }: Params) => {
     const $componentsGroupsErrors = createStore<ComponentsValidationErrors>({})
     const $componentsErrors = createStore<ComponentsValidationErrors>({})
 
@@ -30,7 +30,7 @@ export const createComponentsValidationErrorsModel = ({ visabilityComponentsMode
 
     const removeAllErrorsEvent = createEvent<EntityId>('removeAllErrorsEvent')
 
-    const $visibleErrors = combine($mergedErrors, visabilityComponentsModel.$hiddenComponents, (validationErrors, hiddenComponentsIds) => {
+    const $visibleErrors = combine($mergedErrors, componentsModel.$hiddenComponents, (validationErrors, hiddenComponentsIds) => {
         const filteredErrors: UnitValue<typeof $mergedErrors> = { ...validationErrors }
         let wasDeleted = false
 
