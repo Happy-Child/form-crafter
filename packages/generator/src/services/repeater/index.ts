@@ -5,13 +5,13 @@ import { AddChildPayload, RemoveChildPayload, RepeaterService, RepeaterServicePa
 
 export type { RepeaterService }
 
-export const createRepeaterService = ({ componentsSchemasService, viewsService }: RepeaterServiceParams): RepeaterService => {
+export const createRepeaterService = ({ componentsService, viewsService }: RepeaterServiceParams): RepeaterService => {
     const addChildEvent = createEvent<AddChildPayload>('addChildEvent')
 
     const removeChildEvent = createEvent<RemoveChildPayload>('removeChildEvent')
 
     init({
-        componentsSchemasService,
+        componentsService,
         viewsService,
         addChildEvent,
         removeChildEvent,

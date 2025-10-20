@@ -1,11 +1,11 @@
-import { ComponentConditionOperandNode, ComponentConditionOperator, ConditionNode, RuleExecutorContext, ViewConditionOperandNode } from '@form-crafter/core'
+import { ComponentConditionOperator, ConditionComponentNode, ConditionNode, RuleExecutorContext } from '@form-crafter/core'
 import { isEmptyArray, isNotNull, isNull } from '@form-crafter/utils'
 
 import { conditionOperetorExecutor } from '../condition-operetor-executor'
 
 const defaultValueOnSkip = false
 
-const getResultIfHidden = (strategy: ComponentConditionOperandNode['strategyIfHidden']) => {
+const getResultIfHidden = (strategy: ConditionComponentNode['strategyIfHidden']) => {
     switch (strategy) {
         case 'skip':
             return null
@@ -18,9 +18,7 @@ const getResultIfHidden = (strategy: ComponentConditionOperandNode['strategyIfHi
     }
 }
 
-const isComponentConditionNode = (condition: ConditionNode): condition is ComponentConditionOperandNode => condition.type === 'component'
-
-const isViewConditionNode = (condition: ConditionNode): condition is ViewConditionOperandNode => condition.type === 'view'
+const isComponentConditionNode = (condition: ConditionNode): condition is ConditionComponentNode => condition.type === 'component'
 
 type Params = {
     ctx: RuleExecutorContext
@@ -51,17 +49,6 @@ export const isConditionSuccessful = ({ ctx, condition, operators }: Params) => 
             }
 
             return operator.execute(componentSchema, { ctx })
-        }
-
-        if (isViewConditionNode(condition)) {
-            const currentView = ctx.getCurrentView()
-
-            switch (condition.operatorKey) {
-                case 'active':
-                    return currentView === condition.viewId
-                case 'notActive':
-                    return currentView !== condition.viewId
-            }
         }
 
         const { operator, operands } = condition

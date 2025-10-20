@@ -1,10 +1,6 @@
-import { EntityId, MutationConditionNode, ValidationConditionNode } from '@form-crafter/core'
+import { ConditionNode, EntityId } from '@form-crafter/core'
 
-export const extractComponentConditionDeps = (condition: MutationConditionNode | ValidationConditionNode, deps: Set<EntityId> = new Set()) => {
-    if (condition.type === 'view') {
-        return new Set<EntityId>()
-    }
-
+export const extractComponentConditionDeps = (condition: ConditionNode, deps: Set<EntityId> = new Set()) => {
     if (condition.type === 'component') {
         deps.add(condition.componentId)
         return deps

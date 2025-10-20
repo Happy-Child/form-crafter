@@ -602,7 +602,7 @@ export const clientSchema: Schema = {
                     {
                         id: genId(),
                         key: 'disabled',
-                        condition: { type: 'component', componentId: 'inn', operatorKey: 'isEmpty' },
+                        condition: { type: 'component', componentId: 'bankAccount', operatorKey: 'isNotEmpty' },
                     },
                 ],
             },

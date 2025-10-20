@@ -1,7 +1,7 @@
 import { isContainerComponentSchema, isEditableComponentSchema, isRepeaterComponentSchema } from '@form-crafter/core'
 
-import { type ComponentModel, createContainerModel, createEditableModel, createRepeaterModel, createStaticModel } from './components'
 import { ComponentModelParams } from './types'
+import { type ComponentModel, createContainerModel, createEditableModel, createRepeaterModel, createStaticModel } from './variants'
 
 export const createComponentModel = ({ schema, ...args }: ComponentModelParams): ComponentModel => {
     if (isEditableComponentSchema(schema)) {

@@ -4,12 +4,12 @@
 import { RepeaterService, RepeaterServiceParams } from './types'
 // import { createViewsDefinitions, extractRelevantViews, insertViews, removeViewRow } from './utils'
 
-type Params = Pick<RepeaterService, 'addChildEvent' | 'removeChildEvent'> & Pick<RepeaterServiceParams, 'componentsSchemasService' | 'viewsService'> & {}
+type Params = Pick<RepeaterService, 'addChildEvent' | 'removeChildEvent'> & Pick<RepeaterServiceParams, 'componentsService' | 'viewsService'> & {}
 
 export const init = (params: Params) => {
     console.log(params)
     // const executeAddChildEvent = sample({
-    //     source: { views: viewsService.$views, visibleComponentsSchemas: componentsSchemasService.componentsModel.$visibleComponentsSchemas },
+    //     source: { views: viewsService.$views, visibleComponentsSchemas: componentsService.componentsModel.$visibleComponentsSchemas },
     //     clock: addChildEvent,
     //     fn: ({ views: currentViews, visibleComponentsSchemas }, { repeaterId }) => {
     //         const { template } = visibleComponentsSchemas[repeaterId] as RepeaterComponentSchema
@@ -29,7 +29,7 @@ export const init = (params: Params) => {
     // sample({
     //     clock: executeAddChildEvent,
     //     fn: ({ componentsSchemas }) => componentsSchemas,
-    //     target: componentsSchemasService.updateComponentsSchemasEvent,
+    //     target: componentsService.updateComponentsSchemasEvent,
     // })
     // sample({
     //     clock: executeAddChildEvent,
@@ -37,7 +37,7 @@ export const init = (params: Params) => {
     //     target: viewsService.setViewsEvent,
     // })
     // const executeRemoveChildEvent = sample({
-    //     source: { views: viewsService.$views, visibleComponentsSchemas: componentsSchemasService.componentsModel.$visibleComponentsSchemas },
+    //     source: { views: viewsService.$views, visibleComponentsSchemas: componentsService.componentsModel.$visibleComponentsSchemas },
     //     clock: removeChildEvent,
     //     fn: ({ views: currentViews, visibleComponentsSchemas }, { rowId, repeaterId }) => {
     //         const { template } = visibleComponentsSchemas[repeaterId] as RepeaterComponentSchema
@@ -52,7 +52,7 @@ export const init = (params: Params) => {
     // sample({
     //     clock: executeRemoveChildEvent,
     //     fn: ({ componentsIdsToRemove }) => ({ ids: componentsIdsToRemove }),
-    //     target: componentsSchemasService.removeComponentsSchemasByIdsEvent,
+    //     target: componentsService.removeComponentsSchemasByIdsEvent,
     // })
     // sample({
     //     clock: executeRemoveChildEvent,

@@ -7,7 +7,7 @@ import { combineEvents } from 'patronum'
 import { SchemaService } from '../../../schema'
 import { ThemeService } from '../../../theme'
 import { ComponentsModel } from '../components-model'
-import { isChangedValue } from '../components-model/models/components'
+import { isChangedValue } from '../components-model/models/variants'
 import { MutationsOverridesCache, RunMutationsPayload } from './types'
 
 type Params = {
@@ -66,40 +66,13 @@ export const createMutationsModel = ({ componentsModel, themeService, schemaServ
                     if (canBeApply) {
                         const rule = themeMutationsRules[key]
 
-                        const newProperties = rule.execute(componentSchema, { options: options || {}, ctx: executorContext })
+                        const nextProperties = rule.execute(componentSchema, { options: options || {}, ctx: executorContext })
 
-                        if (!isNotEmpty(newProperties)) {
+                        if (!isNotEmpty(nextProperties)) {
                             return
                         }
 
-                        // TODO2
-                        // 1. Но properties могут меняться у компонента после применения правила, что тут тогда? Выглядит как одно из возможный решений.
-
-                        // 2. Проблема так же имеется с мутацией duplicateValue:
-                        // В поле Б дублируется значение из А
-                        // В какой-то момент срабатывает мутаций на Б
-                        // - Если поле Б пустое -> rule.execute возвращает properties: {value: valueA}
-                        // - Если поле Б не пустое -> rule.execute возвращает null
-                        // Проблема:
-                        // Если правило становиться не активным (condition дали false), и если правило было активно ранее(то есть один раз вернуло valueA)
-                        // и пользователь ввёл потом своё значение вместо valueA - МЫ ВЕРНЁМ VALUE ЗНАЧЕНИЕ ИЗ INITIAL SCHEMA перезаписал значение юзера.
-                        // 2.1. И нужно дать возможность не возвращать initial значения когда правило стало неактивным.
-
-                        // 3. Нужно сделать примнения одноразовым. Если поле Б не dirty и не touched -> менять значение value из поля А.
-                        // Но это касаптся только поля value или любых поле properties? И выглядит так что это только на mutation duplicate value нужно.
-                        // Сейчас мне кажется верным сделать это общим функционалом, но как дать юзеру выбиратт это тогда?
-
-                        // 4. С change options select мутацией что делать? Ей нужно другое поведение совсем - постоянная проверка condition и если true -> применяем, false -> созвращаем initial.
-
-                        // 5. bank account disabled if inn empty. но если на inn была данные, что-то ввели в bankAcctount и НО БИЗНЕСУ НУЖНО и очистить и disabled если inn пустой окажется, как?
-                        // !!!! ЭТО СНОВА ГОВОРИТ ЧТО НУЖНО ДЕЛАТЬ МУТАЦИИ ПОСТОЯННЫЕ ПРИ CONIDTION=TRUE, и одноразовые даже если продолжает condition быть true
-                        // НО ВОТ ГЛАВНАЯ ПРОБЛЕМА! Если одноразовая мутация стала true -> применалась, далее false, а через вреся СНОВА TRUE, что тогда?
-                        // Решение - сделать 2 типа поведениия: 1. постоянное, 2. единоразовое. Единоразовые в свою очередь: 1. только первое срабатывание и ВСЁ, 2. Срабатывают при каждой активации.
-                        // Выглядит ок, но а значения возвращаем при inactive? Иногда нужно, иногда нет. Снова нагружать юзера инфой (checkbox мол вызвращаться или нет)
-                        // ААААААААААААА. Я в постоянные засунул те, у которых нельзя изменить значение после применения, так как cindition всё ещё true.
-
-                        // Проверять dirty или touched можно из констекста (только это именно от юзера должны быть инфа, что из-за рук юзера обновили значение)
-                        const isNewProperties = Object.entries(newProperties).some(([key, value]) => !isEqual(value, newOverridesCache[ruleId]?.[key]))
+                        const isNewProperties = Object.entries(nextProperties).some(([key, value]) => !isEqual(value, newOverridesCache[ruleId]?.[key]))
                         if (isNewProperties) {
                             componentsIdsToUpdates.add(componentId)
                         }
@@ -108,12 +81,12 @@ export const createMutationsModel = ({ componentsModel, themeService, schemaServ
                             ...newComponentsSchemas[componentId],
                             properties: {
                                 ...newComponentsSchemas[componentId].properties,
-                                ...newProperties,
+                                ...nextProperties,
                             },
                         } as ComponentSchema
 
-                        newOverridesCache[ruleId] = { ...newOverridesCache[ruleId], ...newProperties }
-                        iterationsAppliedCache[ruleId] = newProperties
+                        newOverridesCache[ruleId] = { ...newOverridesCache[ruleId], ...nextProperties }
+                        iterationsAppliedCache[ruleId] = nextProperties
                     } else if (isActiveRule) {
                         const ruleLatestAppliedKeysCache = Object.keys(newOverridesCache[ruleId] || {})
 

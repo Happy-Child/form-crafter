@@ -7,9 +7,9 @@ export const useRenderBottomProps = (): RenderBottomProps => {
     const { services } = useGeneratorContext()
 
     const [isValid, isValidationPending, groupValidationErrors] = useUnit([
-        services.componentsSchemasService.formValidationModel.$formIsValid,
-        services.componentsSchemasService.formValidationModel.$isValidationPending,
-        services.componentsSchemasService.formValidationModel.$groupValidationErrors,
+        services.componentsService.formValidationModel.$formIsValid,
+        services.componentsService.formValidationModel.$isValidationPending,
+        services.componentsService.formValidationModel.$groupValidationErrors,
     ])
 
     return { isValid, isValidationPending, groupValidationErrors }

@@ -9,16 +9,11 @@ import { createDepsOfRulesModel } from './models/deps-of-rules-model'
 import { createFormValidationModel } from './models/form-validation-model'
 import { createMutationsModel } from './models/mutations-model'
 import { createReadyConditionalValidationsModel } from './models/ready-conditional-validations-model'
-import { ComponentsSchemasService, ComponentsSchemasServiceParams, RunMutationsOnUserActionsPayload } from './types'
+import { ComponentsService, ComponentsServiceParams, RunMutationsOnUserActionsPayload } from './types'
 
-export type { ComponentsSchemasService }
+export type { ComponentsService }
 
-export const createComponentsSchemasService = ({
-    appErrorsService,
-    themeService,
-    viewsService,
-    schemaService,
-}: ComponentsSchemasServiceParams): ComponentsSchemasService => {
+export const createComponentsService = ({ appErrorsService, themeService, viewsService, schemaService }: ComponentsServiceParams): ComponentsService => {
     const $firstMutationsIsDone = createStore(false)
     const setFirstMutationsToDone = createEvent('setFirstMutationsToDone')
     $firstMutationsIsDone.on(setFirstMutationsToDone, () => true)

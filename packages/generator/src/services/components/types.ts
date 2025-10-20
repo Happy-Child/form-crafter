@@ -12,7 +12,7 @@ import { FormValidationModel } from './models/form-validation-model'
 
 export type RunMutationsOnUserActionsPayload = { id: EntityId; data: AvailableObject }
 
-export type ComponentsSchemasService = {
+export type ComponentsService = {
     componentsModel: ComponentsModel
     formValidationModel: FormValidationModel
     initServiceEvent: EventCallable<void>
@@ -21,7 +21,7 @@ export type ComponentsSchemasService = {
     removeComponentsSchemasByIdsEvent: EventCallable<{ ids: EntityId[] }>
 }
 
-export type ComponentsSchemasServiceParams = {
+export type ComponentsServiceParams = {
     initial: ComponentsSchemas
     appErrorsService: AppErrorsService
     themeService: ThemeService

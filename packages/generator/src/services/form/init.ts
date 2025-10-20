@@ -3,30 +3,30 @@ import { Effect, EventCallable, sample } from 'effector'
 import { GeneratorProps } from '../../types'
 import { FormServiceParams } from './types'
 
-type Params = Pick<FormServiceParams, 'componentsSchemasService' | 'viewsService'> & {
+type Params = Pick<FormServiceParams, 'componentsService' | 'viewsService'> & {
     invokeUserSubmitHandlerFx: Effect<Parameters<GeneratorProps['onSubmit']>[0], void, Error>
     onFormSubmitEvent: EventCallable<void>
 }
 
-export const init = ({ onFormSubmitEvent, invokeUserSubmitHandlerFx, componentsSchemasService }: Params) => {
+export const init = ({ onFormSubmitEvent, invokeUserSubmitHandlerFx, componentsService }: Params) => {
     sample({
         clock: onFormSubmitEvent,
-        target: componentsSchemasService.formValidationModel.runFormValidationFx,
+        target: componentsService.formValidationModel.runFormValidationFx,
     })
 
     sample({
         source: {
-            componentsIsValid: componentsSchemasService.formValidationModel.$formIsValid,
-            currentViewVisibleComponentsSchemas: componentsSchemasService.componentsModel.$currentViewVisibleComponentsSchemas,
+            componentsIsValid: componentsService.formValidationModel.$formIsValid,
+            currentViewVisibleComponentsSchemas: componentsService.componentsModel.$currentViewVisibleComponentsSchemas,
         },
-        clock: componentsSchemasService.formValidationModel.runFormValidationFx.done,
+        clock: componentsService.formValidationModel.runFormValidationFx.done,
         filter: ({ componentsIsValid }) => componentsIsValid,
         fn: ({ currentViewVisibleComponentsSchemas }) => currentViewVisibleComponentsSchemas,
         target: invokeUserSubmitHandlerFx,
     })
 
     sample({
-        clock: componentsSchemasService.formValidationModel.runFormValidationFx.fail,
+        clock: componentsService.formValidationModel.runFormValidationFx.fail,
         fn: (data) => console.warn('runFormValidationFx.fail: ', data),
     })
 }

@@ -2,7 +2,7 @@ import { AvailableObject } from '@form-crafter/utils'
 import { Effect, EventCallable, StoreWritable } from 'effector'
 
 import { GeneratorProps } from '../../types'
-import { ComponentsSchemasService } from '../components-schemas'
+import { ComponentsService } from '../components'
 import { ViewsService } from '../views'
 
 export type InvokeUserSubmitHandlerData = Parameters<GeneratorProps['onSubmit']>[0]
@@ -14,7 +14,7 @@ export type FormService = {
 }
 
 export type FormServiceParams = {
-    componentsSchemasService: ComponentsSchemasService
+    componentsService: ComponentsService
     viewsService: ViewsService
     onSubmit: (schema: AvailableObject) => void
 }

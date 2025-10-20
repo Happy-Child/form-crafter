@@ -60,6 +60,7 @@ export const createDepsOfRulesModel = ({ appErrorsService, themeService, viewsSe
             }
         },
     )
+    $activeViewComponentsValidationsConditionsDeps.watch((a) => console.log('asd: ', a))
     sample({
         source: { componentsSchemas: componentsModel.$componentsSchemas },
         clock: componentsModel.componentsAddedOrRemoved,
@@ -122,6 +123,9 @@ export const createDepsOfRulesModel = ({ appErrorsService, themeService, viewsSe
     const $activeViewInfoOfGraphMutationsResolution = combine($activeViewDepsTriggeringMutations, ({ componentIdToDependents, componentIdToDeps }) => {
         const { flattenGraph, cycles, hasCycle } = buildFlattenGraphAndFindCycles(componentIdToDependents)
         const sortedGraphForResolution = buildTopologicalSortedGraph(flattenGraph, componentIdToDeps)
+
+        console.log('sortedGraphForResolution: ', sortedGraphForResolution)
+        console.log('flattenGraph: ', flattenGraph)
 
         return { cycles, hasCycle, sortedGraphForResolution, graph: componentIdToDependents }
     })

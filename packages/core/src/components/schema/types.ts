@@ -1,6 +1,6 @@
 import { AvailableObject } from '@form-crafter/utils'
 
-import { MutationConditionNode, ValidationConditionNode } from '../../conditions'
+import { ConditionNode } from '../../conditions'
 import { OptionsBuilder, OptionsBuilderOutput } from '../../options-builder'
 import { EntityId } from '../../types'
 import { ComponentType } from '../types'
@@ -14,17 +14,17 @@ export type ValidationRuleSchema = {
     id: EntityId
     key: string
     options?: OptionsBuilderOutput<OptionsBuilder<AvailableObject>>
-    condition?: ValidationConditionNode
+    condition?: ConditionNode
 }
 
 export type MutationRuleSchema = {
     id: EntityId
     key: string
     options?: OptionsBuilderOutput<OptionsBuilder<AvailableObject>>
-    condition?: MutationConditionNode
+    condition?: ConditionNode
 }
 
-export type ComponentVisability = { hidden?: boolean; condition?: MutationConditionNode }
+export type ComponentVisability = { hidden?: boolean; condition?: ConditionNode }
 
 export type ComponentValidations = {
     configs?: ValidationsConfigs

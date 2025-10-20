@@ -1,7 +1,7 @@
 import { ComponentSchema, ComponentsSchemas, ConditionNode, EntityId, RuleExecutorContext } from '@form-crafter/core'
 import { Store } from 'effector'
 
-import { ComponentModel } from './models/components'
+import { ComponentModel } from './models/variants'
 
 export type ComponentsModels = Map<EntityId, ComponentModel>
 

@@ -1,7 +1,7 @@
 import { EntityId } from '@form-crafter/core'
 import { EventCallable } from 'effector'
 
-import { ComponentsSchemasService } from '../components-schemas'
+import { ComponentsService } from '../components'
 import { ViewsService } from '../views'
 
 export type AddChildPayload = { repeaterId: EntityId }
@@ -14,6 +14,6 @@ export type RepeaterService = {
 }
 
 export type RepeaterServiceParams = {
-    componentsSchemasService: ComponentsSchemasService
+    componentsService: ComponentsService
     viewsService: ViewsService
 }

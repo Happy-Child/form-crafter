@@ -3,13 +3,13 @@ import { isEmpty } from '@form-crafter/utils'
 import { useStoreMap } from 'effector-react'
 
 import { useGeneratorContext } from '../contexts'
-import { ComponentModelByType } from '../services/components-schemas/models/components-model/models/components'
+import { ComponentModelByType } from '../services/components/models/components-model/models/variants'
 
 export const useComponentModel = <T extends GeneratorComponentType = GeneratorComponentType>(id: EntityId): ComponentModelByType<T> => {
     const { services } = useGeneratorContext()
 
     const data = useStoreMap({
-        store: services.componentsSchemasService.componentsModel.$models,
+        store: services.componentsService.componentsModel.$models,
         keys: [id],
         fn: (map, [id]) => map.get(id),
     })

@@ -1,5 +1,5 @@
 import { createAppErrorsService } from './app-errors'
-import { createComponentsSchemasService } from './components-schemas'
+import { createComponentsService } from './components'
 import { createFormService } from './form'
 import { createRepeaterService } from './repeater'
 import { createSchemaService } from './schema'
@@ -16,7 +16,7 @@ export const createRootServices = ({ schema, theme, PlaceholderComponent, onSubm
 
     const schemaService = createSchemaService({ schema })
 
-    const componentsSchemasService = createComponentsSchemasService({
+    const componentsService = createComponentsService({
         initial: schema.componentsSchemas,
         appErrorsService,
         themeService,
@@ -24,19 +24,19 @@ export const createRootServices = ({ schema, theme, PlaceholderComponent, onSubm
         schemaService,
     })
 
-    const repeaterService = createRepeaterService({ viewsService, componentsSchemasService })
+    const repeaterService = createRepeaterService({ viewsService, componentsService })
 
-    const formService = createFormService({ onSubmit, viewsService, componentsSchemasService })
+    const formService = createFormService({ onSubmit, viewsService, componentsService })
 
     const bootstrap = () => {
-        componentsSchemasService.initServiceEvent()
+        componentsService.initServiceEvent()
     }
 
     bootstrap()
 
     return {
         schemaService,
-        componentsSchemasService,
+        componentsService,
         viewsService,
         formService,
         themeService,

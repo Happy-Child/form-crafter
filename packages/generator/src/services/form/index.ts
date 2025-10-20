@@ -6,7 +6,7 @@ import { FormService, FormServiceParams, InvokeUserSubmitHandlerData } from './t
 
 export type { FormService }
 
-export const createFormService = ({ onSubmit, componentsSchemasService, viewsService }: FormServiceParams): FormService => {
+export const createFormService = ({ onSubmit, componentsService, viewsService }: FormServiceParams): FormService => {
     const $userSubmitHandler = createStore<GeneratorProps['onSubmit']>(onSubmit)
 
     const invokeUserSubmitHandlerFx = attach({
@@ -18,7 +18,7 @@ export const createFormService = ({ onSubmit, componentsSchemasService, viewsSer
 
     const onFormSubmitEvent = createEvent('onFormSubmitEvent')
 
-    init({ onFormSubmitEvent, invokeUserSubmitHandlerFx, componentsSchemasService, viewsService })
+    init({ onFormSubmitEvent, invokeUserSubmitHandlerFx, componentsService, viewsService })
 
     return {
         $userSubmitHandler,
