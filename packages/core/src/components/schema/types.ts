@@ -17,9 +17,17 @@ export type ValidationRuleSchema = {
     condition?: ConditionNode
 }
 
+export type MutationRollbackStrategy = 'restore-initial' | 'skip' | (string & {})
+
+export type MutationActivationStrategy = 'once' | 'always'
+
 export type MutationRuleSchema = {
     id: EntityId
     key: string
+    strategies?: {
+        rollback?: MutationRollbackStrategy
+        activation?: MutationActivationStrategy
+    }
     options?: OptionsBuilderOutput<OptionsBuilder<AvailableObject>>
     condition?: ConditionNode
 }

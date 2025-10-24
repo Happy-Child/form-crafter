@@ -8,7 +8,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers-pro'
 
 import { clientSchema } from '../client-schema'
-// import { employeeFormSchema } from '../mock-schemas-old'
+import { employeeSchema } from '../employee-schema'
 import { AppStyled } from './styles'
 
 const PlaceholderComponent: FC = () => <div>Not found component</div>
@@ -27,7 +27,7 @@ export const App: FC = () => {
                             onSubmit={handleeSubmit}
                             theme={muiTheme}
                             PlaceholderComponent={PlaceholderComponent}
-                            schema={clientSchema}
+                            schema={employeeSchema}
                             renderBottom={({ isValidationPending, groupValidationErrors }) => (
                                 <Stack spacing={2} mt={5}>
                                     <Button loading={isValidationPending} variant="contained" size="large" type="submit">

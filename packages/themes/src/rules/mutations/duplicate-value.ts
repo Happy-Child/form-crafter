@@ -24,4 +24,7 @@ export const duplicateValueRule = createMutationRule({
         return null
     },
     optionsBuilder,
+    rollback: {
+        default: 'skip',
+    },
 })

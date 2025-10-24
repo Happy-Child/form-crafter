@@ -11,6 +11,7 @@ describe('buildPathsToMutationsRulesDeps', () => {
                     value: builders.checkbox().label('').required(),
                 }),
                 execute: () => ({ properties: {} }),
+                rollback: { default: 'restore' },
             }),
             rule2: createMutationRule({
                 key: 'rule2',
@@ -21,6 +22,7 @@ describe('buildPathsToMutationsRulesDeps', () => {
                     secondName: builders.selectComponents(),
                 }),
                 execute: () => ({ properties: {} }),
+                rollback: { default: 'restore' },
             }),
             rule3: createMutationRule({
                 key: 'rule3',
