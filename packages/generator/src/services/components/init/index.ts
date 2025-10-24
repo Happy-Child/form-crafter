@@ -91,7 +91,7 @@ export const init = ({
             componentsIdsToUpdate: [],
             depsForMutationsResolution: activeViewDepsForAllMutationsResolution,
         }),
-        target: mutationsModel.calcMutationsEvent,
+        target: mutationsModel.calcMutations,
     })
 
     sample({
@@ -116,11 +116,11 @@ export const init = ({
                 depsForMutationsResolution,
             }
         },
-        target: mutationsModel.calcMutationsEvent,
+        target: mutationsModel.calcMutations,
     })
 
     sample({
-        clock: mutationsModel.resultOfCalcMutationsEvent,
+        clock: mutationsModel.resultOfCalcMutations,
         filter: ({ componentsToUpdate }) => isNotEmpty(componentsToUpdate),
         fn: ({ componentsToUpdate, newComponentsSchemas }) => ({
             componentsToUpdate,
@@ -130,21 +130,21 @@ export const init = ({
     })
 
     sample({
-        clock: mutationsModel.resultOfCalcMutationsEvent,
+        clock: mutationsModel.resultOfCalcMutations,
         filter: ({ componentsToUpdate }) => isNotEmpty(componentsToUpdate),
         fn: ({ hiddenComponents }) => hiddenComponents,
         target: componentsModel.setHiddenComponents,
     })
 
     sample({
-        clock: mutationsModel.resultOfCalcMutationsEvent,
+        clock: mutationsModel.resultOfCalcMutations,
         filter: ({ componentsToUpdate }) => isNotEmpty(componentsToUpdate),
         fn: ({ componentsToUpdate }) => componentsToUpdate,
         target: componentsModel.updateModelsFx,
     })
 
     sample({
-        clock: once(mutationsModel.resultOfCalcMutationsEvent),
+        clock: once(mutationsModel.resultOfCalcMutations),
         target: setFirstMutationsToDone,
     })
 

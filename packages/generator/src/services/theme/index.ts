@@ -1,20 +1,22 @@
 import { FC } from 'react'
 
-import { ComponentValidationRule, FormCrafterTheme, GroupValidationRule, isComponentModuleWithValidations } from '@form-crafter/core'
-import { isNotEmpty } from '@form-crafter/utils'
+import { ComponentValidationRule, FormCrafterTheme, GroupValidationRule, isComponentModuleWithValidations, MutationRule } from '@form-crafter/core'
+import { isNotEmpty, isNotNull } from '@form-crafter/utils'
 import { combine, createStore } from 'effector'
 
 import { init } from './init'
-import { OperatorsStore, ThemeService, ThemeServiceParams } from './types'
+import { OperatorsStore, ThemeServiceParams } from './types'
 import { extractMutations } from './utils'
 import { buildPathsToMutationsRulesDeps } from './utils/build-paths-to-mutations-rules-deps'
 import { extractOperators } from './utils/extract-operators'
 
-export type { OperatorsStore, ThemeService, ThemeServiceParams }
+export type { OperatorsStore, ThemeServiceParams }
 
 export * from './utils/public-api'
 
-export const createThemeService = ({ theme, PlaceholderComponent }: ThemeServiceParams): ThemeService => {
+export type ThemeService = ReturnType<typeof createThemeService>
+
+export const createThemeService = ({ theme, PlaceholderComponent }: ThemeServiceParams) => {
     const $theme = createStore<FormCrafterTheme>(theme)
 
     const $componentsModules = $theme.map(({ componentsModules }) => componentsModules)
@@ -22,6 +24,14 @@ export const createThemeService = ({ theme, PlaceholderComponent }: ThemeService
 
     const $mutationsRules = combine($componentsModules, extractMutations)
     const $pathsToMutationsRulesDeps = combine($mutationsRules, buildPathsToMutationsRulesDeps)
+
+    const $mutationsRulesRollback = combine($mutationsRules, (rules) =>
+        Object.fromEntries(
+            Object.entries(rules)
+                .map(([ruleId, config]) => [ruleId, config.rollback || null])
+                .filter(([, rollback]) => isNotNull(rollback)) as [string, Required<MutationRule>['rollback']][],
+        ),
+    )
 
     const $groupValidationRules = $theme.map(({ groupValidationRules }) =>
         isNotEmpty(groupValidationRules)
@@ -59,6 +69,7 @@ export const createThemeService = ({ theme, PlaceholderComponent }: ThemeService
         $groupValidationRules,
         $operators,
         $mutationsRules,
+        $mutationsRulesRollback,
         $pathsToMutationsRulesDeps,
         $placeholderComponent,
     }

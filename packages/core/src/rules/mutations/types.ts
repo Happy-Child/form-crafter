@@ -27,7 +27,7 @@ export type MutationRollbackStrategies<Execute> = Record<
 >
 
 export type MutationRollback<S> = {
-    default: MutationRollbackStrategy
+    default?: MutationRollbackStrategy
     additionalStrategies?: S
 }
 

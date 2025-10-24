@@ -1,6 +1,6 @@
-import { ComponentSchema, EntityId } from '@form-crafter/core'
+import { ComponentSchema, defaultMutationActivationStrategy, defaultMutationRollbackStrategy, EntityId } from '@form-crafter/core'
 import { isEmpty, isNotEmpty } from '@form-crafter/utils'
-import { createEvent, createStore, sample, StoreValue } from 'effector'
+import { createEvent, createStore, sample } from 'effector'
 import { cloneDeep, isEqual, omit, pick } from 'lodash-es'
 import { combineEvents } from 'patronum'
 
@@ -8,7 +8,7 @@ import { SchemaService } from '../../../schema'
 import { ThemeService } from '../../../theme'
 import { ComponentsModel } from '../components-model'
 import { isChangedValue } from '../components-model/models/variants'
-import { MutationsOverridesCache, RunMutationsPayload } from './types'
+import { MutationsCache, RunMutationsPayload } from './types'
 
 type Params = {
     componentsModel: ComponentsModel
@@ -19,31 +19,46 @@ type Params = {
 export type MutationsModel = ReturnType<typeof createMutationsModel>
 
 export const createMutationsModel = ({ componentsModel, themeService, schemaService }: Params) => {
-    const $overridesCache = createStore<MutationsOverridesCache>({})
+    const $activatedRules = createStore<Set<EntityId>>(new Set())
+    const $mutationsCache = createStore<MutationsCache>({})
 
-    const setOverridesCacheEvent = createEvent<MutationsOverridesCache>('setOverridesCacheEvent')
+    const setActivatedRules = createEvent<Set<EntityId>>('setActivatedRules')
+    const setMutationsCache = createEvent<MutationsCache>('setMutationsCache')
 
-    const calcMutationsEvent = createEvent<RunMutationsPayload>('calcMutationsEvent')
+    const calcMutations = createEvent<RunMutationsPayload>('calcMutations')
 
-    $overridesCache.on(setOverridesCacheEvent, (_, newCache) => newCache)
+    $activatedRules.on(setActivatedRules, (_, rules) => rules)
+    $mutationsCache.on(setMutationsCache, (_, newCache) => newCache)
 
-    const resultOfCalcMutationsEvent = sample({
+    const resultOfCalcMutations = sample({
         source: {
             getExecutorContextBuilder: componentsModel.$getExecutorContextBuilder,
             getIsConditionSuccessfulChecker: componentsModel.$getIsConditionSuccessfulChecker,
             initialComponentsSchemas: schemaService.$initialComponentsSchemas,
-            overridesCache: $overridesCache,
+            activatedRules: $activatedRules,
+            mutationsCache: $mutationsCache,
             themeMutationsRules: themeService.$mutationsRules,
+            themeMutationsRulesRollback: themeService.$mutationsRulesRollback,
             hiddenComponents: componentsModel.$hiddenComponents,
         },
-        clock: calcMutationsEvent,
+        clock: calcMutations,
         fn: (
-            { getExecutorContextBuilder, getIsConditionSuccessfulChecker, initialComponentsSchemas, overridesCache, themeMutationsRules, hiddenComponents },
+            {
+                getExecutorContextBuilder,
+                getIsConditionSuccessfulChecker,
+                initialComponentsSchemas,
+                activatedRules,
+                mutationsCache,
+                themeMutationsRules,
+                themeMutationsRulesRollback,
+                hiddenComponents,
+            },
             { curComponentsSchemas, newComponentsSchemas, componentsIdsToUpdate, depsForMutationsResolution },
         ) => {
             const componentsIdsToUpdates: Set<EntityId> = new Set(componentsIdsToUpdate)
 
-            const newOverridesCache = cloneDeep(overridesCache)
+            const newActivatedRules = new Set(activatedRules)
+            const newMutationsCache = cloneDeep(mutationsCache)
             newComponentsSchemas = cloneDeep(newComponentsSchemas)
 
             const executorContext = getExecutorContextBuilder({ componentsSchemas: newComponentsSchemas })
@@ -53,17 +68,8 @@ export const createMutationsModel = ({ componentsModel, themeService, schemaServ
                 const componentSchema = newComponentsSchemas[componentId]
                 const componentMutations = componentSchema.mutations
 
-                const iterationsAppliedCache: StoreValue<typeof $overridesCache> = {}
-
-                componentMutations?.schemas?.forEach(({ id: ruleId, key, options, condition }) => {
-                    if (isEmpty(condition)) {
-                        return
-                    }
-
-                    const canBeApply = isConditionSuccessfulChecker({ condition })
-                    const isActiveRule = ruleId in newOverridesCache
-
-                    if (canBeApply) {
+                componentMutations?.schemas?.forEach(({ id: ruleId, key, options, condition, strategies }) => {
+                    const applyMutation = () => {
                         const rule = themeMutationsRules[key]
 
                         const nextProperties = rule.execute(componentSchema, { options: options || {}, ctx: executorContext })
@@ -72,7 +78,7 @@ export const createMutationsModel = ({ componentsModel, themeService, schemaServ
                             return
                         }
 
-                        const isNewProperties = Object.entries(nextProperties).some(([key, value]) => !isEqual(value, newOverridesCache[ruleId]?.[key]))
+                        const isNewProperties = Object.entries(nextProperties).some(([key, value]) => !isEqual(value, newMutationsCache[ruleId]?.[key]))
                         if (isNewProperties) {
                             componentsIdsToUpdates.add(componentId)
                         }
@@ -85,35 +91,85 @@ export const createMutationsModel = ({ componentsModel, themeService, schemaServ
                             },
                         } as ComponentSchema
 
-                        newOverridesCache[ruleId] = { ...newOverridesCache[ruleId], ...nextProperties }
-                        iterationsAppliedCache[ruleId] = nextProperties
-                    } else if (isActiveRule) {
-                        const ruleLatestAppliedKeysCache = Object.keys(newOverridesCache[ruleId] || {})
+                        newActivatedRules.add(ruleId)
+                        newMutationsCache[ruleId] = { ...newMutationsCache[ruleId], ...nextProperties }
+                    }
 
-                        let iterationsUpdatedKeysProperties = Object.entries(iterationsAppliedCache).reduce<string[]>((arr, [, appliedComponentProperties]) => {
-                            if (isNotEmpty(appliedComponentProperties)) {
-                                return [...arr, ...Object.keys(appliedComponentProperties)]
+                    const rollbackMutation = () => {
+                        const ruleRollback = themeMutationsRulesRollback[key]
+                        const finalStrategy = strategies?.rollback || defaultMutationRollbackStrategy
+
+                        let finalProperties = newComponentsSchemas[componentId].properties
+
+                        switch (finalStrategy) {
+                            case 'skip': {
+                                break
                             }
-                            return arr
-                        }, [])
-                        iterationsUpdatedKeysProperties = Array.from(new Set(iterationsUpdatedKeysProperties))
+                            case 'restore-initial': {
+                                const propertiesKeysToRollback = Object.keys(newMutationsCache[ruleId] || {})
+                                const propertiesToRollback = pick(initialComponentsSchemas[componentId].properties, propertiesKeysToRollback)
 
-                        const propertiesKeysToRollback = ruleLatestAppliedKeysCache.filter((key) => !iterationsUpdatedKeysProperties.includes(key))
-                        const propertiesToRollback = pick(initialComponentsSchemas[componentId].properties, propertiesKeysToRollback)
+                                finalProperties = {
+                                    ...omit(finalProperties, propertiesKeysToRollback),
+                                    ...propertiesToRollback,
+                                }
 
-                        const finalProperties = omit(newComponentsSchemas[componentId].properties, propertiesKeysToRollback)
+                                break
+                            }
+                            default: {
+                                const rollbackFn = ruleRollback.additionalStrategies![finalStrategy].toRollback
+                                const propertiesToRollback = rollbackFn(componentSchema, { options: options || {}, ctx: executorContext })
+
+                                finalProperties = {
+                                    ...finalProperties,
+                                    ...propertiesToRollback,
+                                }
+                            }
+                        }
 
                         newComponentsSchemas[componentId] = {
                             ...newComponentsSchemas[componentId],
-                            properties: {
-                                ...finalProperties,
-                                ...propertiesToRollback,
-                            },
+                            properties: finalProperties,
                         } as ComponentSchema
 
-                        delete newOverridesCache[ruleId]
+                        delete newMutationsCache[ruleId]
 
                         componentsIdsToUpdates.add(componentId)
+                    }
+
+                    if (isEmpty(condition)) {
+                        applyMutation()
+                        return
+                    }
+
+                    const ruleWasActivated = newActivatedRules.has(ruleId)
+                    const finalStrategy = strategies?.activation || defaultMutationActivationStrategy
+
+                    switch (finalStrategy) {
+                        case 'once': {
+                            const canBeApply = isConditionSuccessfulChecker({ condition })
+
+                            if (!ruleWasActivated && canBeApply) {
+                                applyMutation()
+                                break
+                            }
+
+                            if (ruleWasActivated && !canBeApply) {
+                                rollbackMutation()
+                            }
+
+                            break
+                        }
+                        case 'always': {
+                            const canBeApply = isConditionSuccessfulChecker({ condition })
+                            if (canBeApply) {
+                                applyMutation()
+                            } else if (ruleWasActivated) {
+                                rollbackMutation()
+                            }
+
+                            break
+                        }
                     }
                 })
             }
@@ -201,26 +257,33 @@ export const createMutationsModel = ({ componentsModel, themeService, schemaServ
             return {
                 componentsToUpdate,
                 newComponentsSchemas,
-                overridesCacheToUpdate: newOverridesCache,
+                newActivatedRulesToUpdate: newActivatedRules,
+                mutationsCacheToUpdate: newMutationsCache,
                 hiddenComponents: finalHiddenComponents,
             }
         },
     })
 
     sample({
-        clock: resultOfCalcMutationsEvent,
-        fn: ({ overridesCacheToUpdate }) => overridesCacheToUpdate,
-        target: setOverridesCacheEvent,
+        clock: resultOfCalcMutations,
+        fn: ({ newActivatedRulesToUpdate }) => newActivatedRulesToUpdate,
+        target: setActivatedRules,
     })
 
-    const componentsIsUpdatedAfterMutationsEvent = sample({
-        clock: combineEvents([resultOfCalcMutationsEvent, componentsModel.updateModelsFx.done]),
+    sample({
+        clock: resultOfCalcMutations,
+        fn: ({ mutationsCacheToUpdate }) => mutationsCacheToUpdate,
+        target: setMutationsCache,
+    })
+
+    const componentsIsUpdatedAfterMutations = sample({
+        clock: combineEvents([resultOfCalcMutations, componentsModel.updateModelsFx.done]),
         fn: ([{ componentsToUpdate }]) => ({ componentsToUpdate }),
     })
 
     return {
-        calcMutationsEvent,
-        resultOfCalcMutationsEvent,
-        componentsIsUpdatedAfterMutationsEvent,
+        calcMutations,
+        resultOfCalcMutations,
+        componentsIsUpdatedAfterMutations,
     }
 }

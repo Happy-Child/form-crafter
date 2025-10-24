@@ -16,14 +16,14 @@ type Params = {
 
 export const initChangeViews = ({ componentsModel, depsOfRulesModel, mutationsModel, changeViewsModel }: Params) => {
     sample({
-        clock: mutationsModel.resultOfCalcMutationsEvent,
+        clock: mutationsModel.resultOfCalcMutations,
         filter: ({ componentsToUpdate }) => isEmpty(componentsToUpdate),
         target: changeViewsModel.resetChangeViewWasChecked,
     })
 
     const checkChangeViewDispatcher = sample({
         source: { changeViewWasChecked: changeViewsModel.$changeViewWasChecked },
-        clock: mutationsModel.componentsIsUpdatedAfterMutationsEvent,
+        clock: mutationsModel.componentsIsUpdatedAfterMutations,
         fn: (source, params) => ({ ...source, ...params }),
     })
 
@@ -39,7 +39,7 @@ export const initChangeViews = ({ componentsModel, depsOfRulesModel, mutationsMo
     })
 
     sample({
-        clock: combineEvents([mutationsModel.componentsIsUpdatedAfterMutationsEvent, changeViewsModel.startViewChangeCheck]),
+        clock: combineEvents([mutationsModel.componentsIsUpdatedAfterMutations, changeViewsModel.startViewChangeCheck]),
         fn: ([{ componentsToUpdate }]) => ({ componentsToUpdate }),
         target: changeViewsModel.runViewChangeCheck,
     })
@@ -56,6 +56,6 @@ export const initChangeViews = ({ componentsModel, depsOfRulesModel, mutationsMo
             componentsIdsToUpdate: [],
             depsForMutationsResolution: activeViewDepsForAllMutationsResolution,
         }),
-        target: mutationsModel.calcMutationsEvent,
+        target: mutationsModel.calcMutations,
     })
 }

@@ -1,6 +1,5 @@
 import { createMutationRule } from '@form-crafter/core'
 import { builders } from '@form-crafter/options-builder'
-import { isNotEmpty } from '@form-crafter/utils'
 
 const optionsBuilder = builders.group({
     newOptions: builders
@@ -19,12 +18,7 @@ export const changeSelectOptionsRule = createMutationRule({
     key: 'changeSelectOptions',
     displayName: 'Установка значений выпадающего списка',
     execute: (_, { options }) => {
-        if (!isNotEmpty(options)) {
-            return null
-        }
-
         const { newOptions } = options
-
         return { value: [newOptions[0].value], options: newOptions }
     },
     optionsBuilder,
