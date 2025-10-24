@@ -10,7 +10,8 @@ export const buildFlattenGraphAndFindCycles = (rawDeps: DepsGraphAsSet) => {
     const cycles: EntityId[][] = []
 
     const dfs = (node: EntityId, path: EntityId[] = []) => {
-        if (onStack.has(node)) {
+        const foundCycle = onStack.has(node)
+        if (foundCycle) {
             const idx = path.indexOf(node)
             const cyclePath = path.slice(idx).concat(node)
             cycles.push(cyclePath)

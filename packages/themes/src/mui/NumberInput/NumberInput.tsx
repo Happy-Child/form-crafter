@@ -26,7 +26,7 @@ export const numberInputModule = createNumberInputComponentModule({
     label: 'Number field',
     optionsBuilder,
     operators: [componentsOperators.isEmptyOperator, componentsOperators.isNotEmptyOperator],
-    mutations: [generalRules.mutations.duplicateValueRule],
+    mutations: [generalRules.mutations.duplicateValueRule, generalRules.mutations.clearValueRule],
     validations: [rules.validations.minNumberRule, rules.validations.maxNumberRule, generalRules.validations.components.editable.isRequiredRule],
     Component: NumberInput,
 })

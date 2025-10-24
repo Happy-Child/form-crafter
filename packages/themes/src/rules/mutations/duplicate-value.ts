@@ -18,7 +18,7 @@ export const duplicateValueRule = createMutationRule({
         const componentSchema = ctx.getComponentSchemaById(duplicateValueComponentId)
 
         if (isEditableComponentSchema(componentSchema)) {
-            return { value: componentSchema.properties.value, readonly: true }
+            return { value: componentSchema.properties.value }
         }
 
         return null
