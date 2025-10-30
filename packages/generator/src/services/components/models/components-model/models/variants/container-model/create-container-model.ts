@@ -10,15 +10,15 @@ type Params = {
 export const createContainerModel = ({ schema }: Params): ContainerModel => {
     const $schema = createStore<ContainerComponentSchema>(schema)
 
-    const updatePropertiesEvent = createEvent<Partial<ContainerComponentProperties>>('updatePropertiesEvent')
-    const setSchemaEvent = createEvent<SetSchemaPayload>('setSchemaEvent')
+    const updateProperties = createEvent<Partial<ContainerComponentProperties>>('updateProperties')
+    const setSchema = createEvent<SetSchemaPayload>('setSchema')
 
-    $schema.on(setSchemaEvent, (schema, { schema: newSchema }) => ({
+    $schema.on(setSchema, (schema, { schema: newSchema }) => ({
         ...schema,
         ...newSchema,
     }))
 
-    $schema.on(updatePropertiesEvent, (model, newProperties) => ({
+    $schema.on(updateProperties, (model, newProperties) => ({
         ...model,
         properties: {
             ...model.properties,
@@ -26,5 +26,5 @@ export const createContainerModel = ({ schema }: Params): ContainerModel => {
         },
     }))
 
-    return { $schema, setSchemaEvent, onUpdatePropertiesEvent: updatePropertiesEvent }
+    return { $schema, setSchema, onUpdateProperties: updateProperties }
 }

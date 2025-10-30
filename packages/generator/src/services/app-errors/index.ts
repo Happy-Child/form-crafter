@@ -1,18 +1,18 @@
 import { createEvent, createStore } from 'effector'
 
-import { AppErrorItem, AppErrorsService } from './types'
+import { AppErrorItem } from './types'
 
-export type { AppErrorsService }
+export type AppErrorsService = ReturnType<typeof createAppErrorsService>
 
-export const createAppErrorsService = (): AppErrorsService => {
+export const createAppErrorsService = () => {
     const $errors = createStore<AppErrorItem[]>([])
 
-    const addErrorEvent = createEvent<AppErrorItem>('addErrorEvent')
+    const addError = createEvent<AppErrorItem>('addError')
 
-    $errors.on(addErrorEvent, (prev, newError) => [...prev, newError])
+    $errors.on(addError, (prev, newError) => [...prev, newError])
 
     return {
         $errors,
-        addErrorEvent,
+        addError,
     }
 }

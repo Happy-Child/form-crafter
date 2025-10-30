@@ -10,7 +10,7 @@ type Params = Omit<ComponentModelParams, 'schema'> & {
     schema: EditableComponentSchema
 }
 
-export const createEditableModel = ({ schemaService, runMutationsEvent, componentsValidationErrorsModel, schema, ...params }: Params): EditableModel => {
+export const createEditableModel = ({ schemaService, runMutations, componentsValidationErrorsModel, schema, ...params }: Params): EditableModel => {
     const validationIsAvailable = isNotEmpty(schema.validations?.schemas)
     const validationOnChangeIsAvailable = validationIsAvailable && schemaService.$additionalTriggers.getState().includes('onChange')
     const validationOnBlurIsAvailable = validationIsAvailable && schemaService.$additionalTriggers.getState().includes('onBlur')
@@ -18,19 +18,19 @@ export const createEditableModel = ({ schemaService, runMutationsEvent, componen
     const $schema = createStore<EditableComponentSchema>(schema)
     const $componentId = combine($schema, (schema) => schema.meta.id)
 
-    const onUpdatePropertiesEvent = createEvent<Partial<EditableComponentProperties>>('onUpdatePropertiesEvent')
+    const onUpdateProperties = createEvent<Partial<EditableComponentProperties>>('onUpdateProperties')
 
-    const onBlurEvent = createEvent<void>('onBlurEvent')
+    const onBlur = createEvent<void>('onBlur')
 
-    const setSchemaEvent = createEvent<SetSchemaPayload>('setSchemaEvent')
+    const setSchema = createEvent<SetSchemaPayload>('setSchema')
 
-    const valueBeChangedEvent = createEvent('valueBeChangedEvent')
+    const valueBeChanged = createEvent('valueBeChanged')
 
-    const changedFromHiddenToVisibleEvent = createEvent('changedFromHiddenToVisibleEvent')
+    const changedFromHiddenToVisible = createEvent('changedFromHiddenToVisible')
 
-    const runOnChangeValidationEvent = createEvent('runOnChangeValidationEvent')
+    const runOnChangeValidation = createEvent('runOnChangeValidation')
 
-    const runOnBlurValidationEvent = createEvent('runOnBlurValidationEvent')
+    const runOnBlurValidation = createEvent('runOnBlurValidation')
 
     const validationComponentModel = createComponentValidationModel<EditableComponentSchema>({
         ...params,
@@ -42,34 +42,34 @@ export const createEditableModel = ({ schemaService, runMutationsEvent, componen
 
     sample({
         source: $schema,
-        clock: onUpdatePropertiesEvent,
+        clock: onUpdateProperties,
         fn: ({ meta }, data) => ({ id: meta.id, data }),
-        target: runMutationsEvent,
+        target: runMutations,
     })
 
     sample({
-        clock: setSchemaEvent,
+        clock: setSchema,
         filter: ({ schema: newModel, isNewValue }) => {
             const isVisible = (newModel as EditableComponentSchema).visability?.hidden !== true
             return !!isNewValue && isVisible
         },
-        target: valueBeChangedEvent,
+        target: valueBeChanged,
     })
 
     sample({
         source: $schema,
-        clock: setSchemaEvent,
+        clock: setSchema,
         filter: (curSchema, { schema: newModel }) => {
             const nowIsHidden = curSchema.visability?.hidden === true
             const nextIsVisability = (newModel as EditableComponentSchema).visability?.hidden !== true
             return nowIsHidden && nextIsVisability
         },
-        target: changedFromHiddenToVisibleEvent,
+        target: changedFromHiddenToVisible,
     })
 
     sample({
         source: { componentId: $componentId, firstError: validationComponentModel.$firstError },
-        clock: valueBeChangedEvent,
+        clock: valueBeChanged,
         filter: ({ firstError }) => isNotEmpty(firstError),
         fn: ({ componentId }) => componentId,
         target: componentsValidationErrorsModel.removeAllComponentErrors,
@@ -77,21 +77,21 @@ export const createEditableModel = ({ schemaService, runMutationsEvent, componen
 
     if (validationOnChangeIsAvailable) {
         sample({
-            clock: valueBeChangedEvent,
-            target: runOnChangeValidationEvent,
+            clock: valueBeChanged,
+            target: runOnChangeValidation,
         })
     }
 
     if (validationOnBlurIsAvailable) {
         sample({
-            clock: onBlurEvent,
-            target: runOnBlurValidationEvent,
+            clock: onBlur,
+            target: runOnBlurValidation,
         })
     }
 
     sample({
         source: $schema,
-        clock: setSchemaEvent,
+        clock: setSchema,
         fn: (schema, { schema: newSchema }) => ({
             ...schema,
             ...newSchema,
@@ -102,7 +102,7 @@ export const createEditableModel = ({ schemaService, runMutationsEvent, componen
     if (validationIsAvailable) {
         sample({
             source: validationComponentModel.$firstError,
-            clock: changedFromHiddenToVisibleEvent,
+            clock: changedFromHiddenToVisible,
             filter: isNotEmpty,
             target: validationComponentModel.runValidationFx,
         })
@@ -110,14 +110,14 @@ export const createEditableModel = ({ schemaService, runMutationsEvent, componen
 
     if (validationOnChangeIsAvailable) {
         sample({
-            clock: runOnChangeValidationEvent,
+            clock: runOnChangeValidation,
             target: validationComponentModel.runValidationFx,
         })
     }
 
     if (validationOnBlurIsAvailable) {
         sample({
-            clock: runOnBlurValidationEvent,
+            clock: runOnBlurValidation,
             target: validationComponentModel.runValidationFx,
         })
     }
@@ -128,22 +128,22 @@ export const createEditableModel = ({ schemaService, runMutationsEvent, componen
             clock: validationComponentModel.runValidationFx.doneData,
             filter: ({ firstError }) => isNotEmpty(firstError),
             fn: ({ componentId }) => componentId,
-            target: componentsValidationErrorsModel.removeComponentErrorsEvent,
+            target: componentsValidationErrorsModel.removeComponentErrors,
         })
 
         sample({
             source: $componentId,
             clock: validationComponentModel.runValidationFx.failData,
             fn: (componentId, { errors }) => ({ componentId, errors }),
-            target: componentsValidationErrorsModel.setComponentErrorsEvent,
+            target: componentsValidationErrorsModel.setComponentErrors,
         })
     }
 
     return {
         ...validationComponentModel,
         $schema,
-        setSchemaEvent,
-        onBlurEvent,
-        onUpdatePropertiesEvent,
+        setSchema,
+        onBlur,
+        onUpdateProperties,
     }
 }

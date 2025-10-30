@@ -5,12 +5,12 @@ import { FormServiceParams } from './types'
 
 type Params = Pick<FormServiceParams, 'componentsService' | 'viewsService'> & {
     invokeUserSubmitHandlerFx: Effect<Parameters<GeneratorProps['onSubmit']>[0], void, Error>
-    onFormSubmitEvent: EventCallable<void>
+    onFormSubmit: EventCallable<void>
 }
 
-export const init = ({ onFormSubmitEvent, invokeUserSubmitHandlerFx, componentsService }: Params) => {
+export const init = ({ onFormSubmit, invokeUserSubmitHandlerFx, componentsService }: Params) => {
     sample({
-        clock: onFormSubmitEvent,
+        clock: onFormSubmit,
         target: componentsService.formValidationModel.runFormValidationFx,
     })
 

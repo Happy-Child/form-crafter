@@ -70,7 +70,7 @@ export const createComponentsModel = ({ schemaService, themeService, viewsServic
         const newModel = componentsToUpdate.reduce((map, { componentId, schema, isNewValue }) => {
             const model = map.get(componentId)
             if (isNotEmpty(model)) {
-                model.setSchemaEvent({ schema, isNewValue })
+                model.setSchema({ schema, isNewValue })
             }
             return map
         }, new Map(componentsModels))

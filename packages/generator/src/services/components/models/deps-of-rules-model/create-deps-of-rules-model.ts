@@ -135,18 +135,18 @@ export const createDepsOfRulesModel = ({ appErrorsService, themeService, viewsSe
         return root
     })
 
-    const initCheckCyclesEvent = createEvent('initCheckCyclesEvent')
+    const initCheckCycles = createEvent('initCheckCycles')
     sample({
         source: $activeViewInfoOfGraphMutationsResolution,
-        clock: [$activeViewInfoOfGraphMutationsResolution, initCheckCyclesEvent],
+        clock: [$activeViewInfoOfGraphMutationsResolution, initCheckCycles],
         filter: ({ hasCycle }) => hasCycle,
         fn: ({ cycles }) => ({
             id: genId(),
             message: `${getErrorMessage(errorCodes.circularDepDetected)} in $infoOfGraphMutationsResolution. Deps: ${cycles.map((c) => c.join(' -> ')).join('; ')}`,
         }),
-        target: appErrorsService.addErrorEvent,
+        target: appErrorsService.addError,
     })
-    initCheckCyclesEvent()
+    initCheckCycles()
 
     return {
         $activeViewComponentsValidationsConditionsDeps,

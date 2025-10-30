@@ -10,7 +10,7 @@ import { GetExecutorContextBuilder } from '../types'
 
 export type ComponentModelParams = {
     $getExecutorContextBuilder: GetExecutorContextBuilder
-    runMutationsEvent: EventCallable<RunMutationsOnUserActionsPayload>
+    runMutations: EventCallable<RunMutationsOnUserActionsPayload>
     readyConditionalValidationsModel: ReadyConditionalValidationsModel
     componentsValidationErrorsModel: ComponentsValidationErrorsModel
     themeService: ThemeService

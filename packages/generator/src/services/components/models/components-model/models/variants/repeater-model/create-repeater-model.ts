@@ -17,7 +17,7 @@ export const createRepeaterModel = ({ schema }: Params): RepeaterModel => {
 
     const $isValidationPending = createStore<boolean>(false)
 
-    const setSchemaEvent = createEvent<SetSchemaPayload>('setSchemaEvent')
+    const setSchema = createEvent<SetSchemaPayload>('setSchema')
 
     const runValidationFx = createEffect<void, RunComponentValidationFxDone, RunComponentValidationFxFail>(() => {
         return { errors: [] }
@@ -26,10 +26,10 @@ export const createRepeaterModel = ({ schema }: Params): RepeaterModel => {
     $isValidationPending.on(runValidationFx, () => true)
     $isValidationPending.on(runValidationFx.finally, () => false)
 
-    $schema.on(setSchemaEvent, (schema, { schema: newSchema }) => ({
+    $schema.on(setSchema, (schema, { schema: newSchema }) => ({
         ...schema,
         ...newSchema,
     }))
 
-    return { $schema, $isRequired, $firstError, $errors, $isValidationPending, setSchemaEvent, runValidationFx }
+    return { $schema, $isRequired, $firstError, $errors, $isValidationPending, setSchema, runValidationFx }
 }

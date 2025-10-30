@@ -18,7 +18,7 @@ export const Generator: FC<Pick<GeneratorProps, 'renderBottom'>> = memo(({ rende
     const handleSubmit = useCallback(
         (e: FormEvent<HTMLFormElement>) => {
             e.preventDefault()
-            services.formService.onFormSubmitEvent()
+            services.formService.onFormSubmit()
         },
         [services],
     )

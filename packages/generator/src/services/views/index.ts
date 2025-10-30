@@ -3,20 +3,20 @@ import { isNotEmpty, isNotNull } from '@form-crafter/utils'
 import { combine, createEvent, createStore, UnitValue } from 'effector'
 
 import { init } from './init'
-import { ViewsService, ViewsServiceParams } from './types'
+import { ViewsServiceParams } from './types'
 
-export type { ViewsService }
+export type ViewsService = ReturnType<typeof createViewsService>
 
-export const createViewsService = ({ initial }: ViewsServiceParams): ViewsService => {
+export const createViewsService = ({ initial }: ViewsServiceParams) => {
     const $curentViewId = createStore<EntityId | null>(null)
     const $defaultView = createStore<ViewResponsive>(initial.default)
     const $additionalsViews = createStore<ViewDefinition[]>(initial.additionals || [])
 
-    const setAdditionalViewsEvent = createEvent<UnitValue<typeof $additionalsViews>>('setAdditionalViewsEvent')
-    const setCurrentViewIdEvent = createEvent<UnitValue<typeof $curentViewId>>('setCurrentViewIdEvent')
+    const setAdditionalViews = createEvent<UnitValue<typeof $additionalsViews>>('setAdditionalViews')
+    const setCurrentViewId = createEvent<UnitValue<typeof $curentViewId>>('setCurrentViewId')
 
-    $curentViewId.on(setCurrentViewIdEvent, (_, newId) => newId)
-    $additionalsViews.on(setAdditionalViewsEvent, (_, newViews) => newViews)
+    $curentViewId.on(setCurrentViewId, (_, newId) => newId)
+    $additionalsViews.on(setAdditionalViews, (_, newViews) => newViews)
 
     const $additionalsViewsObj = $additionalsViews.map((additionalsViews) =>
         additionalsViews.reduce<Record<EntityId, ViewDefinition>>((map, cur) => ({ ...map, [cur.id]: cur }), {}),
@@ -39,7 +39,7 @@ export const createViewsService = ({ initial }: ViewsServiceParams): ViewsServic
         $additionalsViewsObj,
         $currentView,
         $currentViewComponents,
-        setAdditionalViewsEvent,
-        setCurrentViewIdEvent,
+        setAdditionalViews,
+        setCurrentViewId,
     }
 }

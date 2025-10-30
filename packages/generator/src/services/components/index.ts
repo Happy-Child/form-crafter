@@ -18,8 +18,8 @@ export const createComponentsService = ({ appErrorsService, themeService, viewsS
     const setFirstMutationsToDone = createEvent('setFirstMutationsToDone')
     $firstMutationsIsDone.on(setFirstMutationsToDone, () => true)
 
-    const initServiceEvent = createEvent('initServiceEvent')
-    const runMutationsOnUserActionsEvent = createEvent<RunMutationsOnUserActionsPayload>('runMutationsOnUserActionsEvent')
+    const initService = createEvent('initService')
+    const runMutationsOnUserActions = createEvent<RunMutationsOnUserActionsPayload>('runMutationsOnUserActions')
 
     const componentsModel = createComponentsModel({ themeService, viewsService, schemaService })
 
@@ -40,7 +40,7 @@ export const createComponentsService = ({ appErrorsService, themeService, viewsS
     })
 
     componentsModel.init({
-        runMutationsEvent: runMutationsOnUserActionsEvent,
+        runMutations: runMutationsOnUserActions,
         readyConditionalValidationsModel,
         componentsValidationErrorsModel,
         themeService,
@@ -77,22 +77,22 @@ export const createComponentsService = ({ appErrorsService, themeService, viewsS
         formValidationModel,
         mutationsModel,
         changeViewsModel,
-        initServiceEvent,
+        initService,
         $firstMutationsIsDone,
-        runMutationsOnUserActionsEvent,
+        runMutationsOnUserActions,
         setFirstMutationsToDone,
     })
 
     // OLD BEGIN
-    const updateComponentsSchemasEvent = createEvent<ComponentsSchemas>('updateComponentsSchemasEvent')
-    const removeComponentsSchemasByIdsEvent = createEvent<{ ids: EntityId[] }>('removeComponentsSchemasByIdsEvent')
+    const updateComponentsSchemas = createEvent<ComponentsSchemas>('updateComponentsSchemas')
+    const removeComponentsSchemasByIds = createEvent<{ ids: EntityId[] }>('removeComponentsSchemasByIds')
 
     // $schemas
-    //     .on(updateComponentsSchemasEvent, (curData, data) => ({
+    //     .on(updateComponentsSchemas, (curData, data) => ({
     //         ...curData,
     //         ...data,
     //     }))
-    //     .on(removeComponentsSchemasByIdsEvent, (curData, { ids }) =>
+    //     .on(removeComponentsSchemasByIds, (curData, { ids }) =>
     //         Object.fromEntries(Object.entries(curData).filter(([componentId]) => !ids.includes(componentId))),
     //     )
     // OLD END
@@ -101,8 +101,8 @@ export const createComponentsService = ({ appErrorsService, themeService, viewsS
         componentsModel,
         depsOfRulesModel,
         formValidationModel,
-        initServiceEvent,
-        updateComponentsSchemasEvent,
-        removeComponentsSchemasByIdsEvent,
+        initService,
+        updateComponentsSchemas,
+        removeComponentsSchemasByIds,
     }
 }

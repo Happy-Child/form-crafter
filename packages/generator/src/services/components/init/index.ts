@@ -23,9 +23,9 @@ type Params = {
     formValidationModel: FormValidationModel
     mutationsModel: MutationsModel
     changeViewsModel: ChangeViewsModel
-    initServiceEvent: EventCallable<void>
+    initService: EventCallable<void>
     $firstMutationsIsDone: StoreWritable<boolean>
-    runMutationsOnUserActionsEvent: EventCallable<RunMutationsOnUserActionsPayload>
+    runMutationsOnUserActions: EventCallable<RunMutationsOnUserActionsPayload>
     setFirstMutationsToDone: EventCallable<void>
 }
 
@@ -38,21 +38,21 @@ export const init = ({
     formValidationModel,
     mutationsModel,
     changeViewsModel,
-    initServiceEvent,
-    runMutationsOnUserActionsEvent,
+    initService,
+    runMutationsOnUserActions,
     setFirstMutationsToDone,
 }: Params) => {
     sample({
         clock: changeViewsModel.viewCanBeChanged,
         fn: ({ viewId }) => viewId,
-        target: [viewsService.setCurrentViewIdEvent, componentsValidationErrorsModel.removeAllErrors, formValidationModel.groupValidationModel.clearErrors],
+        target: [viewsService.setCurrentViewId, componentsValidationErrorsModel.removeAllErrors, formValidationModel.groupValidationModel.clearErrors],
     })
 
     sample({
         source: {
             componentsSchemas: componentsModel.$componentsSchemas,
         },
-        clock: initServiceEvent,
+        clock: initService,
         fn: ({ componentsSchemas }) => ({
             componentsToUpdate: Object.entries(componentsSchemas).map(([componentId, schema]) => ({ componentId, schema, isNewValue: true })),
         }),
@@ -63,7 +63,7 @@ export const init = ({
         source: {
             componentsSchemas: componentsModel.$componentsSchemas,
         },
-        clock: initServiceEvent,
+        clock: initService,
         fn: ({ componentsSchemas }) => ({
             componentsToUpdate: Object.entries(componentsSchemas).map(([componentId, schema]) => ({ componentId, schema, isNewValue: true })),
             newComponentsSchemas: componentsSchemas,
@@ -76,7 +76,7 @@ export const init = ({
         clock: readyConditionalValidationsModel.resultOfCalcReadyValidations,
         filter: ({ rulesToInactive }) => isNotEmpty(rulesToInactive),
         fn: ({ rulesToInactive }) => rulesToInactive,
-        target: [componentsValidationErrorsModel.filterAllErrorsEvent, formValidationModel.groupValidationModel.filterErrorsEvent],
+        target: [componentsValidationErrorsModel.filterAllErrors, formValidationModel.groupValidationModel.filterErrors],
     })
 
     sample({
@@ -84,7 +84,7 @@ export const init = ({
             componentsSchemas: componentsModel.$componentsSchemas,
             activeViewDepsForAllMutationsResolution: depsOfRulesModel.$activeViewDepsForAllMutationsResolution,
         },
-        clock: combineEvents([initServiceEvent, readyConditionalValidationsModel.resultOfCalcReadyValidations]),
+        clock: combineEvents([initService, readyConditionalValidationsModel.resultOfCalcReadyValidations]),
         fn: ({ componentsSchemas, activeViewDepsForAllMutationsResolution }) => ({
             curComponentsSchemas: componentsSchemas,
             newComponentsSchemas: componentsSchemas,
@@ -99,7 +99,7 @@ export const init = ({
             componentsSchemas: componentsModel.$componentsSchemas,
             activeViewDepsGraphForMutationsResolution: depsOfRulesModel.$activeViewDepsGraphForMutationsResolution,
         },
-        clock: runMutationsOnUserActionsEvent,
+        clock: runMutationsOnUserActions,
         fn: ({ componentsSchemas, activeViewDepsGraphForMutationsResolution }, { id: componentIdToUpdate, data: propertiesToUpdate }) => {
             const finalComponentsSchemas = cloneDeep(componentsSchemas)
             finalComponentsSchemas[componentIdToUpdate].properties = {

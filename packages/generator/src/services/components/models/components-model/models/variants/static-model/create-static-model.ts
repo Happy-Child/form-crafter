@@ -10,12 +10,12 @@ type Params = {
 export const createStaticModel = ({ schema }: Params): StaticModel => {
     const $schema = createStore<StaticComponentSchema>(schema)
 
-    const setSchemaEvent = createEvent<SetSchemaPayload>('setSchemaEvent')
+    const setSchema = createEvent<SetSchemaPayload>('setSchema')
 
-    $schema.on(setSchemaEvent, (schema, { schema: newSchema }) => ({
+    $schema.on(setSchema, (schema, { schema: newSchema }) => ({
         ...schema,
         ...newSchema,
     }))
 
-    return { $schema, setSchemaEvent }
+    return { $schema, setSchema }
 }

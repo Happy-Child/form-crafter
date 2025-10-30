@@ -27,7 +27,7 @@ export const App: FC = () => {
                             onSubmit={handleeSubmit}
                             theme={muiTheme}
                             PlaceholderComponent={PlaceholderComponent}
-                            schema={employeeSchema}
+                            schema={clientSchema}
                             renderBottom={({ isValidationPending, groupValidationErrors }) => (
                                 <Stack spacing={2} mt={5}>
                                     <Button loading={isValidationPending} variant="contained" size="large" type="submit">

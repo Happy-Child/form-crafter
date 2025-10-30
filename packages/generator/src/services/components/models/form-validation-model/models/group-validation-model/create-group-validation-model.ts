@@ -103,19 +103,19 @@ export const createGroupValidationModel = ({
         effect: baseRunValidationsFx,
     })
 
-    const setErrorsEvent = createEvent<UnitValue<typeof $errors>>('setErrorsEvent')
+    const setErrors = createEvent<UnitValue<typeof $errors>>('setErrors')
 
     const clearErrors = createEvent('clearErrors')
 
-    const filterErrorsEvent = createEvent<Set<EntityId>>('filterErrorsEvent')
+    const filterErrors = createEvent<Set<EntityId>>('filterErrors')
 
     if (validationIsAvailable) {
         $isValidationPending.on(runValidationsFx, () => true)
         $isValidationPending.on(runValidationsFx.finally, () => false)
 
-        $errors.on(setErrorsEvent, (_, newErrors) => newErrors)
+        $errors.on(setErrors, (_, newErrors) => newErrors)
         $errors.reset(clearErrors)
-        $errors.on(filterErrorsEvent, (errors, errorsToRemove) => {
+        $errors.on(filterErrors, (errors, errorsToRemove) => {
             const newErrors = new Map(errors)
             for (const validationSchemaId of errorsToRemove) {
                 newErrors.delete(validationSchemaId)
@@ -127,25 +127,25 @@ export const createGroupValidationModel = ({
             clock: runValidationsFx.failData,
             filter: ({ componentsErrors }) => isNotEmpty(componentsErrors),
             fn: ({ componentsErrors }) => componentsErrors!,
-            target: componentsValidationErrorsModel.setComponentsGroupsErrorsEvent,
+            target: componentsValidationErrorsModel.setComponentsGroupsErrors,
         })
 
         sample({
             clock: runValidationsFx.failData,
             filter: ({ groupsErrors }) => isNotEmpty(groupsErrors),
             fn: ({ groupsErrors }) => groupsErrors!,
-            target: setErrorsEvent,
+            target: setErrors,
         })
 
         sample({
             clock: runValidationsFx.doneData,
-            target: [componentsValidationErrorsModel.clearComponentsGroupsErrorsEvent, clearErrors],
+            target: [componentsValidationErrorsModel.clearComponentsGroupsErrors, clearErrors],
         })
     }
 
     return {
         runValidationsFx,
-        filterErrorsEvent,
+        filterErrors,
         clearErrors,
         $errors,
         $isValidationPending,

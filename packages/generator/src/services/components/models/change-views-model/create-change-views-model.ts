@@ -19,7 +19,7 @@ export type ChangeViewsModel = ReturnType<typeof createChangeViewsModel>
 export const createChangeViewsModel = ({ viewsService, componentsModel, depsOfRulesModel, $firstMutationsIsDone }: Params) => {
     const $changeViewWasChecked = createStore(false)
 
-    const runViewChangeCheck = createEvent<PrepareDispatcherPayload>('prepareDispatcherEvent')
+    const runViewChangeCheck = createEvent<PrepareDispatcherPayload>('runViewChangeCheck')
 
     const setChangeViewWasChecked = createEvent<boolean>('setChangeViewWasChecked')
     const resetChangeViewWasChecked = createEvent('resetChangeViewWasChecked')

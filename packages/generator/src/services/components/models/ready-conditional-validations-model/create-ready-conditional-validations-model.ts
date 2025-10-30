@@ -31,23 +31,23 @@ export const createReadyConditionalValidationsModel = ({ schemaService, depsOfRu
     const $readyGroupsByKey = createStore<ReadyValidationsByKey[keyof ReadyValidationsByKey]>({})
 
     const calcReadyValidations = createEvent<CalcReadyConditionalValidationsPayload>('calcReadyValidations')
-    const calcReadyRulesGuardEvent = createEvent<CalcReadyConditionalValidationsPayload>('calcReadyRulesGuardEvent')
+    const calcReadyRulesGuard = createEvent<CalcReadyConditionalValidationsPayload>('calcReadyRulesGuard')
 
-    const setReadyComponentsRulesEvent = createEvent<UnitValue<typeof $readyComponentsRules>>('setReadyComponentsRulesEvent')
-    const setReadyComponentsRulesByKeyEvent = createEvent<UnitValue<typeof $readyComponentsRulesByKey>>('setReadyComponentsRulesByKeyEvent')
-    const removeReadyComponentsRulesEvent = createEvent<Set<EntityId>>('removeReadyComponentsRulesEvent')
-    const removeReadyComponentsRulesByKeyEvent = createEvent<Set<EntityId>>('removeReadyComponentsRulesByKeyEvent')
+    const setReadyComponentsRules = createEvent<UnitValue<typeof $readyComponentsRules>>('setReadyComponentsRules')
+    const setReadyComponentsRulesByKey = createEvent<UnitValue<typeof $readyComponentsRulesByKey>>('setReadyComponentsRulesByKey')
+    const removeReadyComponentsRules = createEvent<Set<EntityId>>('removeReadyComponentsRules')
+    const removeReadyComponentsRulesByKey = createEvent<Set<EntityId>>('removeReadyComponentsRulesByKey')
 
-    const setReadyGroupRulesEvent = createEvent<UnitValue<typeof $readyGroupsRules>>('setReadyGroupRulesEvent')
-    const setReadyGroupRulesByKeyEvent = createEvent<UnitValue<typeof $readyGroupsByKey>>('setReadyGroupRulesByKeyEvent')
-    const removeReadyGroupRulesEvent = createEvent<Set<EntityId>>('removeReadyGroupRulesEvent')
-    const removeReadyGroupRulesByKeyEvent = createEvent<Set<EntityId>>('removeReadyGroupRulesByKeyEvent')
+    const setReadyGroupRules = createEvent<UnitValue<typeof $readyGroupsRules>>('setReadyGroupRules')
+    const setReadyGroupRulesByKey = createEvent<UnitValue<typeof $readyGroupsByKey>>('setReadyGroupRulesByKey')
+    const removeReadyGroupRules = createEvent<Set<EntityId>>('removeReadyGroupRules')
+    const removeReadyGroupRulesByKey = createEvent<Set<EntityId>>('removeReadyGroupRulesByKey')
 
-    $readyComponentsRules.on(setReadyComponentsRulesEvent, (_, readyRules) => readyRules)
-    $readyComponentsRulesByKey.on(setReadyComponentsRulesByKeyEvent, (_, readyRules) => readyRules)
+    $readyComponentsRules.on(setReadyComponentsRules, (_, readyRules) => readyRules)
+    $readyComponentsRulesByKey.on(setReadyComponentsRulesByKey, (_, readyRules) => readyRules)
 
-    $readyComponentsRules.on(removeReadyComponentsRulesEvent, removeReadyValidationRules)
-    $readyComponentsRulesByKey.on(removeReadyComponentsRulesByKeyEvent, (curReadyRules, rulesIdsToRemove) => {
+    $readyComponentsRules.on(removeReadyComponentsRules, removeReadyValidationRules)
+    $readyComponentsRulesByKey.on(removeReadyComponentsRulesByKey, (curReadyRules, rulesIdsToRemove) => {
         const result = Object.entries(curReadyRules).reduce<UnitValue<typeof $readyComponentsRulesByKey>>((curReadyRules, [componentId, readyRules]) => {
             const updatedReadyRules = removeReadyValidationRules(readyRules, rulesIdsToRemove)
             if (isEmpty(updatedReadyRules)) {
@@ -60,14 +60,14 @@ export const createReadyConditionalValidationsModel = ({ schemaService, depsOfRu
         return { ...result }
     })
 
-    $readyGroupsRules.on(setReadyGroupRulesEvent, (_, readyRules) => readyRules)
-    $readyGroupsByKey.on(setReadyGroupRulesByKeyEvent, (_, readyRules) => readyRules)
+    $readyGroupsRules.on(setReadyGroupRules, (_, readyRules) => readyRules)
+    $readyGroupsByKey.on(setReadyGroupRulesByKey, (_, readyRules) => readyRules)
 
-    $readyGroupsRules.on(removeReadyGroupRulesEvent, differenceSet)
-    $readyGroupsByKey.on(removeReadyGroupRulesByKeyEvent, removeReadyValidationRules)
+    $readyGroupsRules.on(removeReadyGroupRules, differenceSet)
+    $readyGroupsByKey.on(removeReadyGroupRulesByKey, removeReadyValidationRules)
 
     sample({
-        clock: calcReadyRulesGuardEvent,
+        clock: calcReadyRulesGuard,
         filter: ({ componentsToUpdate }) => componentsToUpdate.some(({ isNewValue }) => !!isNewValue),
         fn: ({ componentsToUpdate, ...params }) => ({ ...params, componentsToUpdate: componentsToUpdate.filter(({ isNewValue }) => !!isNewValue) }),
         target: calcReadyValidations,
@@ -251,32 +251,32 @@ export const createReadyConditionalValidationsModel = ({ schemaService, depsOfRu
         clock: resultOfCalcReadyValidations,
         filter: ({ readyRules }) => isNotEmpty(readyRules),
         fn: ({ readyRules }) => readyRules,
-        target: setReadyComponentsRulesEvent,
+        target: setReadyComponentsRules,
     })
 
     sample({
         clock: resultOfCalcReadyValidations,
         filter: ({ readyRulesByKey }) => isNotEmpty(readyRulesByKey),
         fn: ({ readyRulesByKey }) => readyRulesByKey,
-        target: setReadyComponentsRulesByKeyEvent,
+        target: setReadyComponentsRulesByKey,
     })
 
     sample({
         clock: resultOfCalcReadyValidations,
         filter: ({ readyGroupRules }) => isNotEmpty(readyGroupRules),
         fn: ({ readyGroupRules }) => readyGroupRules,
-        target: setReadyGroupRulesEvent,
+        target: setReadyGroupRules,
     })
 
     sample({
         clock: resultOfCalcReadyValidations,
         filter: ({ readyGroupRulesByKey }) => isNotEmpty(readyGroupRulesByKey),
         fn: ({ readyGroupRulesByKey }) => readyGroupRulesByKey,
-        target: setReadyGroupRulesByKeyEvent,
+        target: setReadyGroupRulesByKey,
     })
 
     return {
-        calcReadyValidations: calcReadyRulesGuardEvent,
+        calcReadyValidations: calcReadyRulesGuard,
         resultOfCalcReadyValidations,
         $readyComponentsRules,
         $readyComponentsRulesByKey,

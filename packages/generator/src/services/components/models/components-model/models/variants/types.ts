@@ -28,16 +28,16 @@ export type EditableModel = {
     $firstError: Store<ComponentValidationError | null>
     $isRequired: Store<boolean>
     $isValidationPending: StoreWritable<boolean>
-    setSchemaEvent: EventCallable<SetSchemaPayload>
-    onUpdatePropertiesEvent: EventCallable<Partial<EditableComponentProperties>>
-    onBlurEvent: EventCallable<void>
+    setSchema: EventCallable<SetSchemaPayload>
+    onUpdateProperties: EventCallable<Partial<EditableComponentProperties>>
+    onBlur: EventCallable<void>
     runValidationFx: Effect<void, RunComponentValidationFxDone, RunComponentValidationFxFail>
 }
 
 export type ContainerModel = {
     $schema: StoreWritable<ContainerComponentSchema>
-    setSchemaEvent: EventCallable<SetSchemaPayload>
-    onUpdatePropertiesEvent: EventCallable<Partial<ContainerComponentProperties>>
+    setSchema: EventCallable<SetSchemaPayload>
+    onUpdateProperties: EventCallable<Partial<ContainerComponentProperties>>
 }
 
 export type RepeaterModel = {
@@ -46,7 +46,7 @@ export type RepeaterModel = {
     $firstError: Store<ComponentValidationError | null>
     $isValidationPending: StoreWritable<boolean>
     $isRequired: StoreWritable<boolean>
-    setSchemaEvent: EventCallable<SetSchemaPayload>
+    setSchema: EventCallable<SetSchemaPayload>
     runValidationFx: Effect<void, RunComponentValidationFxDone, RunComponentValidationFxFail>
 }
 
@@ -56,14 +56,14 @@ export type UploaderModel = {
     $firstError: Store<ComponentValidationError | null>
     $isValidationPending: StoreWritable<boolean>
     $isRequired: StoreWritable<boolean>
-    setSchemaEvent: EventCallable<SetSchemaPayload>
-    onUpdatePropertiesEvent: EventCallable<Partial<UploaderComponentProperties>>
+    setSchema: EventCallable<SetSchemaPayload>
+    onUpdateProperties: EventCallable<Partial<UploaderComponentProperties>>
     runValidationFx: Effect<void, RunComponentValidationFxDone, RunComponentValidationFxFail>
 }
 
 export type StaticModel = {
     $schema: StoreWritable<StaticComponentSchema>
-    setSchemaEvent: EventCallable<SetSchemaPayload>
+    setSchema: EventCallable<SetSchemaPayload>
 }
 
 export type ComponentModel = EditableModel | ContainerModel | RepeaterModel | UploaderModel | StaticModel

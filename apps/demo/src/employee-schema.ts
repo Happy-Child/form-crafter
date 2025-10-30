@@ -259,11 +259,6 @@ export const employeeSchema: Schema = {
                         id: genId(),
                         key: 'duplicateValue',
                         options: { duplicateValueComponentId: 'input-first-name' },
-                        condition: {
-                            type: 'operator',
-                            operator: 'or',
-                            operands: [{ type: 'component', componentId: 'date-birth', operatorKey: 'isNotEmpty' }],
-                        },
                     },
                 ],
             },

@@ -8,7 +8,7 @@ export const ResolverContainer: ResolverComponentType = memo(({ id, rowId }) => 
     const meta = useComponentMeta<'container'>(id)
     const properties = useComponentProperties<'container'>(id)
 
-    const { onUpdatePropertiesEvent } = useComponentModel<'container'>(id)
+    const { onUpdateProperties } = useComponentModel<'container'>(id)
 
     const { parentId, rows } = useViewComponentWithParent(id)
 
@@ -16,7 +16,7 @@ export const ResolverContainer: ResolverComponentType = memo(({ id, rowId }) => 
 
     return (
         <LayoutComponent id={id}>
-            <Component id={id} parentId={parentId} rowId={rowId} meta={meta} onChangeProperties={onUpdatePropertiesEvent} properties={properties} rows={rows} />
+            <Component id={id} parentId={parentId} rowId={rowId} meta={meta} onChangeProperties={onUpdateProperties} properties={properties} rows={rows} />
         </LayoutComponent>
     )
 })

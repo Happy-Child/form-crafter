@@ -15,10 +15,10 @@ export type RunMutationsOnUserActionsPayload = { id: EntityId; data: AvailableOb
 export type ComponentsService = {
     componentsModel: ComponentsModel
     formValidationModel: FormValidationModel
-    initServiceEvent: EventCallable<void>
+    initService: EventCallable<void>
     depsOfRulesModel: DepsOfRulesModel
-    updateComponentsSchemasEvent: EventCallable<ComponentsSchemas>
-    removeComponentsSchemasByIdsEvent: EventCallable<{ ids: EntityId[] }>
+    updateComponentsSchemas: EventCallable<ComponentsSchemas>
+    removeComponentsSchemasByIds: EventCallable<{ ids: EntityId[] }>
 }
 
 export type ComponentsServiceParams = {
