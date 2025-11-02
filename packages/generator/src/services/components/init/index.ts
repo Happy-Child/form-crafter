@@ -11,12 +11,14 @@ import { DepsOfRulesModel } from '../models/deps-of-rules-model'
 import { FormValidationModel } from '../models/form-validation-model'
 import { MutationsModel } from '../models/mutations-model'
 import { ReadyConditionalValidationsModel } from '../models/ready-conditional-validations-model'
+import { RepeaterModel } from '../models/repeater-model'
 import { RunMutationsOnUserActionsPayload } from '../types'
 import { initChangeViews } from './init-change-views'
 
 type Params = {
     viewsService: ViewsService
     componentsModel: ComponentsModel
+    repeaterModel: RepeaterModel
     componentsValidationErrorsModel: ComponentsValidationErrorsModel
     depsOfRulesModel: DepsOfRulesModel
     readyConditionalValidationsModel: ReadyConditionalValidationsModel
@@ -32,6 +34,7 @@ type Params = {
 export const init = ({
     viewsService,
     componentsModel,
+    repeaterModel,
     componentsValidationErrorsModel,
     depsOfRulesModel,
     readyConditionalValidationsModel,
@@ -42,6 +45,7 @@ export const init = ({
     runMutationsOnUserActions,
     setFirstMutationsToDone,
 }: Params) => {
+    // Выснести мутации service.setCurrentViewId наружу
     sample({
         clock: changeViewsModel.viewCanBeChanged,
         fn: ({ viewId }) => viewId,
@@ -154,4 +158,6 @@ export const init = ({
         mutationsModel,
         changeViewsModel,
     })
+
+    // sample repeaterModel
 }

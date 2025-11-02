@@ -2,7 +2,7 @@ import { createContext, FC, PropsWithChildren, useContext, useRef } from 'react'
 
 import { isNull } from '@form-crafter/utils'
 
-import { RootServices } from '../services/types'
+import { RootServices } from '../services'
 
 type StoreContext = {
     services: RootServices

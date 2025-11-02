@@ -3,14 +3,13 @@ import { isNotEmpty } from '@form-crafter/utils'
 import { attach, combine, createEffect, createEvent, createStore, sample } from 'effector'
 import { once } from 'patronum'
 
-import { isConditionSuccessful } from '../../../../utils'
 import { SchemaService } from '../../../schema'
 import { ThemeService } from '../../../theme'
 import { ViewsService } from '../../../views'
 import { ComponentModelParams, createComponentModel } from './models'
 import { ComponentToUpdate, GetExecutorContextBuilder, GetIsConditionSuccessfulChecker } from './types'
 import { ComponentsModels } from './types'
-import { buildExecutorContext, extractComponentsModels } from './utils'
+import { buildExecutorContext, extractComponentsModels, isConditionSuccessful } from './utils'
 
 type Params = {
     themeService: ThemeService

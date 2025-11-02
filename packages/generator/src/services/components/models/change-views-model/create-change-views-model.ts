@@ -37,12 +37,12 @@ export const createChangeViewsModel = ({ viewsService, componentsModel, depsOfRu
             getIsConditionSuccessfulChecker: componentsModel.$getIsConditionSuccessfulChecker,
             viewsConditionsDeps: depsOfRulesModel.$viewsConditionsDeps,
             viewsConditionsAllDeps: depsOfRulesModel.$viewsConditionsAllDeps,
-            additionalsViews: viewsService.$additionalsViews,
+            additionalsViewsArr: viewsService.$additionalsViewsArr,
             curentViewId: viewsService.$curentViewId,
         },
         clock: runViewChangeCheck,
-        fn: ({ getIsConditionSuccessfulChecker, viewsConditionsDeps, viewsConditionsAllDeps, additionalsViews, curentViewId }, { componentsToUpdate }) => {
-            if (!isNotEmpty(additionalsViews)) {
+        fn: ({ getIsConditionSuccessfulChecker, viewsConditionsDeps, viewsConditionsAllDeps, additionalsViewsArr, curentViewId }, { componentsToUpdate }) => {
+            if (!isNotEmpty(additionalsViewsArr)) {
                 return { canBeChange: false }
             }
 
@@ -61,7 +61,7 @@ export const createChangeViewsModel = ({ viewsService, componentsModel, depsOfRu
 
             const isConditionSuccessfulChecker = getIsConditionSuccessfulChecker()
 
-            for (const view of additionalsViews) {
+            for (const view of additionalsViewsArr) {
                 const deps = viewsConditionsDeps.viewIdToDepsComponents[view.id]
 
                 if (!isNotEmpty(deps)) {

@@ -2,7 +2,7 @@ import { FC, memo, PropsWithChildren } from 'react'
 
 import { EntityId } from '@form-crafter/core'
 
-import { useRootLayoutSpans, useViewComponentLayout } from '../../hooks'
+import { useRootLayoutSpans, useViewComponent } from '../../hooks'
 import { LayoutStyled } from './styles'
 
 type Props = PropsWithChildren<{
@@ -10,7 +10,7 @@ type Props = PropsWithChildren<{
 }>
 
 export const LayoutComponent: FC<Props> = memo(({ id, children }) => {
-    const layout = useViewComponentLayout(id)
+    const { layout } = useViewComponent(id)
 
     const rootLayoutSpans = useRootLayoutSpans()
 

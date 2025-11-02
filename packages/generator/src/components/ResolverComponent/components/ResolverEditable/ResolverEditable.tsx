@@ -2,7 +2,7 @@ import { memo } from 'react'
 
 import { useUnit } from 'effector-react'
 
-import { useComponentMeta, useComponentModel, useComponentProperties, useDisplayComponent, useViewComponentWithParent } from '../../../../hooks'
+import { useComponentMeta, useComponentModel, useComponentProperties, useDisplayComponent, useViewComponent } from '../../../../hooks'
 import { LayoutComponent } from '../../../LayoutComponent'
 import { ResolverComponentType } from '../../types'
 
@@ -13,7 +13,7 @@ export const ResolverEditable: ResolverComponentType = memo(({ id, rowId }) => {
     const { onUpdateProperties, onBlur, $firstError, $errors, $isRequired } = useComponentModel<'editable'>(id)
     const [isRequired, firstError, errors] = useUnit([$isRequired, $firstError, $errors])
 
-    const { parentId } = useViewComponentWithParent(id)
+    const { parentRowId } = useViewComponent(id)
 
     const Component = useDisplayComponent<'editable'>(id)
 
@@ -21,7 +21,7 @@ export const ResolverEditable: ResolverComponentType = memo(({ id, rowId }) => {
         <LayoutComponent id={id}>
             <Component
                 id={id}
-                parentId={parentId}
+                parentId={parentRowId}
                 rowId={rowId}
                 meta={meta}
                 properties={properties}

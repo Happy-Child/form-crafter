@@ -1,9 +1,9 @@
 import { FC } from 'react'
 
 import { Unwrap } from '@form-crafter/utils'
+import { EntityId } from 'packages/core/src/types'
 
 import { GroupOptionsBuilder, OptionsBuilderOutput } from '../../../../options-builder'
-import { ViewComponent } from '../../../../views'
 import { GeneratorComponentProps } from '../../../generator'
 import { ContainerComponentProperties } from '../schema'
 
@@ -14,7 +14,7 @@ import { ContainerComponentProperties } from '../schema'
 // }
 
 export type ContainerComponentPropsAsObject<P extends ContainerComponentProperties = ContainerComponentProperties> = GeneratorComponentProps<'container', P> & {
-    rows?: ViewComponent['rows']
+    childrenRows: EntityId[]
     onChangeProperties: (changes: Partial<P>) => void
 }
 

@@ -24,123 +24,59 @@ export const clientSchema: Schema = {
     views: {
         default: {
             xxl: {
-                rows: {
-                    row1: {
+                elements: [
+                    {
                         id: 'row1',
-                        children: [{ id: 'userType' }],
+                        type: 'row',
+                        children: [{ id: 'userType', type: 'component', layout: { col: 24 } }],
                     },
-                    row2: {
+                    {
                         id: 'row2',
-                        children: [{ id: 'fullName' }, { id: 'passportNumber' }],
+                        type: 'row',
+                        children: [
+                            { id: 'fullName', type: 'component', layout: { col: 12 } },
+                            { id: 'passportNumber', type: 'component', layout: { col: 12 } },
+                        ],
                     },
-                    row3: {
+                    {
                         id: 'row3',
-                        children: [{ id: 'dateBirth' }],
+                        type: 'row',
+                        children: [{ id: 'dateBirth', type: 'component', layout: { col: 24 } }],
                     },
-                    row4: {
+                    {
                         id: 'row4',
-                        children: [{ id: 'address' }, { id: 'snils' }],
+                        type: 'row',
+                        children: [
+                            { id: 'address', type: 'component', layout: { col: 12 } },
+                            { id: 'snils', type: 'component', layout: { col: 12 } },
+                        ],
                     },
-                    row5: {
+                    {
                         id: 'row5',
-                        children: [{ id: 'contactsGroup' }],
-                    },
-                    contactsGroup1: {
-                        id: 'contactsGroup1',
-                        children: [{ id: 'contactEmail' }, { id: 'contactPhone' }],
-                    },
-                },
-                components: {
-                    [rootComponentId]: {
-                        id: rootComponentId,
-                        rows: [
+                        type: 'row',
+                        children: [
                             {
-                                id: 'row1',
-                            },
-                            {
-                                id: 'row2',
-                            },
-                            {
-                                id: 'row3',
-                            },
-                            {
-                                id: 'row4',
-                            },
-                            {
-                                id: 'row5',
+                                id: 'contactsGroup',
+                                type: 'component',
+                                layout: { col: 24 },
+                                children: [
+                                    {
+                                        id: 'contactsGroup1',
+                                        type: 'row',
+                                        children: [
+                                            { id: 'contactEmail', type: 'component', layout: { col: 12 } },
+                                            { id: 'contactPhone', type: 'component', layout: { col: 12 } },
+                                        ],
+                                    },
+                                ],
                             },
                         ],
                     },
-                    userType: {
-                        id: 'userType',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 24 } },
-                        },
-                    },
-                    fullName: {
-                        id: 'fullName',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 12 } },
-                        },
-                    },
-                    passportNumber: {
-                        id: 'passportNumber',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 12 } },
-                        },
-                    },
-                    dateBirth: {
-                        id: 'dateBirth',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 24 } },
-                        },
-                    },
-                    address: {
-                        id: 'address',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 12 } },
-                        },
-                    },
-                    snils: {
-                        id: 'snils',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 12 } },
-                        },
-                    },
-                    contactsGroup: {
-                        id: 'contactsGroup',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 24 } },
-                        },
-
-                        rows: [{ id: 'contactsGroup1' }],
-                    },
-                    contactEmail: {
-                        id: 'contactEmail',
-                        parentId: 'contactsGroup',
-                        params: {
-                            layout: { col: { default: 12 } },
-                        },
-                    },
-                    contactPhone: {
-                        id: 'contactPhone',
-                        parentId: 'contactsGroup',
-                        params: {
-                            layout: { col: { default: 12 } },
-                        },
-                    },
-                },
+                ],
             },
         },
-        additionals: [
-            {
+        additionals: {
+            ipView: {
                 id: 'ipView',
                 condition: {
                     type: 'operator',
@@ -149,144 +85,67 @@ export const clientSchema: Schema = {
                 },
                 responsive: {
                     xxl: {
-                        rows: {
-                            row1: {
+                        elements: [
+                            {
                                 id: 'row1',
-                                children: [{ id: 'userType' }],
+                                type: 'row',
+                                children: [{ id: 'userType', type: 'component', layout: { col: 24 } }],
                             },
-                            row2: {
+                            {
                                 id: 'row2',
-                                children: [{ id: 'fullName' }, { id: 'passportNumber' }],
+                                type: 'row',
+                                children: [
+                                    { id: 'fullName', type: 'component', layout: { col: 12 } },
+                                    { id: 'passportNumber', type: 'component', layout: { col: 12 } },
+                                ],
                             },
-                            row3: {
+                            {
                                 id: 'row3',
-                                children: [{ id: 'dateBirth' }, { id: 'address' }],
+                                type: 'row',
+                                children: [
+                                    { id: 'dateBirth', type: 'component', layout: { col: 12 } },
+                                    { id: 'address', type: 'component', layout: { col: 12 } },
+                                ],
                             },
-                            row4: {
+                            {
                                 id: 'row4',
-                                children: [{ id: 'inn' }, { id: 'ogrn' }],
+                                type: 'row',
+                                children: [
+                                    { id: 'inn', type: 'component', layout: { col: 12 } },
+                                    { id: 'ogrn', type: 'component', layout: { col: 12 } },
+                                ],
                             },
-                            row5: {
+                            {
                                 id: 'row5',
-                                children: [{ id: 'bankAccount' }],
+                                type: 'row',
+                                children: [{ id: 'bankAccount', type: 'component', layout: { col: 24 } }],
                             },
-                            row6: {
+                            {
                                 id: 'row6',
-                                children: [{ id: 'contactsGroup' }],
-                            },
-                            contactsGroup1: {
-                                id: 'contactsGroup1',
-                                children: [{ id: 'contactEmail' }, { id: 'contactPhone' }],
-                            },
-                        },
-                        components: {
-                            [rootComponentId]: {
-                                id: rootComponentId,
-                                rows: [
+                                type: 'row',
+                                children: [
                                     {
-                                        id: 'row1',
-                                    },
-                                    {
-                                        id: 'row2',
-                                    },
-                                    {
-                                        id: 'row3',
-                                    },
-                                    {
-                                        id: 'row4',
-                                    },
-                                    {
-                                        id: 'row5',
-                                    },
-                                    {
-                                        id: 'row6',
+                                        id: 'contactsGroup',
+                                        type: 'component',
+                                        layout: { col: 24 },
+                                        children: [
+                                            {
+                                                id: 'contactsGroup1',
+                                                type: 'row',
+                                                children: [
+                                                    { id: 'contactEmail', type: 'component', layout: { col: 12 } },
+                                                    { id: 'contactPhone', type: 'component', layout: { col: 12 } },
+                                                ],
+                                            },
+                                        ],
                                     },
                                 ],
                             },
-                            userType: {
-                                id: 'userType',
-                                parentId: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 24 } },
-                                },
-                            },
-                            fullName: {
-                                id: 'fullName',
-                                parentId: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 12 } },
-                                },
-                            },
-                            passportNumber: {
-                                id: 'passportNumber',
-                                parentId: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 12 } },
-                                },
-                            },
-                            dateBirth: {
-                                id: 'dateBirth',
-                                parentId: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 12 } },
-                                },
-                            },
-                            address: {
-                                id: 'address',
-                                parentId: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 12 } },
-                                },
-                            },
-                            inn: {
-                                id: 'inn',
-                                parentId: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 12 } },
-                                },
-                            },
-                            ogrn: {
-                                id: 'ogrn',
-                                parentId: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 12 } },
-                                },
-                            },
-                            bankAccount: {
-                                id: 'bankAccount',
-                                parentId: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 24 } },
-                                },
-                            },
-                            contactsGroup: {
-                                id: 'contactsGroup',
-                                parentId: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 24 } },
-                                },
-
-                                rows: [{ id: 'contactsGroup1' }],
-                            },
-                            contactEmail: {
-                                id: 'contactEmail',
-                                parentId: 'contactsGroup',
-                                params: {
-                                    layout: { col: { default: 12 } },
-                                },
-                            },
-                            contactPhone: {
-                                id: 'contactPhone',
-                                parentId: 'contactsGroup',
-                                params: {
-                                    layout: { col: { default: 12 } },
-                                },
-                            },
-                        },
+                        ],
                     },
                 },
             },
-            {
+            ulView: {
                 id: 'ulView',
                 condition: {
                     type: 'operator',
@@ -295,137 +154,62 @@ export const clientSchema: Schema = {
                 },
                 responsive: {
                     xxl: {
-                        rows: {
-                            row1: {
+                        elements: [
+                            {
                                 id: 'row1',
-                                children: [{ id: 'userType' }],
+                                type: 'row',
+                                children: [{ id: 'userType', type: 'component', layout: { col: 24 } }],
                             },
-                            row2: {
+                            {
                                 id: 'row2',
-                                children: [{ id: 'companyName' }],
+                                type: 'row',
+                                children: [{ id: 'companyName', type: 'component', layout: { col: 24 } }],
                             },
-                            row3: {
+                            {
                                 id: 'row3',
-                                children: [{ id: 'inn' }, { id: 'kpp' }, { id: 'ogrn' }],
+                                type: 'row',
+                                children: [
+                                    { id: 'inn', type: 'component', layout: { col: 8 } },
+                                    { id: 'kpp', type: 'component', layout: { col: 8 } },
+                                    { id: 'ogrn', type: 'component', layout: { col: 8 } },
+                                ],
                             },
-                            row4: {
+                            {
                                 id: 'row4',
-                                children: [{ id: 'address' }],
+                                type: 'row',
+                                children: [{ id: 'address', type: 'component', layout: { col: 24 } }],
                             },
-                            row5: {
+                            {
                                 id: 'row5',
-                                children: [{ id: 'bankAccount' }],
+                                type: 'row',
+                                children: [{ id: 'bankAccount', type: 'component', layout: { col: 24 } }],
                             },
-                            row6: {
+                            {
                                 id: 'row6',
-                                children: [{ id: 'contactsGroup' }],
-                            },
-                            contactsGroup1: {
-                                id: 'contactsGroup1',
-                                children: [{ id: 'contactEmail' }, { id: 'contactPhone' }],
-                            },
-                        },
-                        components: {
-                            [rootComponentId]: {
-                                id: rootComponentId,
-                                rows: [
+                                type: 'row',
+                                children: [
                                     {
-                                        id: 'row1',
-                                    },
-                                    {
-                                        id: 'row2',
-                                    },
-                                    {
-                                        id: 'row3',
-                                    },
-                                    {
-                                        id: 'row4',
-                                    },
-                                    {
-                                        id: 'row5',
-                                    },
-                                    {
-                                        id: 'row6',
+                                        id: 'contactsGroup',
+                                        type: 'component',
+                                        layout: { col: 24 },
+                                        children: [
+                                            {
+                                                id: 'contactsGroup1',
+                                                type: 'row',
+                                                children: [
+                                                    { id: 'contactEmail', type: 'component', layout: { col: 12 } },
+                                                    { id: 'contactPhone', type: 'component', layout: { col: 12 } },
+                                                ],
+                                            },
+                                        ],
                                     },
                                 ],
                             },
-                            userType: {
-                                id: 'userType',
-                                parentId: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 24 } },
-                                },
-                            },
-                            companyName: {
-                                id: 'companyName',
-                                parentId: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 24 } },
-                                },
-                            },
-                            inn: {
-                                id: 'inn',
-                                parentId: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 8 } },
-                                },
-                            },
-                            ogrn: {
-                                id: 'ogrn',
-                                parentId: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 8 } },
-                                },
-                            },
-                            kpp: {
-                                id: 'kpp',
-                                parentId: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 8 } },
-                                },
-                            },
-                            address: {
-                                id: 'address',
-                                parentId: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 24 } },
-                                },
-                            },
-                            bankAccount: {
-                                id: 'bankAccount',
-                                parentId: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 24 } },
-                                },
-                            },
-                            contactsGroup: {
-                                id: 'contactsGroup',
-                                parentId: rootComponentId,
-                                params: {
-                                    layout: { col: { default: 24 } },
-                                },
-
-                                rows: [{ id: 'contactsGroup1' }],
-                            },
-                            contactEmail: {
-                                id: 'contactEmail',
-                                parentId: 'contactsGroup',
-                                params: {
-                                    layout: { col: { default: 12 } },
-                                },
-                            },
-                            contactPhone: {
-                                id: 'contactPhone',
-                                parentId: 'contactsGroup',
-                                params: {
-                                    layout: { col: { default: 12 } },
-                                },
-                            },
-                        },
+                        ],
                     },
                 },
             },
-        ],
+        },
     },
     componentsSchemas: {
         userType: {

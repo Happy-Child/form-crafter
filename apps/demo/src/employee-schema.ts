@@ -1,6 +1,38 @@
 import { rootComponentId, Schema } from '@form-crafter/core'
 import { genId } from '@form-crafter/utils'
 
+// {
+//     id: 'row_id_5',
+//     type: 'row',
+//     children: [
+//         {
+//             id: 'contacts',
+//             type: 'component',
+//             layout: { col: 24 },
+//             children: [
+//                 {
+//                     id: 'row_id_51',
+//                     type: 'row',
+//                     children: [
+//                         {
+//                             id: 'group-work',
+//                             type: 'component',
+//                             layout: { col: 24 },
+//                             children: [
+//                                 {
+//                                     id: 'row_id_41',
+//                                     type: 'row',
+//                                     children: [{ id: 'select-department', type: 'component', layout: { col: 24 } }],
+//                                 },
+//                             ],
+//                         },
+//                     ],
+//                 },
+//             ],
+//         },
+//     ],
+// },
+
 export const employeeSchema: Schema = {
     id: 'employee-form',
     validations: {
@@ -32,161 +64,63 @@ export const employeeSchema: Schema = {
     views: {
         default: {
             xxl: {
-                rows: {
-                    row_id_0: {
+                elements: [
+                    {
                         id: 'row_id_0',
-                        children: [{ id: 'gender' }],
+                        type: 'row',
+                        children: [{ id: 'gender', type: 'component', layout: { col: 'auto' } }],
                     },
-                    row_id_1: {
+                    {
                         id: 'row_id_1',
-                        children: [{ id: 'input-first-name' }, { id: 'input-last-name' }],
+                        type: 'row',
+                        children: [
+                            { id: 'input-first-name', type: 'component', layout: { col: 12 } },
+                            { id: 'input-last-name', type: 'component', layout: { col: 12 } },
+                        ],
                     },
-                    row_id_2: {
+                    {
                         id: 'row_id_2',
-                        children: [{ id: 'date-birth' }, { id: 'email' }],
+                        type: 'row',
+                        children: [
+                            { id: 'date-birth', type: 'component', layout: { col: 'auto' } },
+                            { id: 'email', type: 'component', layout: { col: 19 } },
+                        ],
                     },
-                    row_id_3: {
+                    {
                         id: 'row_id_3',
-                        children: [{ id: 'input-salary' }],
+                        type: 'row',
+                        children: [
+                            { id: 'country', type: 'component', layout: { col: 12 } },
+                            { id: 'region', type: 'component', layout: { col: 12 } },
+                        ],
                     },
-                    row_id_31: {
-                        id: 'row_id_3',
-                        children: [{ id: 'country' }, { id: 'region' }],
-                    },
-                    row_id_4: {
+                    {
                         id: 'row_id_4',
-                        children: [{ id: 'group-work' }],
-                    },
-                    row_id_5: {
-                        id: 'row_id_5',
-                        children: [{ id: 'contacts' }],
-                    },
-                    'group-work_1': {
-                        id: 'row_id_5',
-                        children: [{ id: 'input-position' }, { id: 'select-department' }],
-                    },
-                    'group-work_2': {
-                        id: 'row_id_5',
-                        children: [{ id: 'date-start' }],
-                    },
-                },
-                components: {
-                    [rootComponentId]: {
-                        id: rootComponentId,
-                        rows: [
+                        type: 'row',
+                        children: [
                             {
-                                id: 'row_id_0',
-                            },
-                            {
-                                id: 'row_id_1',
-                            },
-                            {
-                                id: 'row_id_2',
-                            },
-                            {
-                                id: 'row_id_3',
-                            },
-                            {
-                                id: 'row_id_31',
-                            },
-                            {
-                                id: 'row_id_4',
+                                id: 'group-work',
+                                type: 'component',
+                                layout: { col: 'auto' },
+                                children: [
+                                    {
+                                        id: 'row_id_41',
+                                        type: 'row',
+                                        children: [
+                                            { id: 'select-department', type: 'component', layout: { col: 12 } },
+                                            { id: 'date-start', type: 'component', layout: { col: 12 } },
+                                        ],
+                                    },
+                                    {
+                                        id: 'row_id_42',
+                                        type: 'row',
+                                        children: [{ id: 'input-position', type: 'component', layout: { col: 'auto' } }],
+                                    },
+                                ],
                             },
                         ],
                     },
-                    gender: {
-                        id: 'gender',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 24 } },
-                        },
-                    },
-                    'input-first-name': {
-                        id: 'input-first-name',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 12 } },
-                        },
-                    },
-                    'input-last-name': {
-                        id: 'input-last-name',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 12 } },
-                        },
-                    },
-                    'date-birth': {
-                        id: 'date-birth',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 'auto' } },
-                        },
-                    },
-                    email: {
-                        id: 'email',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 19 } },
-                        },
-                    },
-                    'input-salary': {
-                        id: 'input-salary',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 12 } },
-                        },
-                    },
-                    'group-work': {
-                        id: 'group-work',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 24 } },
-                        },
-                        rows: [{ id: 'group-work_1' }, { id: 'group-work_2' }],
-                    },
-                    country: {
-                        id: 'country',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 12 } },
-                        },
-                    },
-                    region: {
-                        id: 'region',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 12 } },
-                        },
-                    },
-                    'select-department': {
-                        id: 'select-department',
-                        parentId: 'group-work',
-                        params: {
-                            layout: { col: { default: 12 } },
-                        },
-                    },
-                    'date-start': {
-                        id: 'date-start',
-                        parentId: 'group-work',
-                        params: {
-                            layout: { col: { default: 12 } },
-                        },
-                    },
-                    contacts: {
-                        id: 'contacts',
-                        parentId: rootComponentId,
-                        params: {
-                            layout: { col: { default: 24 } },
-                        },
-                    },
-                    'input-position': {
-                        id: 'input-position',
-                        parentId: 'group-work',
-                        params: {
-                            layout: { col: { default: 12 } },
-                        },
-                    },
-                },
+                ],
             },
         },
     },
@@ -476,88 +410,56 @@ export const employeeSchema: Schema = {
                 views: {
                     default: {
                         xxl: {
-                            rows: {
-                                row_id_1: {
-                                    id: 'row_id_1',
-                                    children: [{ id: 'input-first-name' }, { id: 'input-last-name' }],
-                                },
-                                row_id_2: {
-                                    id: 'row_id_2',
-                                    children: [{ id: 'date-birth' }, { id: 'email' }],
-                                },
-                                row_id_3: {
-                                    id: 'row_id_3',
-                                    children: [{ id: 'education' }],
-                                },
-                            },
-                            components: {
-                                [rootComponentId]: {
-                                    id: rootComponentId,
-                                    params: {
-                                        layout: { col: { default: 24 } },
-                                    },
-                                    rows: [
+                            elements: [
+                                {
+                                    id: 'row',
+                                    type: 'row',
+                                    children: [
                                         {
-                                            id: 'row_id_1',
-                                        },
-                                        {
-                                            id: 'row_id_2',
-                                        },
-                                        {
-                                            id: 'row_id_3',
+                                            id: 'group',
+                                            type: 'component',
+                                            layout: { col: 24 },
+                                            children: [
+                                                {
+                                                    id: 'row_id_1',
+                                                    type: 'row',
+                                                    children: [
+                                                        { id: 'input-first-name', type: 'component', layout: { col: 12 } },
+                                                        { id: 'input-last-name', type: 'component', layout: { col: 12 } },
+                                                    ],
+                                                },
+                                                {
+                                                    id: 'row_id_2',
+                                                    type: 'row',
+                                                    children: [
+                                                        { id: 'date-birth', type: 'component', layout: { col: 12 } },
+                                                        { id: 'email', type: 'component', layout: { col: 12 } },
+                                                    ],
+                                                },
+                                                {
+                                                    id: 'row_id_3',
+                                                    type: 'row',
+                                                    children: [{ id: 'education', type: 'component', layout: { col: 24 } }],
+                                                },
+                                            ],
                                         },
                                     ],
                                 },
-                                'input-first-name': {
-                                    id: 'input-first-name',
-                                    parentId: rootComponentId,
-                                    params: {
-                                        layout: { col: { default: 12 } },
-                                    },
-                                },
-                                'input-last-name': {
-                                    id: 'input-last-name',
-                                    parentId: rootComponentId,
-                                    params: {
-                                        layout: { col: { default: 12 } },
-                                    },
-                                },
-                                'date-birth': {
-                                    id: 'date-birth',
-                                    parentId: rootComponentId,
-                                    params: {
-                                        layout: { col: { default: 12 } },
-                                    },
-                                },
-                                email: {
-                                    id: 'email',
-                                    parentId: rootComponentId,
-                                    params: {
-                                        layout: { col: { default: 12 } },
-                                    },
-                                },
-                                education: {
-                                    id: 'education',
-                                    parentId: rootComponentId,
-                                    params: {
-                                        layout: { col: { default: 24 } },
-                                    },
-                                },
-                            },
+                            ],
                         },
                     },
                 },
-                componentsSchemas: {
-                    [rootComponentId]: {
-                        meta: {
-                            id: rootComponentId,
-                            type: 'container',
-                            name: 'group',
-                        },
-                        properties: {
-                            title: 'Контакт',
-                        },
+                containerSchema: {
+                    meta: {
+                        id: rootComponentId,
+                        type: 'container',
+                        name: 'group',
                     },
+                    properties: {
+                        title: 'Контакт',
+                    },
+                },
+                componentsSchemas: {
                     'input-first-name': {
                         meta: { id: 'input-first-name', type: 'text-input', name: 'text-input' },
                         properties: { label: 'Имя', value: '' },
@@ -580,49 +482,45 @@ export const employeeSchema: Schema = {
                             views: {
                                 default: {
                                     xxl: {
-                                        rows: {
-                                            row_id_1: {
+                                        elements: [
+                                            {
                                                 id: 'row_id_1',
-                                                children: [{ id: 'uni-name' }, { id: 'uni-position' }],
+                                                type: 'row',
+                                                children: [
+                                                    {
+                                                        id: 'group',
+                                                        type: 'component',
+                                                        layout: { col: 24 },
+                                                        children: [
+                                                            {
+                                                                id: 'row_group_1',
+                                                                type: 'row',
+                                                                children: [{ id: 'uni-name', type: 'component', layout: { col: 24 } }],
+                                                            },
+                                                            {
+                                                                id: 'row_group_1',
+                                                                type: 'row',
+                                                                children: [{ id: 'uni-position', type: 'component', layout: { col: 24 } }],
+                                                            },
+                                                        ],
+                                                    },
+                                                ],
                                             },
-                                        },
-                                        components: {
-                                            [rootComponentId]: {
-                                                id: rootComponentId,
-                                                params: {
-                                                    layout: { col: { default: 24 } },
-                                                },
-                                                rows: [{ id: 'row_id_1' }],
-                                            },
-                                            'uni-name': {
-                                                id: 'uni-name',
-                                                parentId: rootComponentId,
-                                                params: {
-                                                    layout: { col: { default: 12 } },
-                                                },
-                                            },
-                                            'uni-position': {
-                                                id: 'uni-position',
-                                                parentId: rootComponentId,
-                                                params: {
-                                                    layout: { col: { default: 12 } },
-                                                },
-                                            },
-                                        },
+                                        ],
                                     },
                                 },
                             },
-                            componentsSchemas: {
-                                [rootComponentId]: {
-                                    meta: {
-                                        id: rootComponentId,
-                                        type: 'container',
-                                        name: 'group',
-                                    },
-                                    properties: {
-                                        title: 'Образование',
-                                    },
+                            containerSchema: {
+                                meta: {
+                                    id: 'group',
+                                    type: 'container',
+                                    name: 'group',
                                 },
+                                properties: {
+                                    title: 'Образование',
+                                },
+                            },
+                            componentsSchemas: {
                                 'uni-name': {
                                     meta: { id: 'uni-name', type: 'text-input', name: 'text-input' },
                                     properties: { label: 'Название учебного заведения', value: '' },

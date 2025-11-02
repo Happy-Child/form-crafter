@@ -19,6 +19,7 @@ const getFontSize = (deepLevel: number): string => (deepLevel.toString() in font
 
 export const Title = memo<Props>(({ id, children }) => {
     const deep = useComponentDepth(id)
+    console.log('deep: ', deep)
     const styles = useMemo(() => ({ fontSize: getFontSize(deep) }), [deep])
 
     return <Typography style={styles}>{children}</Typography>

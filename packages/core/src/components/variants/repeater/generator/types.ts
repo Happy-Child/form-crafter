@@ -4,12 +4,11 @@ import { AvailableObject, Unwrap } from '@form-crafter/utils'
 
 import { GroupOptionsBuilder, OptionsBuilderOutput } from '../../../../options-builder'
 import { EntityId } from '../../../../types'
-import { ViewComponent } from '../../../../views'
 import { ComponentValidationError, GeneratorComponentProps } from '../../../generator'
 import { RepeaterComponentProperties } from '../schema'
 
 export type RepeaterComponentPropsAsObject<P extends AvailableObject = AvailableObject> = GeneratorComponentProps<'repeater', P> & {
-    rows?: ViewComponent['rows']
+    childrenRows: EntityId[]
     onAddRow: () => void
     onRemoveRow: (props: { rowId: EntityId }) => void
     errors: ComponentValidationError[] | null

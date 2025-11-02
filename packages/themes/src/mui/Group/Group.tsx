@@ -11,7 +11,7 @@ import { optionsBuilder } from './options-builder'
 import { ContainerComponentProps } from './types'
 
 const Group = memo(
-    forwardRef<HTMLDivElement, ContainerComponentProps>(({ rows, properties, ...props }, ref) => {
+    forwardRef<HTMLDivElement, ContainerComponentProps>(({ childrenRows, properties, ...props }, ref) => {
         const parentIsRepeater = useIsRepeater(props.parentId)
 
         const header = parentIsRepeater ? (
@@ -23,7 +23,7 @@ const Group = memo(
         return (
             <Box ref={ref} gap={2}>
                 {header}
-                {isNotEmpty(rows) && <RowsList rows={rows} />}
+                {isNotEmpty(childrenRows) && <RowsList rows={childrenRows} />}
             </Box>
         )
     }),

@@ -9,11 +9,12 @@ import { createDepsOfRulesModel } from './models/deps-of-rules-model'
 import { createFormValidationModel } from './models/form-validation-model'
 import { createMutationsModel } from './models/mutations-model'
 import { createReadyConditionalValidationsModel } from './models/ready-conditional-validations-model'
-import { ComponentsService, ComponentsServiceParams, RunMutationsOnUserActionsPayload } from './types'
+import { createRepeaterModel } from './models/repeater-model'
+import { ComponentsServiceParams, RunMutationsOnUserActionsPayload } from './types'
 
-export type { ComponentsService }
+export type ComponentsService = ReturnType<typeof createComponentsService>
 
-export const createComponentsService = ({ appErrorsService, themeService, viewsService, schemaService }: ComponentsServiceParams): ComponentsService => {
+export const createComponentsService = ({ appErrorsService, themeService, viewsService, schemaService }: ComponentsServiceParams) => {
     const $firstMutationsIsDone = createStore(false)
     const setFirstMutationsToDone = createEvent('setFirstMutationsToDone')
     $firstMutationsIsDone.on(setFirstMutationsToDone, () => true)
@@ -22,6 +23,8 @@ export const createComponentsService = ({ appErrorsService, themeService, viewsS
     const runMutationsOnUserActions = createEvent<RunMutationsOnUserActionsPayload>('runMutationsOnUserActions')
 
     const componentsModel = createComponentsModel({ themeService, viewsService, schemaService })
+
+    const repeaterModel = createRepeaterModel({ viewsService, componentsModel })
 
     const depsOfRulesModel = createDepsOfRulesModel({
         appErrorsService,
@@ -71,6 +74,7 @@ export const createComponentsService = ({ appErrorsService, themeService, viewsS
     init({
         viewsService,
         componentsModel,
+        repeaterModel,
         componentsValidationErrorsModel,
         depsOfRulesModel,
         readyConditionalValidationsModel,
@@ -101,6 +105,7 @@ export const createComponentsService = ({ appErrorsService, themeService, viewsS
         componentsModel,
         depsOfRulesModel,
         formValidationModel,
+        repeaterModel,
         initService,
         updateComponentsSchemas,
         removeComponentsSchemasByIds,

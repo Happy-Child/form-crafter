@@ -2,14 +2,13 @@ import { EntityId } from '@form-crafter/core'
 import { useStoreMap } from 'effector-react'
 
 import { useGeneratorContext } from '../contexts'
-import { ViewElementGraphRow } from '../services/views'
 
-export const useViewRow = (id: EntityId): ViewElementGraphRow => {
+export const useRootViewElementsRows = (): EntityId[] => {
     const { services } = useGeneratorContext()
 
     return useStoreMap({
         store: services.viewsService.$currentViewElementsGraph,
-        keys: [id],
-        fn: (responsiveGraph, [id]) => responsiveGraph.xxl.rows.graph[id],
+        keys: [],
+        fn: (responsiveGraph) => responsiveGraph.xxl.rows.root,
     })
 }

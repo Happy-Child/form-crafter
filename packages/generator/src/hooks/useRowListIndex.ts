@@ -2,10 +2,10 @@ import { useMemo } from 'react'
 
 import { EntityId } from '@form-crafter/core'
 
-import { useViewComponentWithRows } from './useViewComponentWithRows'
+import { useViewComponent } from './useViewComponent'
 
 export const useRowListIndex = (parentId: EntityId, rowId: EntityId): number => {
-    const { rows } = useViewComponentWithRows(parentId)
+    const { childrenRows } = useViewComponent(parentId)
 
-    return useMemo(() => rows.findIndex(({ id }) => id === rowId), [rows, rowId])
+    return useMemo(() => childrenRows.findIndex((id) => id === rowId), [childrenRows, rowId])
 }

@@ -3,7 +3,7 @@ import { memo } from 'react'
 import { useUnit } from 'effector-react'
 
 import { RepeaterProvider } from '../../../../contexts'
-import { useComponentMeta, useComponentModel, useComponentProperties, useDisplayComponent, useViewComponentWithParent } from '../../../../hooks'
+import { useComponentMeta, useComponentModel, useComponentProperties, useDisplayComponent, useViewComponent } from '../../../../hooks'
 import { LayoutComponent } from '../../../LayoutComponent'
 import { ResolverComponentType } from '../../types'
 import { useRepeaterEvents } from './hooks'
@@ -12,7 +12,7 @@ export const ResolverRepeater: ResolverComponentType = memo(({ id, rowId }) => {
     const meta = useComponentMeta<'repeater'>(id)
     const properties = useComponentProperties<'repeater'>(id)
 
-    const { parentId, rows } = useViewComponentWithParent(id)
+    const { parentRowId, childrenRows } = useViewComponent(id)
 
     const { $firstError, $errors, $isRequired } = useComponentModel<'repeater'>(id)
     const [firstError, errors, isRequired] = useUnit([$firstError, $errors, $isRequired])
@@ -27,11 +27,11 @@ export const ResolverRepeater: ResolverComponentType = memo(({ id, rowId }) => {
                 <Component
                     {...events}
                     id={id}
-                    parentId={parentId}
+                    parentId={parentRowId}
                     rowId={rowId}
                     meta={meta}
                     properties={properties}
-                    rows={rows}
+                    childrenRows={childrenRows}
                     firstError={firstError}
                     errors={errors}
                     isRequired={isRequired}

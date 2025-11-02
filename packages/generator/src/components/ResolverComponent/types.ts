@@ -1,5 +1,5 @@
 import { FC } from 'react'
 
-import { EntityId, ViewComponentChild } from '@form-crafter/core'
+import { EntityId } from '@form-crafter/core'
 
-export type ResolverComponentType = FC<Pick<ViewComponentChild, 'id'> & { rowId: EntityId }>
+export type ResolverComponentType = FC<{ id: EntityId; rowId: EntityId }>

@@ -1,13 +1,14 @@
 import { createAppErrorsService } from './app-errors'
 import { createComponentsService } from './components'
 import { createFormService } from './form'
-import { createRepeaterService } from './repeater'
 import { createSchemaService } from './schema'
 import { createThemeService } from './theme'
-import { RootServices, RootServicesParams } from './types'
+import { RootServicesParams } from './types'
 import { createViewsService } from './views'
 
-export const createRootServices = ({ schema, theme, PlaceholderComponent, onSubmit }: RootServicesParams): RootServices => {
+export type RootServices = ReturnType<typeof createRootServices>
+
+export const createRootServices = ({ schema, theme, PlaceholderComponent, onSubmit }: RootServicesParams) => {
     const appErrorsService = createAppErrorsService()
 
     const themeService = createThemeService({ theme, PlaceholderComponent })
@@ -24,8 +25,6 @@ export const createRootServices = ({ schema, theme, PlaceholderComponent, onSubm
         schemaService,
     })
 
-    const repeaterService = createRepeaterService({ viewsService, componentsService })
-
     const formService = createFormService({ onSubmit, viewsService, componentsService })
 
     const bootstrap = () => {
@@ -40,7 +39,6 @@ export const createRootServices = ({ schema, theme, PlaceholderComponent, onSubm
         viewsService,
         formService,
         themeService,
-        repeaterService,
         appErrorsService,
     }
 }

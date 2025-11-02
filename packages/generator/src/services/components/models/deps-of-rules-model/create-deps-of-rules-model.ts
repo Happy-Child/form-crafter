@@ -104,7 +104,7 @@ export const createDepsOfRulesModel = ({ appErrorsService, themeService, viewsSe
         },
     )
 
-    const $viewsConditionsDeps = combine(viewsService.$additionalsViews, extractViewsConditionsDeps)
+    const $viewsConditionsDeps = combine(viewsService.$additionalsViewsArr, extractViewsConditionsDeps)
     const $viewsConditionsAllDeps = combine(
         $viewsConditionsDeps,
         (viewsConditionsDeps) => new Set(...Object.values(viewsConditionsDeps.viewIdToDepsComponents)),

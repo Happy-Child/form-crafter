@@ -1,12 +1,14 @@
 import { FC, memo } from 'react'
 
-import { ViewRowChild } from '@form-crafter/core'
+import { EntityId } from '@form-crafter/core'
 
 import { useRootLayoutSpans, useViewRow } from '../../hooks'
 import { ResolverComponent } from '../ResolverComponent'
 import { RowStyled } from './styles'
 
-type Props = ViewRowChild
+type Props = {
+    id: EntityId
+}
 
 export const Row: FC<Props> = memo(({ id: rowId }) => {
     const viewRow = useViewRow(rowId)
@@ -14,7 +16,7 @@ export const Row: FC<Props> = memo(({ id: rowId }) => {
 
     return (
         <RowStyled rootLayoutSpans={rootLayoutSpans}>
-            {viewRow.children.map(({ id: componentId }) => (
+            {viewRow.childrenComponents.map((componentId) => (
                 <ResolverComponent key={componentId} id={componentId} rowId={rowId} />
             ))}
         </RowStyled>

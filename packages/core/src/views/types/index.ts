@@ -1,66 +1,40 @@
 import { ConditionNode } from '../../conditions'
-import { Breakpoint, ColSpan, EntityId, ResponsiveSizes } from '../../types'
-
-export type ViewComponentChild = { id: EntityId }
-
-export type ViewRowChild = { id: EntityId }
+import { Breakpoint, ColSpan, EntityId } from '../../types'
 
 export type ViewComponentLayout = {
-    col: ResponsiveSizes<ColSpan>
+    col: ColSpan
 }
 
-export type ViewComponentParams = {
-    layout?: ViewComponentLayout
-}
-
-export type ViewComponentWithRows = {
+export type ViewElementRow = {
     id: EntityId
-    parentId?: EntityId
-    params?: ViewComponentParams
-    rows: ViewRowChild[]
+    type: 'row'
+    children?: ViewElementComponent[]
 }
 
-export type ViewComponentWithParent = {
+export type ViewElementComponent = {
     id: EntityId
-    parentId: EntityId
-    params?: ViewComponentParams
-    rows?: ViewRowChild[]
+    type: 'component'
+    layout: ViewComponentLayout
+    children?: ViewElements
 }
 
-export type ViewComponentDefault = {
-    id: EntityId
-    parentId?: EntityId
-    params?: ViewComponentParams
-    rows?: ViewRowChild[]
+export type ViewElements = ViewElementRow[]
+
+export type ViewContent<T extends 'default' | 'template' = 'default'> = {
+    elements: T extends 'default' ? ViewElements : [ViewElementRow]
 }
 
-export type ViewComponent = ViewComponentDefault | ViewComponentWithParent | ViewComponentWithRows
+export type ViewResponsive<T extends 'default' | 'template' = 'default'> = {
+    xxl: ViewContent<T>
+} & Partial<Record<Exclude<Breakpoint, 'xxl'>, ViewContent<T>>>
 
-export type ViewRow = {
-    id: EntityId
-    children: ViewComponentChild[]
-}
-
-export type ViewElements = {
-    rows: ViewDefinitionRows
-    components: ViewDefinitionComponents
-}
-
-export type ViewDefinitionRows = Record<EntityId, ViewRow>
-
-export type ViewDefinitionComponents = Record<EntityId, ViewComponent>
-
-export type ViewResponsive = {
-    xxl: ViewElements
-} & Partial<Record<Exclude<Breakpoint, 'xxl'>, ViewElements>>
-
-export type ViewDefinition = {
+export type ViewDefinition<T extends 'default' | 'template' = 'default'> = {
     id: EntityId
     condition: ConditionNode
-    responsive: ViewResponsive
+    responsive: ViewResponsive<T>
 }
 
-export type Views = {
-    default: ViewResponsive
-    additionals?: ViewDefinition[]
+export type Views<T extends 'default' | 'template' = 'default'> = {
+    default: ViewResponsive<T>
+    additionals?: Record<string, ViewDefinition<T>>
 }
