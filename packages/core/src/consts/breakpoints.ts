@@ -6,4 +6,5 @@ export const breakpoints: Record<Breakpoint, number> = {
     lg: 992,
     md: 768,
     sm: 576,
+    xs: 0,
 }
