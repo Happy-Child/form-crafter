@@ -1,44 +1,40 @@
+import { RepeaterComponentSchema } from '@form-crafter/core'
 import { createEvent, sample } from 'effector'
 
-import { AddGroupPayload, RemoveGroupPayload, RepeaterModelParams } from './types'
+import { ComponentsRegistryModel } from '../components-registry-model'
+import { AddGroupPayload, RemoveGroupPayload } from './types'
+import { createTemplateInstance } from './utils'
+
+type Params = {
+    componentsRegistryModel: ComponentsRegistryModel
+}
 
 export type RepeaterModel = ReturnType<typeof createRepeaterModel>
 
-export const createRepeaterModel = ({ componentsModel, viewsService }: RepeaterModelParams) => {
+export const createRepeaterModel = ({ componentsRegistryModel }: Params) => {
     const addGroup = createEvent<AddGroupPayload>('addGroup')
 
     const removeGroup = createEvent<RemoveGroupPayload>('removeGroup')
 
-    // const executeAddChildEvent = sample({
-    //     source: { views: viewsService.$views, visibleComponentsSchemas: componentsService.componentsModel.$visibleComponentsSchemas },
-    //     clock: addChildEvent,
-    //     fn: ({ views: currentViews, visibleComponentsSchemas }, { repeaterId }) => {
-    //         const { template } = visibleComponentsSchemas[repeaterId] as RepeaterComponentSchema
-    //         const { views: additionalViews, componentsSchemas: additionalComponentsSchemas, additionalRowId } = createViewsDefinitions(template, repeaterId)
-    //         const finalViews = insertViews({
-    //             views: currentViews,
-    //             additionalViews,
-    //             repeaterId,
-    //             additionalRowId,
-    //         })
-    //         return {
-    //             views: finalViews,
-    //             componentsSchemas: additionalComponentsSchemas,
-    //         }
-    //     },
-    // })
+    const startCreateTemplateInstance = sample({
+        source: { componentsSchemas: componentsRegistryModel.$componentsSchemas },
+        clock: addGroup,
+        fn: ({ componentsSchemas }, { repeaterId }) => {
+            const { template } = componentsSchemas[repeaterId] as RepeaterComponentSchema
+            return template
+        },
+    })
 
-    // sample({
-    //     clock: executeAddChildEvent,
-    //     fn: ({ componentsSchemas }) => componentsSchemas,
-    //     target: componentsService.updateComponentsSchemasEvent,
-    // })
-
-    // sample({
-    //     clock: executeAddChildEvent,
-    //     fn: ({ views }) => views,
-    //     target: viewsService.setViewsEvent,
-    // })
+    const templateInstanceCreated = sample({
+        clock: startCreateTemplateInstance,
+        fn: (template) => {
+            const { viewElementsGraphs, componentsSchemas: newComponentsSchemas } = createTemplateInstance(template)
+            return {
+                viewElementsGraphs,
+                componentsSchemas: newComponentsSchemas,
+            }
+        },
+    })
 
     // const executeRemoveChildEvent = sample({
     //     source: { views: viewsService.$views, visibleComponentsSchemas: componentsService.componentsModel.$visibleComponentsSchemas },
@@ -54,20 +50,9 @@ export const createRepeaterModel = ({ componentsModel, viewsService }: RepeaterM
     //     },
     // })
 
-    // sample({
-    //     clock: executeRemoveChildEvent,
-    //     fn: ({ componentsIdsToRemove }) => ({ ids: componentsIdsToRemove }),
-    //     target: componentsService.removeComponentsSchemasByIdsEvent,
-    // })
-
-    // sample({
-    //     clock: executeRemoveChildEvent,
-    //     fn: ({ views }) => views,
-    //     target: viewsService.setViewsEvent,
-    // })
-
     return {
         addGroup,
         removeGroup,
+        templateInstanceCreated,
     }
 }

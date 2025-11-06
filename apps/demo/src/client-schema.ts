@@ -1,4 +1,4 @@
-import { rootComponentId, Schema } from '@form-crafter/core'
+import { Schema } from '@form-crafter/core'
 import { genId } from '@form-crafter/utils'
 
 export const clientSchema: Schema = {
@@ -26,12 +26,12 @@ export const clientSchema: Schema = {
             xxl: {
                 elements: [
                     {
-                        id: 'row1',
+                        id: genId(),
                         type: 'row',
                         children: [{ id: 'userType', type: 'component', layout: { col: 24 } }],
                     },
                     {
-                        id: 'row2',
+                        id: genId(),
                         type: 'row',
                         children: [
                             { id: 'fullName', type: 'component', layout: { col: 12 } },
@@ -39,12 +39,12 @@ export const clientSchema: Schema = {
                         ],
                     },
                     {
-                        id: 'row3',
+                        id: genId(),
                         type: 'row',
                         children: [{ id: 'dateBirth', type: 'component', layout: { col: 24 } }],
                     },
                     {
-                        id: 'row4',
+                        id: genId(),
                         type: 'row',
                         children: [
                             { id: 'address', type: 'component', layout: { col: 12 } },
@@ -52,7 +52,54 @@ export const clientSchema: Schema = {
                         ],
                     },
                     {
-                        id: 'row5',
+                        id: genId(),
+                        type: 'row',
+                        children: [
+                            {
+                                id: 'contactsGroup',
+                                type: 'component',
+                                layout: { col: 24 },
+                                children: [
+                                    {
+                                        id: 'contactsGroup1',
+                                        type: 'row',
+                                        children: [
+                                            { id: 'contactEmail', type: 'component', layout: { col: 12 } },
+                                            { id: 'contactPhone', type: 'component', layout: { col: 12 } },
+                                        ],
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            },
+            lg: {
+                elements: [
+                    {
+                        id: genId(),
+                        type: 'row',
+                        children: [
+                            { id: 'userType', type: 'component', layout: { col: 12 } },
+                            { id: 'fullName', type: 'component', layout: { col: 12 } },
+                        ],
+                    },
+                    {
+                        id: genId(),
+                        type: 'row',
+                        children: [{ id: 'passportNumber', type: 'component', layout: { col: 12 } }],
+                    },
+                    {
+                        id: genId(),
+                        type: 'row',
+                        children: [
+                            { id: 'dateBirth', type: 'component', layout: { col: 8 } },
+                            { id: 'address', type: 'component', layout: { col: 8 } },
+                            { id: 'snils', type: 'component', layout: { col: 8 } },
+                        ],
+                    },
+                    {
+                        id: genId(),
                         type: 'row',
                         children: [
                             {
@@ -87,12 +134,12 @@ export const clientSchema: Schema = {
                     xxl: {
                         elements: [
                             {
-                                id: 'row1',
+                                id: genId(),
                                 type: 'row',
                                 children: [{ id: 'userType', type: 'component', layout: { col: 24 } }],
                             },
                             {
-                                id: 'row2',
+                                id: genId(),
                                 type: 'row',
                                 children: [
                                     { id: 'fullName', type: 'component', layout: { col: 12 } },
@@ -100,7 +147,7 @@ export const clientSchema: Schema = {
                                 ],
                             },
                             {
-                                id: 'row3',
+                                id: genId(),
                                 type: 'row',
                                 children: [
                                     { id: 'dateBirth', type: 'component', layout: { col: 12 } },
@@ -108,7 +155,7 @@ export const clientSchema: Schema = {
                                 ],
                             },
                             {
-                                id: 'row4',
+                                id: genId(),
                                 type: 'row',
                                 children: [
                                     { id: 'inn', type: 'component', layout: { col: 12 } },
@@ -116,12 +163,12 @@ export const clientSchema: Schema = {
                                 ],
                             },
                             {
-                                id: 'row5',
+                                id: genId(),
                                 type: 'row',
                                 children: [{ id: 'bankAccount', type: 'component', layout: { col: 24 } }],
                             },
                             {
-                                id: 'row6',
+                                id: genId(),
                                 type: 'row',
                                 children: [
                                     {
@@ -156,17 +203,17 @@ export const clientSchema: Schema = {
                     xxl: {
                         elements: [
                             {
-                                id: 'row1',
+                                id: genId(),
                                 type: 'row',
                                 children: [{ id: 'userType', type: 'component', layout: { col: 24 } }],
                             },
                             {
-                                id: 'row2',
+                                id: genId(),
                                 type: 'row',
                                 children: [{ id: 'companyName', type: 'component', layout: { col: 24 } }],
                             },
                             {
-                                id: 'row3',
+                                id: genId(),
                                 type: 'row',
                                 children: [
                                     { id: 'inn', type: 'component', layout: { col: 8 } },
@@ -175,17 +222,17 @@ export const clientSchema: Schema = {
                                 ],
                             },
                             {
-                                id: 'row4',
+                                id: genId(),
                                 type: 'row',
                                 children: [{ id: 'address', type: 'component', layout: { col: 24 } }],
                             },
                             {
-                                id: 'row5',
+                                id: genId(),
                                 type: 'row',
                                 children: [{ id: 'bankAccount', type: 'component', layout: { col: 24 } }],
                             },
                             {
-                                id: 'row6',
+                                id: genId(),
                                 type: 'row',
                                 children: [
                                     {

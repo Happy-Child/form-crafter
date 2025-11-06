@@ -1,16 +1,19 @@
-import { ComponentsSchemas, EntityId } from '@form-crafter/core'
+import { ComponentsModels, RunMutationsOnUserActionPayload } from '@form-crafter/core'
 import { createEvent, createStore } from 'effector'
 
 import { init } from './init'
 import { createChangeViewsModel } from './models/change-views-model'
-import { createComponentsModel } from './models/components-model'
+import { createComponentModel } from './models/component-model'
+import { createComponentsCreatorModel } from './models/components-creator-model'
+import { createComponentsGeneralModel } from './models/components-general-model'
+import { createComponentsRegistryModel } from './models/components-registry-model'
 import { createComponentsValidationErrorsModel } from './models/components-validation-errors-model'
 import { createDepsOfRulesModel } from './models/deps-of-rules-model'
 import { createFormValidationModel } from './models/form-validation-model'
 import { createMutationsModel } from './models/mutations-model'
 import { createReadyConditionalValidationsModel } from './models/ready-conditional-validations-model'
 import { createRepeaterModel } from './models/repeater-model'
-import { ComponentsServiceParams, RunMutationsOnUserActionsPayload } from './types'
+import { ComponentsServiceParams } from './types'
 
 export type ComponentsService = ReturnType<typeof createComponentsService>
 
@@ -19,61 +22,90 @@ export const createComponentsService = ({ appErrorsService, themeService, viewsS
     const setFirstMutationsToDone = createEvent('setFirstMutationsToDone')
     $firstMutationsIsDone.on(setFirstMutationsToDone, () => true)
 
-    const initService = createEvent('initService')
-    const runMutationsOnUserActions = createEvent<RunMutationsOnUserActionsPayload>('runMutationsOnUserActions')
+    const runMutationsOnUserAction = createEvent<RunMutationsOnUserActionPayload>('runMutationsOnUserAction')
 
-    const componentsModel = createComponentsModel({ themeService, viewsService, schemaService })
+    const startInit = createEvent('startInit')
 
-    const repeaterModel = createRepeaterModel({ viewsService, componentsModel })
+    const componentsRegistryModel = createComponentsRegistryModel({ themeService, viewsService })
+
+    const componentsGeneralModel = createComponentsGeneralModel()
 
     const depsOfRulesModel = createDepsOfRulesModel({
         appErrorsService,
         themeService,
         viewsService,
         schemaService,
-        componentsModel,
+        componentsRegistryModel,
     })
 
-    const componentsValidationErrorsModel = createComponentsValidationErrorsModel({ componentsModel })
+    const componentsValidationErrorsModel = createComponentsValidationErrorsModel({ componentsGeneralModel })
 
     const readyConditionalValidationsModel = createReadyConditionalValidationsModel({
         depsOfRulesModel,
-        componentsModel,
+        componentsRegistryModel,
         schemaService,
     })
 
-    componentsModel.init({
-        runMutations: runMutationsOnUserActions,
-        readyConditionalValidationsModel,
-        componentsValidationErrorsModel,
+    const initialComponentsSchemas = Object.entries(schemaService.$initialSchema.getState().componentsSchemas)
+    componentsRegistryModel.init(
+        initialComponentsSchemas.reduce<ComponentsModels>((map, [componentId, componentSchema]) => {
+            const model = createComponentModel({
+                runMutations: runMutationsOnUserAction,
+                schema: componentSchema,
+                themeService,
+                schemaService,
+                componentsRegistryModel,
+                componentsValidationErrorsModel,
+                readyConditionalValidationsModel,
+            })
+            map.set(componentId, model)
+            return map
+        }, new Map()),
+    )
+
+    const componentsCreatorModel = createComponentsCreatorModel({
+        runMutations: runMutationsOnUserAction,
         themeService,
+        viewsService,
         schemaService,
+        componentsRegistryModel,
+        componentsValidationErrorsModel,
+        readyConditionalValidationsModel,
+    })
+
+    const repeaterModel = createRepeaterModel({
+        componentsRegistryModel,
     })
 
     const formValidationModel = createFormValidationModel({
-        componentsModel,
-        componentsValidationErrorsModel,
-        readyConditionalValidationsModel,
         themeService,
         schemaService,
+        componentsRegistryModel,
+        componentsValidationErrorsModel,
+        readyConditionalValidationsModel,
     })
 
     const mutationsModel = createMutationsModel({
-        componentsModel,
         themeService,
         schemaService,
+        componentsGeneralModel,
+        componentsRegistryModel,
     })
 
     const changeViewsModel = createChangeViewsModel({
-        componentsModel,
-        depsOfRulesModel,
         viewsService,
+        componentsRegistryModel,
+        depsOfRulesModel,
         $firstMutationsIsDone,
     })
 
     init({
+        runMutationsOnUserAction,
+        startInit,
         viewsService,
-        componentsModel,
+        componentsRegistryModel,
+        componentsGeneralModel,
+        componentsCreatorModel,
         repeaterModel,
         componentsValidationErrorsModel,
         depsOfRulesModel,
@@ -81,33 +113,15 @@ export const createComponentsService = ({ appErrorsService, themeService, viewsS
         formValidationModel,
         mutationsModel,
         changeViewsModel,
-        initService,
         $firstMutationsIsDone,
-        runMutationsOnUserActions,
         setFirstMutationsToDone,
     })
 
-    // OLD BEGIN
-    const updateComponentsSchemas = createEvent<ComponentsSchemas>('updateComponentsSchemas')
-    const removeComponentsSchemasByIds = createEvent<{ ids: EntityId[] }>('removeComponentsSchemasByIds')
-
-    // $schemas
-    //     .on(updateComponentsSchemas, (curData, data) => ({
-    //         ...curData,
-    //         ...data,
-    //     }))
-    //     .on(removeComponentsSchemasByIds, (curData, { ids }) =>
-    //         Object.fromEntries(Object.entries(curData).filter(([componentId]) => !ids.includes(componentId))),
-    //     )
-    // OLD END
-
     return {
-        componentsModel,
+        componentsRegistryModel,
         depsOfRulesModel,
         formValidationModel,
         repeaterModel,
-        initService,
-        updateComponentsSchemas,
-        removeComponentsSchemasByIds,
+        startInit,
     }
 }

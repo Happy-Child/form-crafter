@@ -4,7 +4,7 @@ import { DepsGraphAsSet } from '../../../../../../types'
 import { buildReverseDepsGraph } from '../build-reverse-deps-graph'
 import { extractComponentConditionDeps } from '../extract-component-condition-deps'
 
-export const extractViewsConditionsDeps = (views: ViewDefinition[]) => {
+export const extractViewsConditionsDeps = (views: Pick<ViewDefinition, 'id' | 'condition'>[]) => {
     let viewIdToDepsComponents: DepsGraphAsSet = {}
 
     views.forEach(({ id: viewId, condition }) => {

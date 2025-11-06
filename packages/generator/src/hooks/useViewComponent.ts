@@ -10,7 +10,6 @@ export const useViewComponent = (id: EntityId): ViewElementGraphComponent => {
     return useStoreMap({
         store: services.viewsService.$currentViewElementsGraph,
         keys: [id],
-        // TODO switch on change responsive?
-        fn: (responsiveGraph, [id]) => responsiveGraph.xxl.components[id],
+        fn: (responsiveGraph, [id]) => responsiveGraph.components[id],
     })
 }

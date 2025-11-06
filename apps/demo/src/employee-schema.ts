@@ -1,8 +1,8 @@
-import { rootComponentId, Schema } from '@form-crafter/core'
+import { Schema } from '@form-crafter/core'
 import { genId } from '@form-crafter/utils'
 
 // {
-//     id: 'row_id_5',
+//     id: genId(),
 //     type: 'row',
 //     children: [
 //         {
@@ -11,7 +11,7 @@ import { genId } from '@form-crafter/utils'
 //             layout: { col: 24 },
 //             children: [
 //                 {
-//                     id: 'row_id_51',
+//                     id: genId(),
 //                     type: 'row',
 //                     children: [
 //                         {
@@ -20,7 +20,7 @@ import { genId } from '@form-crafter/utils'
 //                             layout: { col: 24 },
 //                             children: [
 //                                 {
-//                                     id: 'row_id_41',
+//                                     id: genId(),
 //                                     type: 'row',
 //                                     children: [{ id: 'select-department', type: 'component', layout: { col: 24 } }],
 //                                 },
@@ -66,12 +66,12 @@ export const employeeSchema: Schema = {
             xxl: {
                 elements: [
                     {
-                        id: 'row_id_0',
+                        id: genId(),
                         type: 'row',
                         children: [{ id: 'gender', type: 'component', layout: { col: 'auto' } }],
                     },
                     {
-                        id: 'row_id_1',
+                        id: genId(),
                         type: 'row',
                         children: [
                             { id: 'input-first-name', type: 'component', layout: { col: 12 } },
@@ -79,7 +79,7 @@ export const employeeSchema: Schema = {
                         ],
                     },
                     {
-                        id: 'row_id_2',
+                        id: genId(),
                         type: 'row',
                         children: [
                             { id: 'date-birth', type: 'component', layout: { col: 'auto' } },
@@ -87,7 +87,7 @@ export const employeeSchema: Schema = {
                         ],
                     },
                     {
-                        id: 'row_id_3',
+                        id: genId(),
                         type: 'row',
                         children: [
                             { id: 'country', type: 'component', layout: { col: 12 } },
@@ -95,7 +95,7 @@ export const employeeSchema: Schema = {
                         ],
                     },
                     {
-                        id: 'row_id_4',
+                        id: genId(),
                         type: 'row',
                         children: [
                             {
@@ -104,7 +104,7 @@ export const employeeSchema: Schema = {
                                 layout: { col: 'auto' },
                                 children: [
                                     {
-                                        id: 'row_id_41',
+                                        id: genId(),
                                         type: 'row',
                                         children: [
                                             { id: 'select-department', type: 'component', layout: { col: 12 } },
@@ -112,11 +112,22 @@ export const employeeSchema: Schema = {
                                         ],
                                     },
                                     {
-                                        id: 'row_id_42',
+                                        id: genId(),
                                         type: 'row',
                                         children: [{ id: 'input-position', type: 'component', layout: { col: 'auto' } }],
                                     },
                                 ],
+                            },
+                        ],
+                    },
+                    {
+                        id: genId(),
+                        type: 'row',
+                        children: [
+                            {
+                                id: 'contacts',
+                                type: 'component',
+                                layout: { col: 24 },
                             },
                         ],
                     },
@@ -412,34 +423,34 @@ export const employeeSchema: Schema = {
                         xxl: {
                             elements: [
                                 {
-                                    id: 'row',
+                                    id: genId(),
                                     type: 'row',
                                     children: [
                                         {
-                                            id: 'group',
+                                            id: 'contact-group',
                                             type: 'component',
                                             layout: { col: 24 },
                                             children: [
                                                 {
-                                                    id: 'row_id_1',
+                                                    id: genId(),
                                                     type: 'row',
                                                     children: [
-                                                        { id: 'input-first-name', type: 'component', layout: { col: 12 } },
-                                                        { id: 'input-last-name', type: 'component', layout: { col: 12 } },
+                                                        { id: 'contact-input-first-name', type: 'component', layout: { col: 12 } },
+                                                        { id: 'contact-input-last-name', type: 'component', layout: { col: 12 } },
                                                     ],
                                                 },
                                                 {
-                                                    id: 'row_id_2',
+                                                    id: genId(),
                                                     type: 'row',
                                                     children: [
-                                                        { id: 'date-birth', type: 'component', layout: { col: 12 } },
-                                                        { id: 'email', type: 'component', layout: { col: 12 } },
+                                                        { id: 'contact-date-birth', type: 'component', layout: { col: 12 } },
+                                                        { id: 'contact-email', type: 'component', layout: { col: 12 } },
                                                     ],
                                                 },
                                                 {
-                                                    id: 'row_id_3',
+                                                    id: genId(),
                                                     type: 'row',
-                                                    children: [{ id: 'education', type: 'component', layout: { col: 24 } }],
+                                                    children: [{ id: 'contact-education', type: 'component', layout: { col: 24 } }],
                                                 },
                                             ],
                                         },
@@ -451,7 +462,7 @@ export const employeeSchema: Schema = {
                 },
                 containerSchema: {
                     meta: {
-                        id: rootComponentId,
+                        id: 'contact-group',
                         type: 'container',
                         name: 'group',
                     },
@@ -460,47 +471,47 @@ export const employeeSchema: Schema = {
                     },
                 },
                 componentsSchemas: {
-                    'input-first-name': {
-                        meta: { id: 'input-first-name', type: 'text-input', name: 'text-input' },
+                    'contact-input-first-name': {
+                        meta: { id: 'contact-input-first-name', type: 'text-input', name: 'text-input' },
                         properties: { label: 'Имя', value: '' },
                     },
-                    'input-last-name': {
-                        meta: { id: 'input-last-name', type: 'text-input', name: 'text-input' },
+                    'contact-input-last-name': {
+                        meta: { id: 'contact-input-last-name', type: 'text-input', name: 'text-input' },
                         properties: { label: 'Фамилия', value: '' },
                     },
-                    'date-birth': {
-                        meta: { id: 'date-birth', type: 'date-input', name: 'date-input' },
+                    'contact-date-birth': {
+                        meta: { id: 'contact-date-birth', type: 'date-input', name: 'date-input' },
                         properties: { label: 'Дата рождения', value: '25.10.2005' },
                     },
-                    email: {
-                        meta: { id: 'email', type: 'text-input', name: 'text-input' },
+                    'contact-email': {
+                        meta: { id: 'contact-email', type: 'text-input', name: 'text-input' },
                         properties: { label: 'Email', value: '' },
                     },
-                    education: {
-                        meta: { id: 'education', type: 'repeater', name: 'multifield' },
+                    'contact-education': {
+                        meta: { id: 'contact-education', type: 'repeater', name: 'multifield' },
                         template: {
                             views: {
                                 default: {
                                     xxl: {
                                         elements: [
                                             {
-                                                id: 'row_id_1',
+                                                id: genId(),
                                                 type: 'row',
                                                 children: [
                                                     {
-                                                        id: 'group',
+                                                        id: 'contact-education-group',
                                                         type: 'component',
                                                         layout: { col: 24 },
                                                         children: [
                                                             {
-                                                                id: 'row_group_1',
+                                                                id: genId(),
                                                                 type: 'row',
-                                                                children: [{ id: 'uni-name', type: 'component', layout: { col: 24 } }],
+                                                                children: [{ id: 'contact-education-name', type: 'component', layout: { col: 24 } }],
                                                             },
                                                             {
-                                                                id: 'row_group_1',
+                                                                id: genId(),
                                                                 type: 'row',
-                                                                children: [{ id: 'uni-position', type: 'component', layout: { col: 24 } }],
+                                                                children: [{ id: 'contact-education-position', type: 'component', layout: { col: 24 } }],
                                                             },
                                                         ],
                                                     },
@@ -512,7 +523,7 @@ export const employeeSchema: Schema = {
                             },
                             containerSchema: {
                                 meta: {
-                                    id: 'group',
+                                    id: 'contact-education-group',
                                     type: 'container',
                                     name: 'group',
                                 },
@@ -521,12 +532,12 @@ export const employeeSchema: Schema = {
                                 },
                             },
                             componentsSchemas: {
-                                'uni-name': {
-                                    meta: { id: 'uni-name', type: 'text-input', name: 'text-input' },
+                                'contact-education-name': {
+                                    meta: { id: 'contact-education-name', type: 'text-input', name: 'text-input' },
                                     properties: { label: 'Название учебного заведения', value: '' },
                                 },
-                                'uni-position': {
-                                    meta: { id: 'uni-position', type: 'text-input', name: 'text-input' },
+                                'contact-education-position': {
+                                    meta: { id: 'contact-education-position', type: 'text-input', name: 'text-input' },
                                     properties: { label: 'Специальность', value: '' },
                                 },
                             },

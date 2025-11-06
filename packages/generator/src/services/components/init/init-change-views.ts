@@ -3,18 +3,18 @@ import { sample, split } from 'effector'
 import { combineEvents } from 'patronum'
 
 import { ChangeViewsModel } from '../models/change-views-model'
-import { ComponentsModel } from '../models/components-model'
+import { ComponentsRegistryModel } from '../models/components-registry-model'
 import { DepsOfRulesModel } from '../models/deps-of-rules-model'
 import { MutationsModel } from '../models/mutations-model'
 
 type Params = {
-    componentsModel: ComponentsModel
+    componentsRegistryModel: ComponentsRegistryModel
     depsOfRulesModel: DepsOfRulesModel
     mutationsModel: MutationsModel
     changeViewsModel: ChangeViewsModel
 }
 
-export const initChangeViews = ({ componentsModel, depsOfRulesModel, mutationsModel, changeViewsModel }: Params) => {
+export const initChangeViews = ({ componentsRegistryModel, depsOfRulesModel, mutationsModel, changeViewsModel }: Params) => {
     sample({
         clock: mutationsModel.resultOfCalcMutations,
         filter: ({ componentsToUpdate }) => isEmpty(componentsToUpdate),
@@ -46,7 +46,7 @@ export const initChangeViews = ({ componentsModel, depsOfRulesModel, mutationsMo
 
     sample({
         source: {
-            componentsSchemas: componentsModel.$componentsSchemas,
+            componentsSchemas: componentsRegistryModel.$componentsSchemas,
             activeViewDepsForAllMutationsResolution: depsOfRulesModel.$activeViewDepsForAllMutationsResolution,
         },
         clock: changeViewsModel.calcMutationsAfterViewChanged,

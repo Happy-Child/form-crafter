@@ -1,15 +1,27 @@
-import { useLayoutEffect, useState } from 'react'
+import { useLayoutEffect } from 'react'
 
-import { Breakpoint, breakpoints } from '@form-crafter/core'
+import { Breakpoint, getWindowWidth } from '@form-crafter/core'
+import { useUnit } from 'effector-react'
+
+import { useGeneratorContext } from '../contexts'
 
 export const useBreakpoint = (): Breakpoint => {
-    const [breakpoint, setBreakpoint] = useState<Breakpoint>('xxl')
+    const { services } = useGeneratorContext()
+
+    const [currentBreakpoint, calcCurrentBreakpoint] = useUnit([services.generalService.$currentBreakpoint, services.generalService.calcCurrentBreakpoint])
 
     useLayoutEffect(() => {
-        return () => {
-            console.log('unsub')
+        const execute = () => {
+            calcCurrentBreakpoint({ width: getWindowWidth() })
         }
+
+        window.addEventListener('resize', execute)
+
+        execute()
+
+        return () => window.removeEventListener('resize', execute)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    return breakpoint
+    return currentBreakpoint
 }

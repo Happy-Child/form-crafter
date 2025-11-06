@@ -3,7 +3,7 @@ import { FC, FormEvent, memo, useCallback } from 'react'
 import { isNotEmpty } from '@form-crafter/utils'
 
 import { useGeneratorContext } from '../../contexts'
-import { useRootViewElementsRows } from '../../hooks'
+import { useBreakpoint, useRootViewElementsRows } from '../../hooks'
 import { GeneratorProps } from '../../types'
 import { RowsList } from '../RowsList'
 import { useRenderBottomProps } from './hooks'
@@ -22,6 +22,8 @@ export const Generator: FC<Pick<GeneratorProps, 'renderBottom'>> = memo(({ rende
         },
         [services],
     )
+
+    useBreakpoint()
 
     return (
         <Form noValidate onSubmit={handleSubmit}>

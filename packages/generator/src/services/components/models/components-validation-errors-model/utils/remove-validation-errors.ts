@@ -1,6 +1,4 @@
-import { EntityId } from '@form-crafter/core'
-
-import { ComponentsValidationErrors } from '../types'
+import { ComponentsValidationErrors, EntityId } from '@form-crafter/core'
 
 export const removeValidationErrors = (curErrors: ComponentsValidationErrors, componentId: EntityId) => {
     const result = { ...curErrors }

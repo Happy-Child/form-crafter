@@ -1,23 +1,31 @@
-import { EntityId } from '@form-crafter/core'
+import {
+    CalcReadyConditionalValidationsPayload,
+    ComponentToUpdate,
+    EntityId,
+    ReadyConditionalValidationsModel,
+    ReadyValidations,
+    ReadyValidationsByKey,
+} from '@form-crafter/core'
 import { differenceSet, isEmpty, isNotEmpty } from '@form-crafter/utils'
 import { combine, createEvent, createStore, sample, UnitValue } from 'effector'
 import { cloneDeep } from 'lodash-es'
 
 import { SchemaService } from '../../../schema'
-import { ComponentsModel, ComponentToUpdate } from '../components-model'
+import { ComponentsRegistryModel } from '../components-registry-model'
 import { DepsOfRulesModel } from '../deps-of-rules-model'
-import { CalcReadyConditionalValidationsPayload, ReadyValidations, ReadyValidationsByKey } from './types'
 import { removeReadyValidationRules } from './utils'
 
 type Params = {
     schemaService: SchemaService
     depsOfRulesModel: DepsOfRulesModel
-    componentsModel: ComponentsModel
+    componentsRegistryModel: Pick<ComponentsRegistryModel, '$getExecutorContextBuilder' | '$getIsConditionSuccessfulChecker'>
 }
 
-export type ReadyConditionalValidationsModel = ReturnType<typeof createReadyConditionalValidationsModel>
-
-export const createReadyConditionalValidationsModel = ({ schemaService, depsOfRulesModel, componentsModel }: Params) => {
+export const createReadyConditionalValidationsModel = ({
+    schemaService,
+    depsOfRulesModel,
+    componentsRegistryModel,
+}: Params): ReadyConditionalValidationsModel => {
     const $readyComponentsRules = createStore<ReadyValidations>({})
     const $readyComponentsRulesByKey = createStore<ReadyValidationsByKey>({})
     const $readyComponentsRulesIds = combine($readyComponentsRules, (readyRules) =>
@@ -84,8 +92,8 @@ export const createReadyConditionalValidationsModel = ({ schemaService, depsOfRu
             readyComponentsRulesIds: $readyComponentsRulesIds,
             readyGroupsRules: $readyGroupsRules,
             readyGroupsByKey: $readyGroupsByKey,
-            getExecutorContextBuilder: componentsModel.$getExecutorContextBuilder,
-            getIsConditionSuccessfulChecker: componentsModel.$getIsConditionSuccessfulChecker,
+            getExecutorContextBuilder: componentsRegistryModel.$getExecutorContextBuilder,
+            getIsConditionSuccessfulChecker: componentsRegistryModel.$getIsConditionSuccessfulChecker,
         },
         clock: calcReadyValidations,
         fn: (

@@ -17,7 +17,7 @@ export const init = ({ onFormSubmit, invokeUserSubmitHandlerFx, componentsServic
     sample({
         source: {
             componentsIsValid: componentsService.formValidationModel.$formIsValid,
-            currentViewVisibleComponentsSchemas: componentsService.componentsModel.$currentViewVisibleComponentsSchemas,
+            currentViewVisibleComponentsSchemas: componentsService.componentsRegistryModel.$currentViewVisibleComponentsSchemas,
         },
         clock: componentsService.formValidationModel.runFormValidationFx.done,
         filter: ({ componentsIsValid }) => componentsIsValid,

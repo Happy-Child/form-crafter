@@ -6,19 +6,21 @@ import { combineEvents } from 'patronum'
 
 import { SchemaService } from '../../../schema'
 import { ThemeService } from '../../../theme'
-import { ComponentsModel } from '../components-model'
-import { isChangedValue } from '../components-model/models/variants'
+import { isChangedValue } from '../component-model/variants'
+import { ComponentsGeneralModel } from '../components-general-model'
+import { ComponentsRegistryModel } from '../components-registry-model'
 import { MutationsCache, RunMutationsPayload } from './types'
 
 type Params = {
-    componentsModel: ComponentsModel
-    themeService: ThemeService
-    schemaService: SchemaService
+    themeService: Pick<ThemeService, '$mutationsRules' | '$mutationsRulesRollback'>
+    schemaService: Pick<SchemaService, '$initialComponentsSchemas'>
+    componentsGeneralModel: Pick<ComponentsGeneralModel, '$hiddenComponents'>
+    componentsRegistryModel: Pick<ComponentsRegistryModel, '$getExecutorContextBuilder' | '$getIsConditionSuccessfulChecker' | 'updateComponentsModelsFx'>
 }
 
 export type MutationsModel = ReturnType<typeof createMutationsModel>
 
-export const createMutationsModel = ({ componentsModel, themeService, schemaService }: Params) => {
+export const createMutationsModel = ({ themeService, schemaService, componentsGeneralModel, componentsRegistryModel }: Params) => {
     const $activatedRules = createStore<Set<EntityId>>(new Set())
     const $mutationsCache = createStore<MutationsCache>({})
 
@@ -32,14 +34,14 @@ export const createMutationsModel = ({ componentsModel, themeService, schemaServ
 
     const resultOfCalcMutations = sample({
         source: {
-            getExecutorContextBuilder: componentsModel.$getExecutorContextBuilder,
-            getIsConditionSuccessfulChecker: componentsModel.$getIsConditionSuccessfulChecker,
+            getExecutorContextBuilder: componentsRegistryModel.$getExecutorContextBuilder,
+            getIsConditionSuccessfulChecker: componentsRegistryModel.$getIsConditionSuccessfulChecker,
             initialComponentsSchemas: schemaService.$initialComponentsSchemas,
             activatedRules: $activatedRules,
             mutationsCache: $mutationsCache,
             themeMutationsRules: themeService.$mutationsRules,
             themeMutationsRulesRollback: themeService.$mutationsRulesRollback,
-            hiddenComponents: componentsModel.$hiddenComponents,
+            hiddenComponents: componentsGeneralModel.$hiddenComponents,
         },
         clock: calcMutations,
         fn: (
@@ -277,7 +279,7 @@ export const createMutationsModel = ({ componentsModel, themeService, schemaServ
     })
 
     const componentsIsUpdatedAfterMutations = sample({
-        clock: combineEvents([resultOfCalcMutations, componentsModel.updateModelsFx.done]),
+        clock: combineEvents([resultOfCalcMutations, componentsRegistryModel.updateComponentsModelsFx.done]),
         fn: ([{ componentsToUpdate }]) => ({ componentsToUpdate }),
     })
 

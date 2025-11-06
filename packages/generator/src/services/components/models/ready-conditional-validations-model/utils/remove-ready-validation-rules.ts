@@ -1,7 +1,5 @@
-import { EntityId } from '@form-crafter/core'
+import { EntityId, ReadyValidations } from '@form-crafter/core'
 import { differenceSet, isEmpty } from '@form-crafter/utils'
-
-import { ReadyValidations } from '../types'
 
 export const removeReadyValidationRules = (readyRules: ReadyValidations, rulesIdsToRemove: Set<EntityId>) => {
     const result = Object.entries(readyRules).reduce<ReadyValidations>((finalRedyRules, [key, readyRules]) => {

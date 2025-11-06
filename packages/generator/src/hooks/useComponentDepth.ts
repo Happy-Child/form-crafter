@@ -10,6 +10,6 @@ export const useComponentDepth = (id: EntityId): number => {
     return useStoreMap({
         store: services.viewsService.$currentViewElementsGraph,
         keys: [id],
-        fn: (responsiveGraph, [id]) => getComponentDepth(id, responsiveGraph.xxl),
+        fn: (responsiveGraph, [id]) => getComponentDepth(id, responsiveGraph),
     })
 }

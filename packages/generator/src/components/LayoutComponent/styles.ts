@@ -15,11 +15,13 @@ export const LayoutStyled = styled.div<Props>`
     ${({ componentLayout }) =>
         isAuto(componentLayout.col)
             ? `
+                min-width: 0;
                 flex-grow: 1;
                 flex-shrink: 1;
                 flex-basis: 0;
             `
             : `
+                min-width: 0;
                 flex: 0 0 calc(${componentLayout.col} * (100% / ${maxColSpan}));
             `}
 `

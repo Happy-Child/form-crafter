@@ -1,10 +1,8 @@
-import { EntityId, GroupValidationError } from '@form-crafter/core'
+import { EntityId, GetExecutorContextBuilder, GroupValidationError, ReadyValidations } from '@form-crafter/core'
 import { UnitValue } from 'effector'
 
 import { SchemaService } from '../../../../../schema'
 import { ThemeService } from '../../../../../theme'
-import { GetExecutorContextBuilder } from '../../../components-model'
-import { ReadyValidations } from '../../../ready-conditional-validations-model'
 import { ComponentsValidationErrors } from '../../types'
 
 export type RunGroupValidationFxParams = {

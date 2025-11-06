@@ -6,7 +6,7 @@ import { AppErrorsService } from '../../../app-errors'
 import { GroupValidationRuleSchemas, SchemaService } from '../../../schema'
 import { ThemeService } from '../../../theme'
 import { ViewsService } from '../../../views'
-import { ComponentsModel } from '../components-model'
+import { ComponentsRegistryModel } from '../components-registry-model'
 import { DepsByMutationsRules } from './types'
 import {
     buildFlattenGraphAndFindCycles,
@@ -24,15 +24,15 @@ import {
 
 type Params = {
     appErrorsService: AppErrorsService
-    themeService: ThemeService
-    viewsService: ViewsService
-    schemaService: SchemaService
-    componentsModel: ComponentsModel
+    themeService: Pick<ThemeService, '$pathsToMutationsRulesDeps'>
+    viewsService: Pick<ViewsService, '$currentViewComponents' | '$additionalViewsConditions'>
+    schemaService: Pick<SchemaService, '$groupValidationSchemas'>
+    componentsRegistryModel: Pick<ComponentsRegistryModel, 'componentsAddedOrRemoved' | '$componentsSchemas'>
 }
 
 export type DepsOfRulesModel = ReturnType<typeof createDepsOfRulesModel>
 
-export const createDepsOfRulesModel = ({ appErrorsService, themeService, viewsService, schemaService, componentsModel }: Params) => {
+export const createDepsOfRulesModel = ({ appErrorsService, themeService, viewsService, schemaService, componentsRegistryModel }: Params) => {
     const $componentsValidationsConditionsDeps = createStore<DepsByValidationsRules>({ ruleIdToDepsComponentsIds: {}, componentIdToDependentsRuleIds: {} })
     const setComponentsValidationsConditionsDeps = createEvent<DepsByValidationsRules>('setComponentsValidationsConditionsDeps')
     $componentsValidationsConditionsDeps.on(setComponentsValidationsConditionsDeps, (_, newValue) => newValue)
@@ -61,8 +61,8 @@ export const createDepsOfRulesModel = ({ appErrorsService, themeService, viewsSe
         },
     )
     sample({
-        source: { componentsSchemas: componentsModel.$componentsSchemas },
-        clock: componentsModel.componentsAddedOrRemoved,
+        source: { componentsSchemas: componentsRegistryModel.$componentsSchemas },
+        clock: componentsRegistryModel.componentsAddedOrRemoved,
         fn: ({ componentsSchemas }) => extractComponentsValidationsConditionsDeps(componentsSchemas),
         target: setComponentsValidationsConditionsDeps,
     })
@@ -75,8 +75,8 @@ export const createDepsOfRulesModel = ({ appErrorsService, themeService, viewsSe
         componentIdToDependents: filterDepsGraph(depsGraphs.componentIdToDependents, viewComponents),
     }))
     sample({
-        source: { componentsSchemas: componentsModel.$componentsSchemas, pathsToMutationsRulesDeps: themeService.$pathsToMutationsRulesDeps },
-        clock: componentsModel.componentsAddedOrRemoved,
+        source: { componentsSchemas: componentsRegistryModel.$componentsSchemas, pathsToMutationsRulesDeps: themeService.$pathsToMutationsRulesDeps },
+        clock: componentsRegistryModel.componentsAddedOrRemoved,
         fn: ({ componentsSchemas, pathsToMutationsRulesDeps }) => extractComponentsMutationsDeps(componentsSchemas, pathsToMutationsRulesDeps),
         target: setComponentsMutationsDeps,
     })
@@ -89,8 +89,8 @@ export const createDepsOfRulesModel = ({ appErrorsService, themeService, viewsSe
         componentIdToDependents: filterDepsGraph(depsGraphs.componentIdToDependents, viewComponents),
     }))
     sample({
-        source: { componentsSchemas: componentsModel.$componentsSchemas },
-        clock: componentsModel.componentsAddedOrRemoved,
+        source: { componentsSchemas: componentsRegistryModel.$componentsSchemas },
+        clock: componentsRegistryModel.componentsAddedOrRemoved,
         fn: ({ componentsSchemas }) => extractVisabilityConditionsDeps(componentsSchemas),
         target: setVisabilityConditionsDeps,
     })
@@ -104,7 +104,7 @@ export const createDepsOfRulesModel = ({ appErrorsService, themeService, viewsSe
         },
     )
 
-    const $viewsConditionsDeps = combine(viewsService.$additionalsViewsArr, extractViewsConditionsDeps)
+    const $viewsConditionsDeps = combine(viewsService.$additionalViewsConditions, extractViewsConditionsDeps)
     const $viewsConditionsAllDeps = combine(
         $viewsConditionsDeps,
         (viewsConditionsDeps) => new Set(...Object.values(viewsConditionsDeps.viewIdToDepsComponents)),

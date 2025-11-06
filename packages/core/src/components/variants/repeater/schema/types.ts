@@ -12,7 +12,7 @@ export type RepeaterComponentProperties = AvailableObject
 export type RepeaterComponentSchema<T extends RepeaterComponentProperties = RepeaterComponentProperties> = GeneralComponentSchema & {
     meta: ComponentMeta<'repeater'>
     template: {
-        views: Views<'template'>
+        views: Views
         containerSchema: ContainerComponentSchema
         componentsSchemas: Record<EntityId, EditableComponentSchema | ContainerComponentSchema | RepeaterComponentSchema | StaticComponentSchema>
     }

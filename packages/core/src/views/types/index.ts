@@ -20,21 +20,21 @@ export type ViewElementComponent = {
 
 export type ViewElements = ViewElementRow[]
 
-export type ViewContent<T extends 'default' | 'template' = 'default'> = {
-    elements: T extends 'default' ? ViewElements : [ViewElementRow]
+export type ViewContent = {
+    elements: ViewElements
 }
 
-export type ViewResponsive<T extends 'default' | 'template' = 'default'> = {
-    xxl: ViewContent<T>
-} & Partial<Record<Exclude<Breakpoint, 'xxl'>, ViewContent<T>>>
+export type ViewResponsive = {
+    xxl: ViewContent
+} & Partial<Record<Exclude<Breakpoint, 'xxl'>, ViewContent>>
 
-export type ViewDefinition<T extends 'default' | 'template' = 'default'> = {
+export type ViewDefinition = {
     id: EntityId
     condition: ConditionNode
-    responsive: ViewResponsive<T>
+    responsive: ViewResponsive
 }
 
-export type Views<T extends 'default' | 'template' = 'default'> = {
-    default: ViewResponsive<T>
-    additionals?: Record<string, ViewDefinition<T>>
+export type Views = {
+    default: ViewResponsive
+    additionals?: Record<string, ViewDefinition>
 }

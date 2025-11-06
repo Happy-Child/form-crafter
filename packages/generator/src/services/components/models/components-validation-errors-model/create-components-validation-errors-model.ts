@@ -1,17 +1,14 @@
-import { EntityId } from '@form-crafter/core'
+import { ComponentsValidationErrors, ComponentsValidationErrorsModel, EntityId, SetComponentValidationErrorsPayload } from '@form-crafter/core'
 import { combine, createEvent, createStore, sample, UnitValue } from 'effector'
 
-import { ComponentsModel } from '../components-model'
-import { ComponentsValidationErrors, SetComponentValidationErrorsPayload } from './types'
+import { ComponentsGeneralModel } from '../components-general-model'
 import { filterValidationErrors, isErrorsDifferent, removeValidationErrors } from './utils'
 
 type Params = {
-    componentsModel: ComponentsModel
+    componentsGeneralModel: ComponentsGeneralModel
 }
 
-export type ComponentsValidationErrorsModel = ReturnType<typeof createComponentsValidationErrorsModel>
-
-export const createComponentsValidationErrorsModel = ({ componentsModel }: Params) => {
+export const createComponentsValidationErrorsModel = ({ componentsGeneralModel }: Params): ComponentsValidationErrorsModel => {
     const $componentsGroupsErrors = createStore<ComponentsValidationErrors>({})
     const $componentsErrors = createStore<ComponentsValidationErrors>({})
 
@@ -33,7 +30,7 @@ export const createComponentsValidationErrorsModel = ({ componentsModel }: Param
 
     const removeAllErrors = createEvent('removeAllErrors')
 
-    const $visibleErrors = combine($mergedErrors, componentsModel.$hiddenComponents, (validationErrors, hiddenComponentsIds) => {
+    const $visibleErrors = combine($mergedErrors, componentsGeneralModel.$hiddenComponents, (validationErrors, hiddenComponentsIds) => {
         const filteredErrors: UnitValue<typeof $mergedErrors> = { ...validationErrors }
         let wasDeleted = false
 

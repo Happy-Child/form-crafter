@@ -1,3 +1,4 @@
+export * from './useBreakpoint'
 export * from './useComponentDepth'
 export * from './useComponentMeta'
 export * from './useComponentModel'

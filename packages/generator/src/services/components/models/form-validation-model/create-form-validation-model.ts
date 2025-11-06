@@ -1,35 +1,39 @@
-import { EntityId } from '@form-crafter/core'
+import {
+    ComponentsValidationErrorsModel,
+    EntityId,
+    ReadyConditionalValidationsModel,
+    RunComponentValidationFxDone,
+    RunComponentValidationFxFail,
+} from '@form-crafter/core'
 import { isEmpty, isNotEmpty, splitAllSettledResult } from '@form-crafter/utils'
 import { attach, combine, createEffect, createStore, UnitValue } from 'effector'
 
 import { SchemaService } from '../../../schema'
 import { ThemeService } from '../../../theme'
-import { ComponentsModel } from '../components-model'
-import { isValidableModel, RunComponentValidationFxDone, RunComponentValidationFxFail } from '../components-model/models/variants'
-import { ComponentsValidationErrorsModel } from '../components-validation-errors-model'
-import { ReadyConditionalValidationsModel } from '../ready-conditional-validations-model'
+import { isValidableModel } from '../component-model/variants'
+import { ComponentsRegistryModel } from '../components-registry-model'
 import { createGroupValidationModel } from './models/group-validation-model'
 
 type Params = {
-    componentsModel: ComponentsModel
-    componentsValidationErrorsModel: ComponentsValidationErrorsModel
-    readyConditionalValidationsModel: ReadyConditionalValidationsModel
     themeService: ThemeService
     schemaService: SchemaService
+    componentsRegistryModel: ComponentsRegistryModel
+    componentsValidationErrorsModel: ComponentsValidationErrorsModel
+    readyConditionalValidationsModel: ReadyConditionalValidationsModel
 }
 
 export type FormValidationModel = ReturnType<typeof createFormValidationModel>
 
 export const createFormValidationModel = ({
-    componentsModel,
-    componentsValidationErrorsModel,
-    readyConditionalValidationsModel,
     themeService,
     schemaService,
+    componentsRegistryModel,
+    componentsValidationErrorsModel,
+    readyConditionalValidationsModel,
 }: Params) => {
     const $isComponentsValidationPending = createStore<boolean>(false)
 
-    const $componentsIdsCanBeValidate = combine(componentsModel.$currentViewVisibleComponentsSchemas, (currentViewVisibleComponentsSchemas) =>
+    const $componentsIdsCanBeValidate = combine(componentsRegistryModel.$currentViewVisibleComponentsSchemas, (currentViewVisibleComponentsSchemas) =>
         Object.entries(currentViewVisibleComponentsSchemas).reduce<Set<EntityId>>((result, [componentId, schema]) => {
             if (isNotEmpty(schema.validations?.schemas)) {
                 result.add(componentId)
@@ -39,7 +43,10 @@ export const createFormValidationModel = ({
     )
 
     const baseRunComponentsValidationsFx = createEffect<
-        { componentsModels: UnitValue<typeof componentsModel.$models>; componentsIdsCanBeValidate: UnitValue<typeof $componentsIdsCanBeValidate> },
+        {
+            componentsModels: UnitValue<typeof componentsRegistryModel.$componentsModels>
+            componentsIdsCanBeValidate: UnitValue<typeof $componentsIdsCanBeValidate>
+        },
         RunComponentValidationFxDone[],
         RunComponentValidationFxFail[]
     >(async ({ componentsModels, componentsIdsCanBeValidate }) => {
@@ -60,16 +67,16 @@ export const createFormValidationModel = ({
         return Promise.resolve(resolved)
     })
     const runComponentsValidationsFx = attach({
-        source: { componentsModels: componentsModel.$models, componentsIdsCanBeValidate: $componentsIdsCanBeValidate },
+        source: { componentsModels: componentsRegistryModel.$componentsModels, componentsIdsCanBeValidate: $componentsIdsCanBeValidate },
         effect: baseRunComponentsValidationsFx,
     })
 
     const groupValidationModel = createGroupValidationModel({
-        componentsModel,
-        componentsValidationErrorsModel,
-        readyConditionalValidationsModel,
         themeService,
         schemaService,
+        componentsRegistryModel,
+        componentsValidationErrorsModel,
+        readyConditionalValidationsModel,
     })
 
     const $groupValidationErrors = combine(groupValidationModel.$errors, (groupValidationErrors) => Array.from(groupValidationErrors.values()))

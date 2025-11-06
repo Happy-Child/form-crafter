@@ -10,6 +10,6 @@ export const useViewRow = (id: EntityId): ViewElementGraphRow => {
     return useStoreMap({
         store: services.viewsService.$currentViewElementsGraph,
         keys: [id],
-        fn: (responsiveGraph, [id]) => responsiveGraph.xxl.rows.graph[id],
+        fn: (responsiveGraph, [id]) => responsiveGraph.rows.graph[id],
     })
 }

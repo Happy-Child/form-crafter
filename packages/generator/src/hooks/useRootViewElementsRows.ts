@@ -9,6 +9,6 @@ export const useRootViewElementsRows = (): EntityId[] => {
     return useStoreMap({
         store: services.viewsService.$currentViewElementsGraph,
         keys: [],
-        fn: (responsiveGraph) => responsiveGraph.xxl.rows.root,
+        fn: (responsiveGraph) => responsiveGraph.rows.root,
     })
 }

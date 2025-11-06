@@ -1,7 +1,5 @@
-import { EntityId } from '@form-crafter/core'
+import { ComponentsValidationErrors, EntityId } from '@form-crafter/core'
 import { isNotEmpty } from '@form-crafter/utils'
-
-import { ComponentsValidationErrors } from '../types'
 
 type FilteredErrorsPayload = {
     filteredErrors: ComponentsValidationErrors

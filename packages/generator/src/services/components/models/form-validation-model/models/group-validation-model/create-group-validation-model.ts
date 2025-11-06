@@ -1,28 +1,32 @@
-import { EntityId, GroupValidationError } from '@form-crafter/core'
+import {
+    ComponentsValidationErrors,
+    ComponentsValidationErrorsModel,
+    EntityId,
+    GroupValidationError,
+    ReadyConditionalValidationsModel,
+} from '@form-crafter/core'
 import { isNotEmpty, isNotNull } from '@form-crafter/utils'
 import { attach, createEffect, createEvent, createStore, sample, UnitValue } from 'effector'
 
 import { SchemaService } from '../../../../../schema'
 import { ThemeService } from '../../../../../theme'
-import { ComponentsModel } from '../../../components-model'
-import { ComponentsValidationErrors, ComponentsValidationErrorsModel } from '../../../components-validation-errors-model'
-import { ReadyConditionalValidationsModel } from '../../../ready-conditional-validations-model'
+import { ComponentsRegistryModel } from '../../../components-registry-model'
 import { RunGroupValidationFxDone, RunGroupValidationFxFail, RunGroupValidationFxParams } from './types'
 
 type Params = {
-    componentsModel: ComponentsModel
-    componentsValidationErrorsModel: ComponentsValidationErrorsModel
-    readyConditionalValidationsModel: ReadyConditionalValidationsModel
     themeService: ThemeService
     schemaService: SchemaService
+    componentsRegistryModel: ComponentsRegistryModel
+    componentsValidationErrorsModel: ComponentsValidationErrorsModel
+    readyConditionalValidationsModel: ReadyConditionalValidationsModel
 }
 
 export const createGroupValidationModel = ({
-    componentsModel,
-    componentsValidationErrorsModel,
-    readyConditionalValidationsModel,
     themeService,
     schemaService,
+    componentsRegistryModel,
+    componentsValidationErrorsModel,
+    readyConditionalValidationsModel,
 }: Params) => {
     const validationIsAvailable = isNotEmpty(schemaService.$groupValidationSchemas.getState())
 
@@ -95,7 +99,7 @@ export const createGroupValidationModel = ({
     const runValidationsFx = attach({
         source: {
             componentsGroupsErrors: componentsValidationErrorsModel.$componentsGroupsErrors,
-            getExecutorContextBuilder: componentsModel.$getExecutorContextBuilder,
+            getExecutorContextBuilder: componentsRegistryModel.$getExecutorContextBuilder,
             readyConditionalValidations: readyConditionalValidationsModel.$readyGroupsRules,
             groupValidationRules: themeService.$groupValidationRules,
             groupValidationSchemas: schemaService.$groupValidationSchemas,

@@ -1,7 +1,10 @@
 import { Breakpoint, EntityId, ViewElementComponent, Views } from '@form-crafter/core'
 
+import { GeneralService } from '../general'
+
 export type ViewsServiceParams = {
     initial: Views
+    generalService: GeneralService
 }
 
 export type ViewElementGraphRow = { id: EntityId; parentComponentId: EntityId | null; childrenComponents: EntityId[] }
