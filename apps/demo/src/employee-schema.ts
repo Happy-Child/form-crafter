@@ -1,38 +1,6 @@
 import { Schema } from '@form-crafter/core'
 import { genId } from '@form-crafter/utils'
 
-// {
-//     id: genId(),
-//     type: 'row',
-//     children: [
-//         {
-//             id: 'contacts',
-//             type: 'component',
-//             layout: { col: 24 },
-//             children: [
-//                 {
-//                     id: genId(),
-//                     type: 'row',
-//                     children: [
-//                         {
-//                             id: 'group-work',
-//                             type: 'component',
-//                             layout: { col: 24 },
-//                             children: [
-//                                 {
-//                                     id: genId(),
-//                                     type: 'row',
-//                                     children: [{ id: 'select-department', type: 'component', layout: { col: 24 } }],
-//                                 },
-//                             ],
-//                         },
-//                     ],
-//                 },
-//             ],
-//         },
-//     ],
-// },
-
 export const employeeSchema: Schema = {
     id: 'employee-form',
     validations: {

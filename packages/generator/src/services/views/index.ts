@@ -1,8 +1,10 @@
-import { EntityId, ViewDefinition } from '@form-crafter/core'
-import { isNotEmpty, isNotNull } from '@form-crafter/utils'
+import { Breakpoint, EntityId, ViewDefinition } from '@form-crafter/core'
+import { genId, isNotEmpty, isNotNull } from '@form-crafter/utils'
 import { combine, createEvent, createStore, sample, UnitValue } from 'effector'
+import { cloneDeep } from 'lodash-es'
 import { readonly } from 'patronum'
 
+import { getEmptyViewElementsGraph } from './consts'
 import { ViewsElementsGraphs, ViewsServiceParams } from './types'
 import { buildViewElementsGraphs, selectViewByBreakpoint } from './utils'
 
@@ -22,7 +24,9 @@ export const createViewsService = ({ initial, generalService }: ViewsServicePara
     const $viewsElementsGraphs = createStore<ViewsElementsGraphs>(buildViewElementsGraphs(initial.default, initial.additionals || {}))
 
     const setViewsElementsGraphs = createEvent<UnitValue<typeof $viewsElementsGraphs>>('setViewsElementsGraphs')
-    const mergeViewsElementsGraphs = createEvent<UnitValue<typeof setViewsElementsGraphs>>('mergeViewsElementsGraphs')
+    const mergeViewsElementsGraphs = createEvent<{ graphsToMerge: UnitValue<typeof setViewsElementsGraphs>; rootComponentId: EntityId }>(
+        'mergeViewsElementsGraphs',
+    )
     const setCurrentViewId = createEvent<UnitValue<typeof $curentViewId>>('setCurrentViewId')
 
     $curentViewId.on(setCurrentViewId, (_, newId) => newId)
@@ -44,11 +48,43 @@ export const createViewsService = ({ initial, generalService }: ViewsServicePara
     sample({
         source: { viewsElementsGraphs: $viewsElementsGraphs },
         clock: mergeViewsElementsGraphs,
-        fn: ({ viewsElementsGraphs }, viewsElementsGraphsToMerge) => {
-            console.log('viewsElementsGraphs: ', viewsElementsGraphs)
-            console.log('viewsElementsGraphsToMerge: ', viewsElementsGraphsToMerge)
+        fn: ({ viewsElementsGraphs }, { graphsToMerge, rootComponentId }) => {
+            console.log('mergeViewsElementsGraphs')
 
-            return viewsElementsGraphs
+            console.log('viewsElementsGraphs: ', cloneDeep(viewsElementsGraphs))
+            console.log('graphsToMerge: ', cloneDeep(graphsToMerge))
+
+            const newViewsElementsGraphs = cloneDeep(viewsElementsGraphs)
+
+            Object.entries(graphsToMerge.default).forEach(([breakpoint, data]) => {
+                const rootRow = data.rows.graph[data.rows.root[0]]
+                rootRow.parentComponentId = rootComponentId
+                delete data.rows.graph[rootRow.id]
+
+                if (!(breakpoint in newViewsElementsGraphs.default)) {
+                    newViewsElementsGraphs.default[breakpoint as Breakpoint] = getEmptyViewElementsGraph()
+                }
+                const breakpointData = newViewsElementsGraphs.default[breakpoint as Breakpoint]!
+
+                breakpointData.components[rootComponentId] = {
+                    ...breakpointData.components[rootComponentId],
+                    childrenRows: [...breakpointData.components[rootComponentId].childrenRows, rootRow.id],
+                }
+                breakpointData.components = {
+                    ...breakpointData.components,
+                    ...data.components,
+                }
+
+                breakpointData.rows.graph = {
+                    ...breakpointData.rows.graph,
+                    ...data.rows.graph,
+                    [rootRow.id]: rootRow,
+                }
+            })
+
+            console.log('newViewsElementsGraphs: ', cloneDeep(newViewsElementsGraphs))
+
+            return newViewsElementsGraphs
         },
         target: setViewsElementsGraphs,
     })

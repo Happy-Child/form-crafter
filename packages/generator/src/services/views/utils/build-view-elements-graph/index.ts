@@ -1,10 +1,10 @@
 import { EntityId, ViewElements } from '@form-crafter/core'
-import { isNotEmpty, isNull } from '@form-crafter/utils'
+import { genId, isNotEmpty, isNull } from '@form-crafter/utils'
 
 import { ViewElementsGraph } from '../../types'
 
-export const buildViewElementsGraph = (elements: ViewElements, componentsIdMap?: Record<EntityId, EntityId>) => {
-    console.log('componentsIdMap: ', componentsIdMap)
+export const buildViewElementsGraph = (elements: ViewElements, generateRowId?: boolean, componentsIdMap?: Record<EntityId, EntityId>) => {
+    const rowIdMap: Record<EntityId, EntityId> = {}
 
     const execute = (
         elements: ViewElements,
@@ -16,32 +16,33 @@ export const buildViewElementsGraph = (elements: ViewElements, componentsIdMap?:
         }
 
         elements.forEach((row) => {
-            if (row.id in result.rows) {
-                console.warn(`[buildViewElementsGraph] Duplicate row id detected: "${row.id}".`)
+            let finalRowId = row.id
+            if (generateRowId) {
+                finalRowId = genId()
+                rowIdMap[row.id] = finalRowId
             }
 
             const children = row?.children || []
-            children.forEach(({ id, children = [], layout }) => {
-                console.log('comp id: ', id)
-                const finalId = isNotEmpty(componentsIdMap) ? componentsIdMap[id] : id
-                if (finalId in result.components) {
-                    console.warn(`[buildViewElementsGraph] Duplicate component id detected: "${finalId}".`)
-                }
+            children.forEach(({ id: componentId, children = [], layout }) => {
+                const finalComponentId = isNotEmpty(componentsIdMap) ? componentsIdMap[componentId] : componentId
+                // if (finalComponentId in result.components) {
+                //     console.warn(`[buildViewElementsGraph] Duplicate component id detected: "${finalComponentId}".`)
+                // }
 
-                const { rows, components } = execute(children, finalId, result)
+                const { rows, components } = execute(children, finalComponentId, result)
                 result.rows = rows
                 result.components = components
 
-                const childrenRows = Array.from(new Set(children?.map(({ id }) => id)) || [])
-                result.components[finalId] = { id: finalId, parentRowId: row.id, childrenRows, layout }
+                const childrenRows = Array.from(new Set(children?.map(({ id }) => (generateRowId ? genId() : id))) || [])
+                result.components[finalComponentId] = { id: finalComponentId, parentRowId: finalRowId, childrenRows, layout }
             })
 
             if (isNull(parentComponentId)) {
-                result.rows.root.push(row.id)
+                result.rows.root.push(finalRowId)
             }
 
-            const childrenComponents = Array.from(new Set(children?.map(({ id }) => id)) || [])
-            result.rows.graph[row.id] = { id: row.id, parentComponentId, childrenComponents }
+            const childrenComponents = Array.from(new Set(children?.map(({ id }) => (isNotEmpty(componentsIdMap) ? componentsIdMap[id] : id))) || [])
+            result.rows.graph[finalRowId] = { id: finalRowId, parentComponentId, childrenComponents }
         })
 
         return result

@@ -1,59 +1,22 @@
-import { ComponentSchema, ComponentsSchemas, ContainerComponentSchema, EntityId, RepeaterComponentSchema } from '@form-crafter/core'
+import {
+    ComponentSchema,
+    ComponentsSchemas,
+    ContainerComponentSchema,
+    EntityId,
+    RepeaterComponentSchema,
+    ViewContent,
+    ViewResponsive,
+} from '@form-crafter/core'
 import { genComponentId } from '@form-crafter/utils'
 
 import { buildViewElementsGraphs } from '../../../../views'
 
 type TemplateIdMap = Record<EntityId, EntityId>
 
-// const createViewDefinition = (definitionTemplate: ViewDefinition, componentsIdMap: componentIdMap, repeaterId: EntityId): ViewDefinition => {
-//     const rowIdsMap: componentIdMap = {}
-
-//     const rows = Object.fromEntries(
-//         Object.entries(definitionTemplate.responsive.xxl).map(([templateRowId, row]): [EntityId, ViewRow] => {
-//             const newRowId = genRowId()
-//             rowIdsMap[templateRowId] = newRowId
-
-//             const children = row.children.map(({ id: templateComponentId }) => ({
-//                 id: componentsIdMap[templateComponentId],
-//             }))
-
-//             return [
-//                 newRowId,
-//                 {
-//                     ...row,
-//                     id: newRowId,
-//                     children,
-//                 },
-//             ]
-//         }),
-//     )
-
-//     const components = Object.fromEntries(
-//         Object.entries(definitionTemplate.components).map(([templateComponentId, component]): [EntityId, ViewComponent] => {
-//             const isRootComponent = templateComponentId === rootComponentId
-//             const parentId = isRootComponent ? repeaterId : componentsIdMap[component.parentId!]
-
-//             const finalId = componentsIdMap[templateComponentId]
-//             const rows = component.rows?.map(({ id: templateRowId }) => ({
-//                 id: rowIdsMap[templateRowId],
-//             }))
-
-//             return [
-//                 finalId,
-//                 {
-//                     ...component,
-//                     id: finalId,
-//                     parentId,
-//                     rows,
-//                 },
-//             ]
-//         }),
-//     )
-
-//     return {
-//         rows,
-//         components,
-//     }
+// const replaceRootRowId = (viewResponsive: ViewResponsive) => {
+//     Object.entries(viewResponsive).forEach(([, data]) => {
+//         data.elements[]
+//     })
 // }
 
 const createComponentsSchemasInstance = (
@@ -64,7 +27,7 @@ const createComponentsSchemasInstance = (
     const componentIdMap: TemplateIdMap = {}
 
     const containerTemplateId = containerSchema.meta.id
-    const containerComponentId = `${containerTemplateId}-${genComponentId(containerSchema.meta.name)}`
+    const containerComponentId = genComponentId(containerTemplateId)
     schemas[containerComponentId] = {
         ...containerSchema,
         meta: { ...containerSchema.meta, templateId: containerTemplateId, id: containerComponentId },
@@ -72,7 +35,7 @@ const createComponentsSchemasInstance = (
     componentIdMap[containerTemplateId] = containerComponentId
 
     Object.entries(componentsSchemas).forEach(([templateId, schema]) => {
-        const id = `${templateId}-${genComponentId(schema.meta.name)}`
+        const id = genComponentId(templateId)
         const newSchema = {
             ...schema,
             meta: { ...schema.meta, templateId, id },
@@ -88,7 +51,7 @@ const createComponentsSchemasInstance = (
 export const createTemplateInstance = ({ views, containerSchema, componentsSchemas }: RepeaterComponentSchema['template']) => {
     const { schemas: newComponentsSchemas, componentIdMap } = createComponentsSchemasInstance(containerSchema, componentsSchemas)
 
-    const viewElementsGraphs = buildViewElementsGraphs(views.default, views.additionals || {}, componentIdMap)
+    const viewElementsGraphs = buildViewElementsGraphs(views.default, views.additionals || {}, true, componentIdMap)
 
     return { componentsSchemas: newComponentsSchemas, viewElementsGraphs }
 }

@@ -56,7 +56,7 @@ export const init = ({
         componentsCreatorModel,
     })
 
-    // Выснести мутации service.setCurrentViewId наружу
+    // ПОХОДУ НУЖНО РЯДОМ С viewCanBeChanged писать(((
     sample({
         clock: changeViewsModel.viewCanBeChanged,
         fn: ({ viewId }) => viewId,

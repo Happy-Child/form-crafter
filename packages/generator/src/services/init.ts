@@ -1,5 +1,6 @@
 import { isNotEmpty } from '@form-crafter/utils'
 import { sample } from 'effector'
+import { combineEvents } from 'patronum'
 
 import { ComponentsService } from './components'
 import { ViewsService } from './views'
@@ -13,10 +14,10 @@ export const init = ({ componentsService, viewsService }: Params) => {
     componentsService.startInit()
 
     sample({
-        clock: componentsService.repeaterModel.templateInstanceCreated,
-        filter: ({ viewElementsGraphs, componentsSchemas }) =>
+        clock: combineEvents([componentsService.repeaterModel.templateInstanceCreated, componentsService.componentsCreatorModel.addComponentsFx.done]),
+        filter: ([{ viewElementsGraphs, componentsSchemas }]) =>
             isNotEmpty(viewElementsGraphs.default.xxl.rows) && isNotEmpty(viewElementsGraphs.default.xxl.components) && isNotEmpty(componentsSchemas),
-        fn: ({ viewElementsGraphs }) => viewElementsGraphs,
+        fn: ([{ viewElementsGraphs, rootComponentId }]) => ({ graphsToMerge: viewElementsGraphs, rootComponentId }),
         target: viewsService.mergeViewsElementsGraphs,
     })
 }

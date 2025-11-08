@@ -119,6 +119,7 @@ export const createComponentsService = ({ appErrorsService, themeService, viewsS
 
     return {
         componentsRegistryModel,
+        componentsCreatorModel,
         depsOfRulesModel,
         formValidationModel,
         repeaterModel,

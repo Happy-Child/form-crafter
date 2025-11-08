@@ -24,10 +24,10 @@ export const App: FC = () => {
                 <Container maxWidth="md" sx={{ py: 4 }}>
                     <Paper elevation={3} sx={{ p: 4 }}>
                         <Generator
+                            schema={employeeSchema}
                             onSubmit={handleeSubmit}
                             theme={muiTheme}
                             PlaceholderComponent={PlaceholderComponent}
-                            schema={clientSchema}
                             renderBottom={({ isValidationPending, groupValidationErrors }) => (
                                 <Stack spacing={2} mt={5}>
                                     <Button loading={isValidationPending} variant="contained" size="large" type="submit">
