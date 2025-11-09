@@ -28,7 +28,6 @@ export const createRepeaterModel = ({ componentsRegistryModel }: Params) => {
     const templateInstanceCreated = sample({
         clock: startCreateTemplateInstance,
         fn: ({ template, repeaterId }) => {
-            // Генерить view graph там, во view. тут только генерация id comp/row, и обновление componentsSchemas
             const { viewElementsGraphs, componentsSchemas: newComponentsSchemas } = createTemplateInstance(template)
             return {
                 rootComponentId: repeaterId,

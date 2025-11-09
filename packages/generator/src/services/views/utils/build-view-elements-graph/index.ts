@@ -1,39 +1,42 @@
 import { EntityId, ViewElements } from '@form-crafter/core'
-import { genId, isNotEmpty, isNull } from '@form-crafter/utils'
+import { isNotEmpty, isNull } from '@form-crafter/utils'
 
 import { ViewElementsGraph } from '../../types'
 
-export const buildViewElementsGraph = (elements: ViewElements, generateRowId?: boolean, componentsIdMap?: Record<EntityId, EntityId>) => {
-    const rowIdMap: Record<EntityId, EntityId> = {}
+type Slots = { getRowId?: (id: EntityId) => EntityId; getComponentId?: (id: EntityId) => EntityId }
 
+export const buildViewElementsGraph = (elements: ViewElements, slots: Slots = {}) => {
     const execute = (
         elements: ViewElements,
         parentComponentId: EntityId | null = null,
         result: ViewElementsGraph = { rows: { root: [], graph: {} }, components: {} },
     ) => {
+        const { getRowId = (id: EntityId) => id, getComponentId = (id: EntityId) => id } = slots
+
         if (!isNotEmpty(elements)) {
             return result
         }
 
         elements.forEach((row) => {
-            let finalRowId = row.id
-            if (generateRowId) {
-                finalRowId = genId()
-                rowIdMap[row.id] = finalRowId
+            const finalRowId = getRowId(row.id)
+
+            if (finalRowId in result.rows) {
+                console.warn(`[buildViewElementsGraph] Duplicate row id detected: "${finalRowId}".`)
             }
 
             const children = row?.children || []
             children.forEach(({ id: componentId, children = [], layout }) => {
-                const finalComponentId = isNotEmpty(componentsIdMap) ? componentsIdMap[componentId] : componentId
-                // if (finalComponentId in result.components) {
-                //     console.warn(`[buildViewElementsGraph] Duplicate component id detected: "${finalComponentId}".`)
-                // }
+                const finalComponentId = getComponentId(componentId)
+
+                if (finalComponentId in result.components) {
+                    console.warn(`[buildViewElementsGraph] Duplicate component id detected: "${finalComponentId}".`)
+                }
 
                 const { rows, components } = execute(children, finalComponentId, result)
                 result.rows = rows
                 result.components = components
 
-                const childrenRows = Array.from(new Set(children?.map(({ id }) => (generateRowId ? genId() : id))) || [])
+                const childrenRows = Array.from(new Set(children?.map(({ id }) => getRowId(id))) || [])
                 result.components[finalComponentId] = { id: finalComponentId, parentRowId: finalRowId, childrenRows, layout }
             })
 
@@ -41,7 +44,7 @@ export const buildViewElementsGraph = (elements: ViewElements, generateRowId?: b
                 result.rows.root.push(finalRowId)
             }
 
-            const childrenComponents = Array.from(new Set(children?.map(({ id }) => (isNotEmpty(componentsIdMap) ? componentsIdMap[id] : id))) || [])
+            const childrenComponents = Array.from(new Set(children?.map(({ id }) => getComponentId(id))) || [])
             result.rows.graph[finalRowId] = { id: finalRowId, parentComponentId, childrenComponents }
         })
 

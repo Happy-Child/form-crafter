@@ -34,7 +34,6 @@ export const createComponentsCreatorModel = (params: Params) => {
         },
         ComponentsModels
     >(({ componentsSchemas, componentsModels }) => {
-        console.log('baseAddComponentsFx')
         const newModels = Object.entries(componentsSchemas).reduce<ComponentsModels>((map, [componentId, componentSchema]) => {
             const model = createComponentModel({
                 ...params,

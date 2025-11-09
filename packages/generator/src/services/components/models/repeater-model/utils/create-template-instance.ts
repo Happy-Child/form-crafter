@@ -1,25 +1,11 @@
-import {
-    ComponentSchema,
-    ComponentsSchemas,
-    ContainerComponentSchema,
-    EntityId,
-    RepeaterComponentSchema,
-    ViewContent,
-    ViewResponsive,
-} from '@form-crafter/core'
-import { genComponentId } from '@form-crafter/utils'
+import { ComponentSchema, ComponentsSchemas, ContainerComponentSchema, EntityId, RepeaterComponentSchema } from '@form-crafter/core'
+import { genComponentId, genId } from '@form-crafter/utils'
 
 import { buildViewElementsGraphs } from '../../../../views'
 
 type TemplateIdMap = Record<EntityId, EntityId>
 
-// const replaceRootRowId = (viewResponsive: ViewResponsive) => {
-//     Object.entries(viewResponsive).forEach(([, data]) => {
-//         data.elements[]
-//     })
-// }
-
-const createComponentsSchemasInstance = (
+const replaceComponentsSchemasIds = (
     containerSchema: ContainerComponentSchema,
     componentsSchemas: RepeaterComponentSchema['template']['componentsSchemas'],
 ) => {
@@ -49,9 +35,20 @@ const createComponentsSchemasInstance = (
 }
 
 export const createTemplateInstance = ({ views, containerSchema, componentsSchemas }: RepeaterComponentSchema['template']) => {
-    const { schemas: newComponentsSchemas, componentIdMap } = createComponentsSchemasInstance(containerSchema, componentsSchemas)
+    const { schemas: newComponentsSchemas, componentIdMap } = replaceComponentsSchemasIds(containerSchema, componentsSchemas)
 
-    const viewElementsGraphs = buildViewElementsGraphs(views.default, views.additionals || {}, true, componentIdMap)
+    const rowIdMap: TemplateIdMap = {}
+    const viewElementsGraphs = buildViewElementsGraphs(views.default, views.additionals, {
+        getComponentId: (id) => componentIdMap[id],
+        getRowId: (id) => {
+            if (id in rowIdMap) {
+                return rowIdMap[id]
+            }
+            const newRowId = genId()
+            rowIdMap[id] = newRowId
+            return newRowId
+        },
+    })
 
-    return { componentsSchemas: newComponentsSchemas, viewElementsGraphs }
+    return { viewElementsGraphs, componentsSchemas: newComponentsSchemas }
 }

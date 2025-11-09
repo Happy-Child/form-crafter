@@ -102,6 +102,84 @@ export const employeeSchema: Schema = {
                 ],
             },
         },
+        additionals: {
+            someView: {
+                id: 'someView',
+                condition: { type: 'component', componentId: 'gender', operatorKey: 'equal', enteredComponentValue: 'female' },
+                responsive: {
+                    xxl: {
+                        elements: [
+                            {
+                                id: genId(),
+                                type: 'row',
+                                children: [{ id: 'gender', type: 'component', layout: { col: 'auto' } }],
+                            },
+                            {
+                                id: genId(),
+                                type: 'row',
+                                children: [
+                                    { id: 'input-first-name', type: 'component', layout: { col: 12 } },
+                                    { id: 'input-last-name', type: 'component', layout: { col: 12 } },
+                                ],
+                            },
+                            {
+                                id: genId(),
+                                type: 'row',
+                                children: [
+                                    { id: 'date-birth', type: 'component', layout: { col: 'auto' } },
+                                    { id: 'email', type: 'component', layout: { col: 19 } },
+                                ],
+                            },
+                            {
+                                id: genId(),
+                                type: 'row',
+                                children: [
+                                    { id: 'country', type: 'component', layout: { col: 12 } },
+                                    { id: 'region', type: 'component', layout: { col: 12 } },
+                                ],
+                            },
+                            {
+                                id: genId(),
+                                type: 'row',
+                                children: [
+                                    {
+                                        id: 'group-work',
+                                        type: 'component',
+                                        layout: { col: 'auto' },
+                                        children: [
+                                            {
+                                                id: genId(),
+                                                type: 'row',
+                                                children: [
+                                                    { id: 'select-department', type: 'component', layout: { col: 12 } },
+                                                    { id: 'date-start', type: 'component', layout: { col: 12 } },
+                                                ],
+                                            },
+                                            {
+                                                id: genId(),
+                                                type: 'row',
+                                                children: [{ id: 'input-position', type: 'component', layout: { col: 'auto' } }],
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                            {
+                                id: genId(),
+                                type: 'row',
+                                children: [
+                                    {
+                                        id: 'contacts',
+                                        type: 'component',
+                                        layout: { col: 24 },
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                },
+            },
+        },
     },
     componentsSchemas: {
         gender: {
@@ -425,6 +503,38 @@ export const employeeSchema: Schema = {
                                     ],
                                 },
                             ],
+                        },
+                    },
+                    additionals: {
+                        someView: {
+                            id: 'someView',
+                            responsive: {
+                                xxl: {
+                                    elements: [
+                                        {
+                                            id: genId(),
+                                            type: 'row',
+                                            children: [
+                                                {
+                                                    id: 'contact-group',
+                                                    type: 'component',
+                                                    layout: { col: 24 },
+                                                    children: [
+                                                        {
+                                                            id: genId(),
+                                                            type: 'row',
+                                                            children: [
+                                                                { id: 'contact-input-first-name', type: 'component', layout: { col: 12 } },
+                                                                { id: 'contact-email', type: 'component', layout: { col: 12 } },
+                                                            ],
+                                                        },
+                                                    ],
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                            },
                         },
                     },
                 },

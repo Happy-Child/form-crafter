@@ -9,7 +9,7 @@ import { buildExecutorContext, extractComponentsModels, isConditionSuccessful } 
 
 type Params = {
     themeService: Pick<ThemeService, '$operators'>
-    viewsService: Pick<ViewsService, '$curentViewId' | '$currentViewComponents'>
+    viewsService: Pick<ViewsService, '$currentViewId' | '$currentViewComponents'>
 }
 
 export type ComponentsRegistryModel = ReturnType<typeof createComponentsRegistryModel>
@@ -36,9 +36,13 @@ export const createComponentsRegistryModel = ({ viewsService, themeService }: Pa
             ),
     )
 
-    const $getExecutorContextBuilder: GetExecutorContextBuilder = combine($componentsSchemas, viewsService.$curentViewId, (componentsSchemas, curentViewId) => {
-        return (params) => buildExecutorContext({ componentsSchemas: params?.componentsSchemas || componentsSchemas, curentViewId })
-    })
+    const $getExecutorContextBuilder: GetExecutorContextBuilder = combine(
+        $componentsSchemas,
+        viewsService.$currentViewId,
+        (componentsSchemas, currentViewId) => {
+            return (params) => buildExecutorContext({ componentsSchemas: params?.componentsSchemas || componentsSchemas, currentViewId })
+        },
+    )
 
     const $getIsConditionSuccessfulChecker: GetIsConditionSuccessfulChecker = combine(
         $getExecutorContextBuilder,

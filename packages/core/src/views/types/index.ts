@@ -38,3 +38,8 @@ export type Views = {
     default: ViewResponsive
     additionals?: Record<string, ViewDefinition>
 }
+
+export type TemplateViews = {
+    default: ViewResponsive
+    additionals?: Record<string, Omit<ViewDefinition, 'condition'>>
+}

@@ -8,7 +8,7 @@ import { DepsOfRulesModel } from '../deps-of-rules-model'
 import { PrepareDispatcherPayload } from './types'
 
 type Params = {
-    viewsService: Pick<ViewsService, '$additionalViewsConditions' | '$curentViewId'>
+    viewsService: Pick<ViewsService, '$additionalViewsConditions' | '$currentViewId'>
     componentsRegistryModel: Pick<ComponentsRegistryModel, '$getIsConditionSuccessfulChecker'>
     depsOfRulesModel: Pick<DepsOfRulesModel, '$viewsConditionsDeps' | '$viewsConditionsAllDeps'>
     $firstMutationsIsDone: StoreWritable<boolean>
@@ -38,11 +38,11 @@ export const createChangeViewsModel = ({ viewsService, componentsRegistryModel, 
             viewsConditionsDeps: depsOfRulesModel.$viewsConditionsDeps,
             viewsConditionsAllDeps: depsOfRulesModel.$viewsConditionsAllDeps,
             additionalViewsConditions: viewsService.$additionalViewsConditions,
-            curentViewId: viewsService.$curentViewId,
+            currentViewId: viewsService.$currentViewId,
         },
         clock: runViewChangeCheck,
         fn: (
-            { getIsConditionSuccessfulChecker, viewsConditionsDeps, viewsConditionsAllDeps, additionalViewsConditions, curentViewId },
+            { getIsConditionSuccessfulChecker, viewsConditionsDeps, viewsConditionsAllDeps, additionalViewsConditions, currentViewId },
             { componentsToUpdate },
         ) => {
             if (!isNotEmpty(additionalViewsConditions)) {
@@ -78,7 +78,7 @@ export const createChangeViewsModel = ({ viewsService, componentsRegistryModel, 
                 }
             }
 
-            const isNewView = curentViewId !== newViewId
+            const isNewView = currentViewId !== newViewId
 
             return { canBeChange: isNewView, viewId: newViewId }
         },

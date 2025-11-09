@@ -19,8 +19,6 @@ export const ResolverEditable: ResolverComponentType = memo(({ id, rowId }) => {
 
     return (
         <LayoutComponent id={id}>
-            {id}
-            <br />
             <Component
                 id={id}
                 parentId={parentRowId}

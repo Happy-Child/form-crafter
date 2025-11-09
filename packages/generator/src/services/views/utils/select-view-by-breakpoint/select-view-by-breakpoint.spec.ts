@@ -1,7 +1,7 @@
 import { ResponsiveViewElementsGraph } from '../../types'
 import { selectViewByBreakpoint } from '.'
 
-const initialResponsiveView: ResponsiveViewElementsGraph = {
+const getResponsiveView = (): ResponsiveViewElementsGraph => ({
     xxl: {
         rows: {
             root: ['rowXxl'],
@@ -122,11 +122,11 @@ const initialResponsiveView: ResponsiveViewElementsGraph = {
             },
         },
     },
-}
+})
 
 describe('selectViewByBreakpoint', () => {
     it('existing view is selected', () => {
-        const responsiveView = { ...initialResponsiveView }
+        const responsiveView = getResponsiveView()
 
         expect(selectViewByBreakpoint('xxl', responsiveView)).toEqual(responsiveView.xxl)
         expect(selectViewByBreakpoint('xl', responsiveView)).toEqual(responsiveView.xl)
@@ -137,7 +137,7 @@ describe('selectViewByBreakpoint', () => {
     })
 
     it('closest view is selected if there is no selected one', () => {
-        const responsiveView = { ...initialResponsiveView }
+        const responsiveView = getResponsiveView()
         delete responsiveView.lg
         delete responsiveView.xs
 
@@ -146,7 +146,7 @@ describe('selectViewByBreakpoint', () => {
     })
 
     it('xxl is selected if there is no type', () => {
-        const responsiveView = { ...initialResponsiveView }
+        const responsiveView = getResponsiveView()
         delete responsiveView.xl
         delete responsiveView.lg
         delete responsiveView.md

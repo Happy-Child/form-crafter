@@ -1,7 +1,7 @@
 import { EntityId } from '@form-crafter/core'
 import { AvailableObject } from '@form-crafter/utils'
 
-import { Views } from '../../../../views'
+import { TemplateViews } from '../../../../views'
 import { ComponentMeta, GeneralComponentSchema } from '../../../schema'
 import { ContainerComponentSchema } from '../../container'
 import { EditableComponentSchema } from '../../editable'
@@ -12,7 +12,7 @@ export type RepeaterComponentProperties = AvailableObject
 export type RepeaterComponentSchema<T extends RepeaterComponentProperties = RepeaterComponentProperties> = GeneralComponentSchema & {
     meta: ComponentMeta<'repeater'>
     template: {
-        views: Views
+        views: TemplateViews
         containerSchema: ContainerComponentSchema
         componentsSchemas: Record<EntityId, EditableComponentSchema | ContainerComponentSchema | RepeaterComponentSchema | StaticComponentSchema>
     }
