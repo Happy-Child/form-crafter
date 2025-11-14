@@ -18,15 +18,15 @@ export const createComponentsValidationErrorsModel = ({ componentsGeneralModel }
 
     const setComponentsGroupsErrors = createEvent<ComponentsValidationErrors>('setComponentsGroupsErrors')
     const clearComponentsGroupsErrors = createEvent<void>('clearComponentsGroupsErrors')
-    const removeGroupErrors = createEvent<EntityId>('removeGroupErrors')
+    const removeGroupsErrors = createEvent<Set<EntityId>>('removeGroupErrors')
 
     const setComponentErrors = createEvent<SetComponentValidationErrorsPayload>('setComponentErrors')
     const clearComponentsErrors = createEvent<void>('clearComponentsErrors')
-    const removeComponentErrors = createEvent<EntityId>('removeComponentErrors')
+    const removeComponentsErrors = createEvent<Set<EntityId>>('removeComponentsErrors')
 
     const filterAllErrors = createEvent<Set<EntityId>>('filterAllErrors')
 
-    const removeAllComponentErrors = createEvent<EntityId>('removeAllComponentErrors')
+    const removeAllComponentsErrors = createEvent<Set<EntityId>>('removeAllComponentsErrors')
 
     const removeAllErrors = createEvent('removeAllErrors')
 
@@ -49,19 +49,19 @@ export const createComponentsValidationErrorsModel = ({ componentsGeneralModel }
     $mergedErrors.on(setMergedErrors, (_, newErrors) => newErrors)
 
     $componentsGroupsErrors.on(setComponentsGroupsErrors, (curErrors, newErrors) => ({ ...curErrors, ...newErrors }))
-    $componentsGroupsErrors.on(removeGroupErrors, removeValidationErrors)
+    $componentsGroupsErrors.on(removeGroupsErrors, removeValidationErrors)
     $componentsGroupsErrors.reset(clearComponentsGroupsErrors)
 
     $componentsErrors.on(setComponentErrors, (curErrors, { componentId, errors }) => ({ ...curErrors, [componentId]: errors }))
-    $componentsErrors.on(removeComponentErrors, removeValidationErrors)
+    $componentsErrors.on(removeComponentsErrors, removeValidationErrors)
     $componentsErrors.reset(clearComponentsErrors)
 
     $componentsGroupsErrors.on(filterAllErrors, filterValidationErrors)
     $componentsErrors.on(filterAllErrors, filterValidationErrors)
 
     sample({
-        clock: removeAllComponentErrors,
-        target: [removeGroupErrors, removeComponentErrors],
+        clock: removeAllComponentsErrors,
+        target: [removeGroupsErrors, removeComponentsErrors],
     })
 
     sample({
@@ -106,8 +106,8 @@ export const createComponentsValidationErrorsModel = ({ componentsGeneralModel }
     return {
         setComponentErrors,
         setComponentsGroupsErrors,
-        removeComponentErrors,
-        removeAllComponentErrors,
+        removeComponentsErrors,
+        removeAllComponentsErrors,
         removeAllErrors,
         filterAllErrors,
         clearComponentsGroupsErrors,

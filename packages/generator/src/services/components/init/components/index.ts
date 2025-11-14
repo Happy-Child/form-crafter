@@ -1,3 +1,5 @@
+import { ComponentsValidationErrorsModel, ReadyConditionalValidationsModel } from '@form-crafter/core'
+
 import { ViewsService } from '../../../views'
 import { ComponentsCreatorModel } from '../../models/components-creator-model'
 import { ComponentsRegistryModel } from '../../models/components-registry-model'
@@ -10,6 +12,8 @@ export type Params = {
     repeaterModel: RepeaterModel
     componentsRegistryModel: ComponentsRegistryModel
     componentsCreatorModel: ComponentsCreatorModel
+    componentsValidationErrorsModel: ComponentsValidationErrorsModel
+    readyConditionalValidationsModel: ReadyConditionalValidationsModel
 }
 
 export const initComponents = (params: Params) => {

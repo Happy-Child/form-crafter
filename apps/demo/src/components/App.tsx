@@ -24,7 +24,7 @@ export const App: FC = () => {
                 <Container maxWidth="md" sx={{ py: 4 }}>
                     <Paper elevation={3} sx={{ p: 4 }}>
                         <Generator
-                            schema={employeeSchema}
+                            schema={clientSchema}
                             onSubmit={handleeSubmit}
                             theme={muiTheme}
                             PlaceholderComponent={PlaceholderComponent}

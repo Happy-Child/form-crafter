@@ -10,8 +10,8 @@ export type SetComponentValidationErrorsPayload = { componentId: EntityId; error
 export type ComponentsValidationErrorsModel = {
     setComponentErrors: EventCallable<SetComponentValidationErrorsPayload>
     setComponentsGroupsErrors: EventCallable<ComponentsValidationErrors>
-    removeComponentErrors: EventCallable<string>
-    removeAllComponentErrors: EventCallable<string>
+    removeComponentsErrors: EventCallable<Set<EntityId>>
+    removeAllComponentsErrors: EventCallable<Set<EntityId>>
     removeAllErrors: EventCallable<void>
     filterAllErrors: EventCallable<Set<string>>
     clearComponentsGroupsErrors: EventCallable<void>

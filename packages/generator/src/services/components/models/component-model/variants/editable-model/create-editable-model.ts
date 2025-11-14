@@ -70,8 +70,8 @@ export const createEditableModel = ({ schemaService, runMutations, componentsVal
         source: { componentId: $componentId, firstError: validationComponentModel.$firstError },
         clock: valueBeChanged,
         filter: ({ firstError }) => isNotEmpty(firstError),
-        fn: ({ componentId }) => componentId,
-        target: componentsValidationErrorsModel.removeAllComponentErrors,
+        fn: ({ componentId }) => new Set([componentId]),
+        target: componentsValidationErrorsModel.removeAllComponentsErrors,
     })
 
     if (validationOnChangeIsAvailable) {
@@ -126,8 +126,8 @@ export const createEditableModel = ({ schemaService, runMutations, componentsVal
             source: { componentId: $componentId, firstError: validationComponentModel.$firstError },
             clock: validationComponentModel.runValidationFx.doneData,
             filter: ({ firstError }) => isNotEmpty(firstError),
-            fn: ({ componentId }) => componentId,
-            target: componentsValidationErrorsModel.removeComponentErrors,
+            fn: ({ componentId }) => new Set([componentId]),
+            target: componentsValidationErrorsModel.removeComponentsErrors,
         })
 
         sample({

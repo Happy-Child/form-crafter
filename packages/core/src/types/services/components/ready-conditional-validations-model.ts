@@ -22,6 +22,7 @@ export type ReadyConditionalValidationsModel = {
         readyGroupRulesByKey: Record<string, Set<string>>
         rulesToInactive: Set<string>
     }>
+    removeReadyRulesByComponentsIds: EventCallable<Set<string>>
     $readyComponentsRules: StoreWritable<ReadyValidations>
     $readyComponentsRulesByKey: StoreWritable<ReadyValidationsByKey>
     $readyGroupsRules: StoreWritable<ReadyValidations[keyof ReadyValidations]>

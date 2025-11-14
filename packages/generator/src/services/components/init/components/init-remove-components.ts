@@ -2,7 +2,13 @@ import { sample } from 'effector'
 
 import { Params } from '.'
 
-export const initRemoveComponents = ({ repeaterModel, componentsRegistryModel, viewsService }: Params) => {
+export const initRemoveComponents = ({
+    repeaterModel,
+    componentsRegistryModel,
+    componentsValidationErrorsModel,
+    readyConditionalValidationsModel,
+    viewsService,
+}: Params) => {
     sample({
         clock: repeaterModel.groupToRemove,
         fn: ({ repeaterId, rowIndex }) => ({ componentId: repeaterId, rowIndex }),
@@ -12,8 +18,10 @@ export const initRemoveComponents = ({ repeaterModel, componentsRegistryModel, v
     sample({
         clock: viewsService.resultOfCalcRemoveRowElementDeep,
         fn: ({ componentsIdsToRemove }) => componentsIdsToRemove,
-        target: componentsRegistryModel.removeComponentsModels,
+        target: [
+            componentsRegistryModel.removeComponentsModels,
+            readyConditionalValidationsModel.removeReadyRulesByComponentsIds,
+            componentsValidationErrorsModel.removeAllComponentsErrors,
+        ],
     })
-
-    // TODO Удалить ошибки, готовые правила валидаций и возможно что-нибудь ещё.
 }

@@ -119,7 +119,11 @@ export const createComponentsRegistryModel = ({ viewsService, themeService }: Pa
     })
 
     const componentsAddedOrRemoved = sample({
-        clock: [combineEvents([addComponentsModels, $componentsModels.updates]), combineEvents([removeComponentsModels, $componentsModels.updates])],
+        clock: [
+            combineEvents([once(init), $componentsModels.updates]),
+            combineEvents([addComponentsModels, $componentsModels.updates]),
+            combineEvents([removeComponentsModels, $componentsModels.updates]),
+        ],
     })
 
     const componentsAdded = sample({

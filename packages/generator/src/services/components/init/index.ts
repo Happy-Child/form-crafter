@@ -55,6 +55,8 @@ export const init = ({
         repeaterModel,
         componentsRegistryModel,
         componentsCreatorModel,
+        componentsValidationErrorsModel,
+        readyConditionalValidationsModel,
     })
 
     // ПОХОДУ НУЖНО РЯДОМ С viewCanBeChanged писать(((

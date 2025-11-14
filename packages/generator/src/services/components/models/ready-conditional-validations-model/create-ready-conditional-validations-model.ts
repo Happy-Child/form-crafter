@@ -13,7 +13,7 @@ import { cloneDeep } from 'lodash-es'
 import { SchemaService } from '../../../schema'
 import { ComponentsRegistryModel } from '../components-registry-model'
 import { DepsOfRulesModel } from '../deps-of-rules-model'
-import { removeReadyValidationRules } from './utils'
+import { removeReadyValidationRules, removeRulesByComponentsIds } from './utils'
 
 type Params = {
     schemaService: SchemaService
@@ -51,6 +51,8 @@ export const createReadyConditionalValidationsModel = ({
     const removeReadyGroupRules = createEvent<Set<EntityId>>('removeReadyGroupRules')
     const removeReadyGroupRulesByKey = createEvent<Set<EntityId>>('removeReadyGroupRulesByKey')
 
+    const removeReadyRulesByComponentsIds = createEvent<Set<EntityId>>('removeReadyRulesByComponentsIds')
+
     $readyComponentsRules.on(setReadyComponentsRules, (_, readyRules) => readyRules)
     $readyComponentsRulesByKey.on(setReadyComponentsRulesByKey, (_, readyRules) => readyRules)
 
@@ -67,6 +69,9 @@ export const createReadyConditionalValidationsModel = ({
         }, {})
         return { ...result }
     })
+
+    $readyComponentsRules.on(removeReadyRulesByComponentsIds, removeRulesByComponentsIds)
+    $readyComponentsRulesByKey.on(removeReadyRulesByComponentsIds, removeRulesByComponentsIds)
 
     $readyGroupsRules.on(setReadyGroupRules, (_, readyRules) => readyRules)
     $readyGroupsByKey.on(setReadyGroupRulesByKey, (_, readyRules) => readyRules)
@@ -162,7 +167,6 @@ export const createReadyConditionalValidationsModel = ({
                 }
 
                 const dependentsValidationsIds = activeViewComponentsValidationsConditionsDeps.componentIdToDependentsRuleIds[componentId]
-
                 if (!isNotEmpty(dependentsValidationsIds)) {
                     return
                 }
@@ -286,6 +290,7 @@ export const createReadyConditionalValidationsModel = ({
     return {
         calcReadyValidations: calcReadyRulesGuard,
         resultOfCalcReadyValidations,
+        removeReadyRulesByComponentsIds,
         $readyComponentsRules,
         $readyComponentsRulesByKey,
         $readyGroupsRules,
