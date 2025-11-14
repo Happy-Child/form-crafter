@@ -23,7 +23,7 @@ const resolverByType: Record<ComponentType, ResolverComponentType> = {
     static: ResolverStatic,
 }
 
-export const ResolverComponent: ResolverComponentType = memo(({ id, rowId }) => {
+export const ResolverComponent: ResolverComponentType = memo(({ id }) => {
     const { type } = useComponentMeta(id)
     const isHidden = useIsHiddenComponent(id)
 
@@ -34,7 +34,7 @@ export const ResolverComponent: ResolverComponentType = memo(({ id, rowId }) => 
         return null
     }
 
-    return hasComponent ? <Resolver id={id} rowId={rowId} /> : <PlaceholderComponent />
+    return hasComponent ? <Resolver id={id} /> : <PlaceholderComponent />
 })
 
 ResolverComponent.displayName = 'ResolverComponent'

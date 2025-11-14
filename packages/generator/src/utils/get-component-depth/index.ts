@@ -1,7 +1,7 @@
+import { ViewElementsGraph } from '@form-crafter/core'
 import { isEmpty } from '@form-crafter/utils'
 
 import { EntityId } from '../../../../core/src/types'
-import { ViewElementsGraph } from '../../services/views'
 
 export const getComponentDepth = (initialComponentId: EntityId, viewElementsGraph: ViewElementsGraph): number => {
     const execute = (componentId: EntityId, depth: number): number => {

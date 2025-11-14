@@ -1,6 +1,5 @@
-import { ViewElements } from '@form-crafter/core'
+import { ViewElements, ViewElementsGraph } from '@form-crafter/core'
 
-import { ViewElementsGraph } from '../../types'
 import { buildViewElementsGraph } from '.'
 
 describe('buildViewElementsGraph', () => {

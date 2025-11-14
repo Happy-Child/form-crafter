@@ -1,8 +1,7 @@
-import { Breakpoint, EntityId } from '@form-crafter/core'
+import { Breakpoint, EntityId, ResponsiveViewElementsGraph } from '@form-crafter/core'
 import { isNotEmpty } from '@form-crafter/utils'
 
 import { getEmptyViewElementsGraph } from '../../consts'
-import { ResponsiveViewElementsGraph } from '../../types'
 
 type Params = {
     responsiveViewElementsGraph: ResponsiveViewElementsGraph

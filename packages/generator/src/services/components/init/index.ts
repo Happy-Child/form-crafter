@@ -13,8 +13,8 @@ import { DepsOfRulesModel } from '../models/deps-of-rules-model'
 import { FormValidationModel } from '../models/form-validation-model'
 import { MutationsModel } from '../models/mutations-model'
 import { RepeaterModel } from '../models/repeater-model'
+import { initComponents } from './components'
 import { initChangeViews } from './init-change-views'
-import { initComponents } from './init-components'
 
 type Params = {
     runMutationsOnUserAction: EventCallable<RunMutationsOnUserActionPayload>
@@ -51,6 +51,7 @@ export const init = ({
     setFirstMutationsToDone,
 }: Params) => {
     initComponents({
+        viewsService,
         repeaterModel,
         componentsRegistryModel,
         componentsCreatorModel,

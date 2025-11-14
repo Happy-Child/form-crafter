@@ -2,11 +2,11 @@ import { memo } from 'react'
 
 import { useUnit } from 'effector-react'
 
-import { useComponentMeta, useComponentModel, useComponentProperties, useDisplayComponent, useViewComponent } from '../../../../hooks'
+import { useComponentMeta, useComponentModel, useComponentProperties, useDisplayComponent, useViewComponent, useViewRow } from '../../../../hooks'
 import { LayoutComponent } from '../../../LayoutComponent'
 import { ResolverComponentType } from '../../types'
 
-export const ResolverEditable: ResolverComponentType = memo(({ id, rowId }) => {
+export const ResolverEditable: ResolverComponentType = memo(({ id }) => {
     const meta = useComponentMeta<'editable'>(id)
     const properties = useComponentProperties<'editable'>(id)
 
@@ -14,6 +14,7 @@ export const ResolverEditable: ResolverComponentType = memo(({ id, rowId }) => {
     const [isRequired, firstError, errors] = useUnit([$isRequired, $firstError, $errors])
 
     const { parentRowId } = useViewComponent(id)
+    const row = useViewRow(parentRowId)
 
     const Component = useDisplayComponent<'editable'>(id)
 
@@ -21,8 +22,7 @@ export const ResolverEditable: ResolverComponentType = memo(({ id, rowId }) => {
         <LayoutComponent id={id}>
             <Component
                 id={id}
-                parentId={parentRowId}
-                rowId={rowId}
+                row={row}
                 meta={meta}
                 properties={properties}
                 onChangeProperties={onUpdateProperties}

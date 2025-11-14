@@ -1,8 +1,7 @@
-import { EntityId } from '@form-crafter/core'
+import { EntityId, ViewElementGraphRow } from '@form-crafter/core'
 import { useStoreMap } from 'effector-react'
 
 import { useGeneratorContext } from '../contexts'
-import { ViewElementGraphRow } from '../services/views'
 
 export const useViewRow = (id: EntityId): ViewElementGraphRow => {
     const { services } = useGeneratorContext()

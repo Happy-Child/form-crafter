@@ -1,4 +1,5 @@
-import { ResponsiveViewElementsGraph } from '../../types'
+import { ResponsiveViewElementsGraph } from '@form-crafter/core'
+
 import { selectViewByBreakpoint } from '.'
 
 const getResponsiveView = (): ResponsiveViewElementsGraph => ({

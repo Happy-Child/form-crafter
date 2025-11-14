@@ -1,7 +1,5 @@
-import { EntityId, ViewElements } from '@form-crafter/core'
+import { EntityId, ViewElements, ViewElementsGraph } from '@form-crafter/core'
 import { isNotEmpty, isNull } from '@form-crafter/utils'
-
-import { ViewElementsGraph } from '../../types'
 
 type Slots = { getRowId?: (id: EntityId) => EntityId; getComponentId?: (id: EntityId) => EntityId }
 

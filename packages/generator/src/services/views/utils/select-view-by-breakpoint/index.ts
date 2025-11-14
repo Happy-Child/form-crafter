@@ -1,6 +1,4 @@
-import { Breakpoint } from '@form-crafter/core'
-
-import { ResponsiveViewElementsGraph, ViewElementsGraph } from '../../types'
+import { Breakpoint, ResponsiveViewElementsGraph, ViewElementsGraph } from '@form-crafter/core'
 
 export const selectViewByBreakpoint = (breakpoint: Breakpoint, responsiveView: ResponsiveViewElementsGraph): ViewElementsGraph => {
     if (breakpoint in responsiveView) {

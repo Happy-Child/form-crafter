@@ -7,12 +7,12 @@ import { Box, Button } from '@mui/material'
 import { ContainerComponentProps } from '../../types'
 import { Title } from '../Title'
 
-type Props = Pick<ContainerComponentProps, 'id' | 'parentId' | 'rowId'> & {
+type Props = Pick<ContainerComponentProps, 'id' | 'row'> & {
     title?: Nullable<string>
 }
 
-export const TopLevelContainerHeader = memo<Props>(({ title, id, parentId, rowId }) => {
-    const index = useRowListIndex(parentId, rowId)
+export const TopLevelContainerHeader = memo<Props>(({ title, id, row }) => {
+    const index = useRowListIndex(row)
 
     const { onRemoveRow } = useRepeaterContext()
 
@@ -23,7 +23,7 @@ export const TopLevelContainerHeader = memo<Props>(({ title, id, parentId, rowId
                     {title} {index + 1}
                 </Title>
             )}
-            <Button onClick={() => onRemoveRow({ rowId })}>Remove</Button>
+            <Button onClick={() => onRemoveRow({ index })}>Удалить</Button>
         </Box>
     )
 })

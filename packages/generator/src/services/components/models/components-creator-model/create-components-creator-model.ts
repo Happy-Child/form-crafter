@@ -2,7 +2,6 @@ import {
     ComponentsModels,
     ComponentsSchemas,
     ComponentsValidationErrorsModel,
-    EntityId,
     ReadyConditionalValidationsModel,
     RunMutationsOnUserActionPayload,
 } from '@form-crafter/core'
@@ -27,13 +26,12 @@ type Params = {
 export type ComponentsCreatorModel = ReturnType<typeof createComponentsCreatorModel>
 
 export const createComponentsCreatorModel = (params: Params) => {
-    const baseAddComponentsFx = createEffect<
+    const baseCreateComponentsFx = createEffect<
         {
             componentsSchemas: ComponentsSchemas
-            componentsModels: ComponentsModels
         },
         ComponentsModels
-    >(({ componentsSchemas, componentsModels }) => {
+    >(({ componentsSchemas }) => {
         const newModels = Object.entries(componentsSchemas).reduce<ComponentsModels>((map, [componentId, componentSchema]) => {
             const model = createComponentModel({
                 ...params,
@@ -41,40 +39,18 @@ export const createComponentsCreatorModel = (params: Params) => {
             })
             map.set(componentId, model)
             return map
-        }, new Map(componentsModels))
+        }, new Map())
 
         return Promise.resolve(newModels)
     })
-    const addComponentsFx = attach({
-        source: params.componentsRegistryModel.$componentsModels,
-        mapParams: (componentsSchemas: ComponentsSchemas, componentsModels: ComponentsModels) => ({
+    const createComponentsFx = attach({
+        mapParams: (componentsSchemas: ComponentsSchemas) => ({
             componentsSchemas,
-            componentsModels,
         }),
-        effect: baseAddComponentsFx,
-    })
-
-    const baseRemoveComponentsFx = createEffect<
-        {
-            ids: Set<EntityId>
-            componentsModels: ComponentsModels
-        },
-        ComponentsModels
-    >(({ componentsModels }) => {
-        // TODO impl removing
-        return Promise.resolve(componentsModels)
-    })
-    const removeComponentsFx = attach({
-        source: params.componentsRegistryModel.$componentsModels,
-        mapParams: (ids: Set<EntityId>, componentsModels: ComponentsModels) => ({
-            ids,
-            componentsModels,
-        }),
-        effect: baseRemoveComponentsFx,
+        effect: baseCreateComponentsFx,
     })
 
     return {
-        addComponentsFx,
-        removeComponentsFx,
+        createComponentsFx,
     }
 }

@@ -17,7 +17,7 @@ export const Row: FC<Props> = memo(({ id: rowId }) => {
     return (
         <RowStyled rootLayoutSpans={rootLayoutSpans}>
             {viewRow.childrenComponents.map((componentId) => (
-                <ResolverComponent key={componentId} id={componentId} rowId={rowId} />
+                <ResolverComponent key={componentId} id={componentId} />
             ))}
         </RowStyled>
     )

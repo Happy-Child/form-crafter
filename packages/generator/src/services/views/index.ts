@@ -1,11 +1,10 @@
-import { EntityId, ViewDefinition } from '@form-crafter/core'
+import { EntityId, ViewDefinition, ViewsElementsGraphs } from '@form-crafter/core'
 import { isNotEmpty, isNotNull } from '@form-crafter/utils'
 import { combine, createEvent, createStore, sample, UnitValue } from 'effector'
 import { readonly } from 'patronum'
 
-import { ViewsElementsGraphs, ViewsServiceParams } from './types'
-import { buildViewElementsGraphs, selectViewByBreakpoint } from './utils'
-import { mergeViewElementsGraph } from './utils/merge-view-elements-graph'
+import { ViewsServiceParams } from './types'
+import { buildViewElementsGraphs, deepRemoveViewElement, mergeViewElementsGraph, selectViewByBreakpoint } from './utils'
 
 export * from './types'
 
@@ -23,6 +22,7 @@ export const createViewsService = ({ initial, generalService }: ViewsServicePara
     const $viewsElementsGraphs = createStore<ViewsElementsGraphs>(buildViewElementsGraphs(initial.default, initial.additionals || {}))
 
     const setViewsElementsGraphs = createEvent<UnitValue<typeof $viewsElementsGraphs>>('setViewsElementsGraphs')
+    const removeRowElementDeep = createEvent<{ componentId: EntityId; rowIndex: number }>('removeRowElementDeep')
     const mergeViewsElementsGraphs = createEvent<{ graphsToMerge: UnitValue<typeof setViewsElementsGraphs>; rootComponentId: EntityId }>(
         'mergeViewsElementsGraphs',
     )
@@ -72,12 +72,56 @@ export const createViewsService = ({ initial, generalService }: ViewsServicePara
         target: setViewsElementsGraphs,
     })
 
+    const resultOfCalcRemoveRowElementDeep = sample({
+        source: { viewsElementsGraphs: $viewsElementsGraphs },
+        clock: removeRowElementDeep,
+        fn: ({ viewsElementsGraphs }, { componentId, rowIndex }) => {
+            const componentsIdsToRemove: EntityId[] = []
+
+            const newAdditional = Object.entries(viewsElementsGraphs.additional).reduce<ViewsElementsGraphs['additional']>((result, [viewId, viewDetails]) => {
+                const { viewElements, componentsIdsToRemove: idsToRemove } = deepRemoveViewElement({
+                    responsiveViewElementsGraph: viewDetails,
+                    parentComponentId: componentId,
+                    rowIndex,
+                })
+                componentsIdsToRemove.push(...idsToRemove)
+                return {
+                    ...result,
+                    [viewId]: viewElements,
+                }
+            }, {})
+
+            const { viewElements: newDefault, componentsIdsToRemove: idsToRemove } = deepRemoveViewElement({
+                responsiveViewElementsGraph: viewsElementsGraphs.default,
+                parentComponentId: componentId,
+                rowIndex,
+            })
+            componentsIdsToRemove.push(...idsToRemove)
+
+            return {
+                viewsElementsGraphs: {
+                    default: newDefault,
+                    additional: newAdditional,
+                },
+                componentsIdsToRemove: new Set(componentsIdsToRemove),
+            }
+        },
+    })
+
+    sample({
+        clock: resultOfCalcRemoveRowElementDeep,
+        fn: ({ viewsElementsGraphs }) => viewsElementsGraphs,
+        target: setViewsElementsGraphs,
+    })
+
     return {
+        setCurrentViewId,
+        mergeViewsElementsGraphs,
+        removeRowElementDeep,
+        resultOfCalcRemoveRowElementDeep,
         $currentViewId,
         $additionalViewsConditions,
         $currentViewElementsGraph,
         $currentViewComponents,
-        setCurrentViewId,
-        mergeViewsElementsGraphs,
     }
 }

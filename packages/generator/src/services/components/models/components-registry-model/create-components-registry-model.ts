@@ -1,7 +1,7 @@
 import { ComponentsModels, ComponentToUpdate, EntityId, GetExecutorContextBuilder, GetIsConditionSuccessfulChecker } from '@form-crafter/core'
 import { isNotEmpty } from '@form-crafter/utils'
 import { attach, combine, createEffect, createEvent, createStore, sample } from 'effector'
-import { once, readonly } from 'patronum'
+import { combineEvents, once, readonly } from 'patronum'
 
 import { ThemeService } from '../../../theme'
 import { ViewsService } from '../../../views'
@@ -19,8 +19,10 @@ export const createComponentsRegistryModel = ({ viewsService, themeService }: Pa
 
     const $hiddenComponents = createStore<Set<EntityId>>(new Set())
 
-    const componentsAddedOrRemoved = createEvent('componentsAddedOrRemoved')
+    const addComponentsModels = createEvent<ComponentsModels>('addComponentsModels')
+    const removeComponentsModels = createEvent<Set<EntityId>>('removeComponentsModels')
     const setComponentsModels = createEvent<ComponentsModels>('setComponentsModels')
+
     const setHiddenComponents = createEvent<Set<EntityId>>('setHiddenComponents')
     const init = createEvent<ComponentsModels>('init')
 
@@ -79,7 +81,7 @@ export const createComponentsRegistryModel = ({ viewsService, themeService }: Pa
         effect: baseUpdateModelsFx,
     })
 
-    $componentsModels.on(setComponentsModels, (_, data) => data)
+    $componentsModels.on(setComponentsModels, (_, models) => models)
     $hiddenComponents.on(setHiddenComponents, (_, newComponentsToHidden) => newComponentsToHidden)
 
     sample({
@@ -89,14 +91,48 @@ export const createComponentsRegistryModel = ({ viewsService, themeService }: Pa
 
     sample({
         clock: once(init),
-        target: [setComponentsModels, componentsAddedOrRemoved],
+        target: setComponentsModels,
+    })
+
+    sample({
+        source: { componentsModels: $componentsModels },
+        clock: addComponentsModels,
+        fn: ({ componentsModels: currentModels }, newModels) =>
+            Array.from(newModels.entries()).reduce((result, [componentId, model]) => {
+                result.set(componentId, model)
+                return result
+            }, new Map(currentModels)),
+        target: setComponentsModels,
+    })
+
+    sample({
+        source: { componentsModels: $componentsModels },
+        clock: removeComponentsModels,
+        fn: ({ componentsModels }, idsToRemove) => {
+            const newModels = new Map(componentsModels)
+            idsToRemove.forEach((id) => {
+                componentsModels.delete(id)
+            })
+            return newModels
+        },
+        target: setComponentsModels,
+    })
+
+    const componentsAddedOrRemoved = sample({
+        clock: [combineEvents([addComponentsModels, $componentsModels.updates]), combineEvents([removeComponentsModels, $componentsModels.updates])],
+    })
+
+    const componentsAdded = sample({
+        clock: [combineEvents([addComponentsModels, $componentsModels.updates])],
     })
 
     return {
         init,
-        setComponentsModels,
-        componentsAddedOrRemoved,
         updateComponentsModelsFx,
+        addComponentsModels,
+        removeComponentsModels,
+        componentsAddedOrRemoved,
+        componentsAdded,
         $componentsModels: readonly($componentsModels),
         $componentsSchemas: readonly($componentsSchemas),
         $hiddenComponents: readonly($hiddenComponents),

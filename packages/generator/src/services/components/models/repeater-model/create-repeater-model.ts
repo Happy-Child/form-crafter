@@ -13,7 +13,6 @@ export type RepeaterModel = ReturnType<typeof createRepeaterModel>
 
 export const createRepeaterModel = ({ componentsRegistryModel }: Params) => {
     const addGroup = createEvent<AddGroupPayload>('addGroup')
-
     const removeGroup = createEvent<RemoveGroupPayload>('removeGroup')
 
     const startCreateTemplateInstance = sample({
@@ -25,7 +24,7 @@ export const createRepeaterModel = ({ componentsRegistryModel }: Params) => {
         },
     })
 
-    const templateInstanceCreated = sample({
+    const groupToAdd = sample({
         clock: startCreateTemplateInstance,
         fn: ({ template, repeaterId }) => {
             const { viewElementsGraphs, componentsSchemas: newComponentsSchemas } = createTemplateInstance(template)
@@ -37,23 +36,15 @@ export const createRepeaterModel = ({ componentsRegistryModel }: Params) => {
         },
     })
 
-    // const executeRemoveChildEvent = sample({
-    //     source: { views: viewsService.$views, visibleComponentsSchemas: componentsService.componentsModel.$visibleComponentsSchemas },
-    //     clock: removeChildEvent,
-    //     fn: ({ views: currentViews, visibleComponentsSchemas }, { rowId, repeaterId }) => {
-    //         const { template } = visibleComponentsSchemas[repeaterId] as RepeaterComponentSchema
-    //         const relevantViews = extractRelevantViews(currentViews, template.views)
-    //         const { views: finalViews, componentsIdsToRemove } = removeViewRow(relevantViews, repeaterId, rowId)
-    //         return {
-    //             views: finalViews,
-    //             componentsIdsToRemove,
-    //         }
-    //     },
-    // })
+    const groupToRemove = sample({
+        clock: removeGroup,
+        fn: (params) => params,
+    })
 
     return {
         addGroup,
         removeGroup,
-        templateInstanceCreated,
+        groupToAdd,
+        groupToRemove,
     }
 }

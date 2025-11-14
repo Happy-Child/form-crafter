@@ -33,7 +33,6 @@ export const createRootServices = ({ schema, theme, PlaceholderComponent, onSubm
 
     init({
         componentsService,
-        viewsService,
     })
 
     return {

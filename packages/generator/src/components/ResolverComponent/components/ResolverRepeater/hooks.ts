@@ -17,7 +17,7 @@ export const useRepeaterEvents = (id: EntityId): UseRepeaterEvents => {
     const onAddRow = useCallback(() => addGroup({ repeaterId: id }), [id, addGroup])
 
     const removeGroup = useUnit(services.componentsService.repeaterModel.removeGroup)
-    const onRemoveRow = useCallback<RepeaterComponentProps['onRemoveRow']>(({ rowId }) => removeGroup({ rowId, repeaterId: id }), [id, removeGroup])
+    const onRemoveRow = useCallback<RepeaterComponentProps['onRemoveRow']>(({ index }) => removeGroup({ rowIndex: index, repeaterId: id }), [id, removeGroup])
 
     return { onAddRow, onRemoveRow }
 }

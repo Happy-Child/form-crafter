@@ -10,7 +10,7 @@ import { RepeaterComponentProperties } from '../schema'
 export type RepeaterComponentPropsAsObject<P extends AvailableObject = AvailableObject> = GeneratorComponentProps<'repeater', P> & {
     childrenRows: EntityId[]
     onAddRow: () => void
-    onRemoveRow: (props: { rowId: EntityId }) => void
+    onRemoveRow: (props: { index: number }) => void
     errors: ComponentValidationError[] | null
     firstError: ComponentValidationError | null
     isRequired: boolean

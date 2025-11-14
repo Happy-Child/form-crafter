@@ -1,3 +1,5 @@
 export * from './build-view-elements-graph'
 export * from './build-views-elements-graphs'
+export * from './deep-remove-view-element'
+export * from './merge-view-elements-graph'
 export * from './select-view-by-breakpoint'

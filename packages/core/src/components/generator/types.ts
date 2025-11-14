@@ -1,6 +1,7 @@
 import { AvailableObject } from '@form-crafter/utils'
 
 import { EntityId } from '../../types'
+import { ViewElementGraphRow } from '../../views'
 import { ComponentMeta, ValidationRuleSchema } from '../schema'
 import { ComponentType } from '../types'
 
@@ -14,6 +15,5 @@ export type GeneratorComponentProps<T extends ComponentType, P extends Available
     meta: ComponentMeta<T>
     properties: P
     id: EntityId
-    parentId: EntityId
-    rowId: EntityId
+    row: Pick<ViewElementGraphRow, 'id' | 'parentComponentId'>
 }

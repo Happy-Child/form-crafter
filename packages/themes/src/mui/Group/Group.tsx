@@ -12,7 +12,7 @@ import { ContainerComponentProps } from './types'
 
 const Group = memo(
     forwardRef<HTMLDivElement, ContainerComponentProps>(({ childrenRows, properties, ...props }, ref) => {
-        const parentIsRepeater = useIsRepeater(props.parentId)
+        const parentIsRepeater = useIsRepeater(props.row.parentComponentId)
 
         const header = parentIsRepeater ? (
             <TopLevelContainerHeader {...props} title={properties.title} />
