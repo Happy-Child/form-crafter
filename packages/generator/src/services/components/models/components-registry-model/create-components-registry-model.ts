@@ -111,7 +111,7 @@ export const createComponentsRegistryModel = ({ viewsService, themeService }: Pa
         fn: ({ componentsModels }, idsToRemove) => {
             const newModels = new Map(componentsModels)
             idsToRemove.forEach((id) => {
-                componentsModels.delete(id)
+                newModels.delete(id)
             })
             return newModels
         },

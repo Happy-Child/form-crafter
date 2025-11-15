@@ -552,10 +552,28 @@ export const employeeSchema: Schema = {
                     'contact-input-first-name': {
                         meta: { id: 'contact-input-first-name', type: 'text-input', name: 'text-input' },
                         properties: { label: 'Имя', value: '' },
+                        validations: {
+                            schemas: [
+                                {
+                                    id: genId(),
+                                    key: 'isRequired',
+                                    options: { message: 'Обязательное поле' },
+                                },
+                            ],
+                        },
                     },
                     'contact-input-last-name': {
                         meta: { id: 'contact-input-last-name', type: 'text-input', name: 'text-input' },
                         properties: { label: 'Фамилия', value: '' },
+                        validations: {
+                            schemas: [
+                                {
+                                    id: genId(),
+                                    key: 'isRequired',
+                                    options: { message: 'Обязательное поле' },
+                                },
+                            ],
+                        },
                     },
                     'contact-date-birth': {
                         meta: { id: 'contact-date-birth', type: 'date-input', name: 'date-input' },
@@ -564,6 +582,15 @@ export const employeeSchema: Schema = {
                     'contact-email': {
                         meta: { id: 'contact-email', type: 'text-input', name: 'text-input' },
                         properties: { label: 'Email', value: '' },
+                        validations: {
+                            schemas: [
+                                {
+                                    id: genId(),
+                                    key: 'isRequired',
+                                    options: { message: 'Обязательное поле' },
+                                },
+                            ],
+                        },
                     },
                     'contact-education': {
                         meta: { id: 'contact-education', type: 'repeater', name: 'multifield' },
@@ -619,6 +646,20 @@ export const employeeSchema: Schema = {
                                     properties: { label: 'Специальность', value: '' },
                                 },
                             },
+                        },
+                        validations: {
+                            schemas: [
+                                {
+                                    id: genId(),
+                                    key: 'minLength',
+                                    options: { message: 'Минимальное количество {minLength}' },
+                                },
+                                {
+                                    id: genId(),
+                                    key: 'maxLength',
+                                    options: { message: 'Максимальное количество {maxLength}' },
+                                },
+                            ],
                         },
                         properties: {
                             title: 'Образование',

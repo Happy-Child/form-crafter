@@ -40,9 +40,6 @@ export const createDepsOfRulesModel = ({ appErrorsService, themeService, viewsSe
         $componentsValidationsConditionsDeps,
         viewsService.$currentViewComponents,
         (depsGraphs, viewComponents) => {
-            console.log('depsGraphs: ', depsGraphs)
-            console.log('viewComponents: ', viewComponents)
-
             const componentIdToDependentsRuleIds = Object.fromEntries(
                 Object.entries(depsGraphs.componentIdToDependentsRuleIds).filter(([componentId]) => viewComponents.has(componentId)),
             )

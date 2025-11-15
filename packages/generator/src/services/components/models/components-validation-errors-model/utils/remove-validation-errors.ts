@@ -5,7 +5,6 @@ export const removeValidationErrors = (curErrors: ComponentsValidationErrors, co
     for (const componentId of componentsIds) {
         if (componentId in result) {
             delete result[componentId]
-            return result
         }
     }
     return result
