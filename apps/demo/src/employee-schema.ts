@@ -652,12 +652,12 @@ export const employeeSchema: Schema = {
                                 {
                                     id: genId(),
                                     key: 'minLength',
-                                    options: { message: 'Минимальное количество {minLength}' },
+                                    options: { message: 'Минимальное количество {minLength}', minLength: 6 },
                                 },
                                 {
                                     id: genId(),
                                     key: 'maxLength',
-                                    options: { message: 'Максимальное количество {maxLength}' },
+                                    options: { message: 'Максимальное количество {maxLength}', maxLength: 10 },
                                 },
                             ],
                         },
