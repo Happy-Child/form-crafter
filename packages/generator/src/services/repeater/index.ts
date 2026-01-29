@@ -1,24 +1,44 @@
-import { createEvent } from 'effector'
+import { RepeaterComponentSchema } from '@form-crafter/core'
+import { createEvent, sample } from 'effector'
 
-import { init } from './init'
-import { AddChildPayload, RemoveChildPayload, RepeaterService, RepeaterServiceParams } from './types'
+import { ComponentsService } from '../components'
+import { AddRepeaterGroupPayload, RemoveRepeaterGroupPayload } from './types'
+import { createTemplateInstance } from './utils'
 
-export type { RepeaterService }
+type RepeaterServiceParams = {
+    componentsService: { componentsRegistryModel: Pick<ComponentsService['componentsRegistryModel'], 'componentsStoreModel'> }
+}
 
-export const createRepeaterService = ({ componentsService, viewsService }: RepeaterServiceParams): RepeaterService => {
-    const addChildEvent = createEvent<AddChildPayload>('addChildEvent')
+export type RepeaterService = ReturnType<typeof createRepeaterService>
 
-    const removeChildEvent = createEvent<RemoveChildPayload>('removeChildEvent')
+export const createRepeaterService = ({ componentsService }: RepeaterServiceParams) => {
+    const generateGroup = createEvent<AddRepeaterGroupPayload>('addGroup')
+    const removeGroup = createEvent<RemoveRepeaterGroupPayload>('removeGroup')
 
-    init({
-        componentsService,
-        viewsService,
-        addChildEvent,
-        removeChildEvent,
+    const generateGroupWithPayload = sample({
+        source: { componentsSchemas: componentsService.componentsRegistryModel.componentsStoreModel.$componentsSchemas },
+        clock: generateGroup,
+        fn: ({ componentsSchemas }, { repeaterId }) => {
+            const { template } = componentsSchemas[repeaterId] as RepeaterComponentSchema
+            return { template, repeaterId }
+        },
+    })
+
+    const groupGenerated = sample({
+        clock: generateGroupWithPayload,
+        fn: ({ template, repeaterId }) => {
+            const { viewElementsGraphs, componentsSchemas: newComponentsSchemas } = createTemplateInstance(template)
+            return {
+                rootComponentId: repeaterId,
+                viewElementsGraphs,
+                componentsSchemas: newComponentsSchemas,
+            }
+        },
     })
 
     return {
-        addChildEvent,
-        removeChildEvent,
+        generateGroup,
+        removeGroup,
+        groupGenerated,
     }
 }

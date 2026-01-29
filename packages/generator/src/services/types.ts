@@ -5,5 +5,6 @@ import { ThemeServiceParams } from './theme'
 
 export type RootServicesParams = ThemeServiceParams & {
     schema: Schema
+    initialValues?: AvailableObject
     onSubmit: (schema: AvailableObject) => void
 }

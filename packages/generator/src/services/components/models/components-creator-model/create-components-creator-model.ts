@@ -9,7 +9,6 @@ import { attach, createEffect, EventCallable } from 'effector'
 
 import { SchemaService } from '../../../schema'
 import { ThemeService } from '../../../theme'
-import { ViewsService } from '../../../views'
 import { createComponentModel } from '../component-model'
 import { ComponentsRegistryModel } from '../components-registry-model'
 
@@ -17,7 +16,6 @@ type Params = {
     runMutations: EventCallable<RunMutationsOnUserActionPayload>
     themeService: ThemeService
     schemaService: SchemaService
-    viewsService: ViewsService
     componentsRegistryModel: ComponentsRegistryModel
     componentsValidationErrorsModel: ComponentsValidationErrorsModel
     readyConditionalValidationsModel: ReadyConditionalValidationsModel

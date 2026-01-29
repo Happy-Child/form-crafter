@@ -14,7 +14,7 @@ import { ContainerComponentProperties } from '../schema'
 // }
 
 export type ContainerComponentPropsAsObject<P extends ContainerComponentProperties = ContainerComponentProperties> = GeneratorComponentProps<'container', P> & {
-    childrenRows: EntityId[]
+    childrenRows?: EntityId[]
     onChangeProperties: (changes: Partial<P>) => void
 }
 

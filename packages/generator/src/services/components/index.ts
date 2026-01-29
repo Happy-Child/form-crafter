@@ -1,4 +1,4 @@
-import { ComponentsModels, RunMutationsOnUserActionPayload } from '@form-crafter/core'
+import { ComponentsModels, EntityId, RunMutationsOnUserActionPayload } from '@form-crafter/core'
 import { createEvent, createStore } from 'effector'
 
 import { init } from './init'
@@ -12,23 +12,24 @@ import { createDepsOfRulesModel } from './models/deps-of-rules-model'
 import { createFormValidationModel } from './models/form-validation-model'
 import { createMutationsModel } from './models/mutations-model'
 import { createReadyConditionalValidationsModel } from './models/ready-conditional-validations-model'
-import { createRepeaterModel } from './models/repeater-model'
 import { ComponentsServiceParams } from './types'
 
 export type ComponentsService = ReturnType<typeof createComponentsService>
 
-export const createComponentsService = ({ appErrorsService, themeService, viewsService, schemaService }: ComponentsServiceParams) => {
+export const createComponentsService = ({ appErrorsService, initialValues, themeService, viewsService, schemaService }: ComponentsServiceParams) => {
     const $firstMutationsIsDone = createStore(false)
     const setFirstMutationsToDone = createEvent('setFirstMutationsToDone')
     $firstMutationsIsDone.on(setFirstMutationsToDone, () => true)
 
     const runMutationsOnUserAction = createEvent<RunMutationsOnUserActionPayload>('runMutationsOnUserAction')
 
+    const clearComponentsData = createEvent<Set<EntityId>>('clearComponentsData')
+
     const startInit = createEvent('startInit')
 
-    const componentsRegistryModel = createComponentsRegistryModel({ themeService, viewsService })
-
     const componentsGeneralModel = createComponentsGeneralModel()
+
+    const componentsRegistryModel = createComponentsRegistryModel({ themeService, viewsService, initialValues })
 
     const depsOfRulesModel = createDepsOfRulesModel({
         appErrorsService,
@@ -46,6 +47,7 @@ export const createComponentsService = ({ appErrorsService, themeService, viewsS
         schemaService,
     })
 
+    // TODO вынести в init. Модели должны работать и при отсутствии схем.
     const initialComponentsSchemas = Object.entries(schemaService.$initialSchema.getState().componentsSchemas)
     componentsRegistryModel.init(
         initialComponentsSchemas.reduce<ComponentsModels>((map, [componentId, componentSchema]) => {
@@ -66,15 +68,10 @@ export const createComponentsService = ({ appErrorsService, themeService, viewsS
     const componentsCreatorModel = createComponentsCreatorModel({
         runMutations: runMutationsOnUserAction,
         themeService,
-        viewsService,
         schemaService,
         componentsRegistryModel,
         componentsValidationErrorsModel,
         readyConditionalValidationsModel,
-    })
-
-    const repeaterModel = createRepeaterModel({
-        componentsRegistryModel,
     })
 
     const formValidationModel = createFormValidationModel({
@@ -101,12 +98,11 @@ export const createComponentsService = ({ appErrorsService, themeService, viewsS
 
     init({
         runMutationsOnUserAction,
+        clearComponentsData,
         startInit,
-        viewsService,
         componentsRegistryModel,
         componentsGeneralModel,
         componentsCreatorModel,
-        repeaterModel,
         componentsValidationErrorsModel,
         depsOfRulesModel,
         readyConditionalValidationsModel,
@@ -122,7 +118,7 @@ export const createComponentsService = ({ appErrorsService, themeService, viewsS
         componentsCreatorModel,
         depsOfRulesModel,
         formValidationModel,
-        repeaterModel,
+        clearComponentsData,
         startInit,
     }
 }

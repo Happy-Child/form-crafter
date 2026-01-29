@@ -11,29 +11,26 @@ export type ConditionOperatorNode = {
     operands: ConditionNode[]
 }
 
-// export type ConditionComponentMeta =
-//     | {
-//           isTemplate: true
-//           isNeighbor: boolean
-//       }
-//     | {
-//           isTemplate: false
-//       }
-
-// type GeneralConditionComponentNode = {
-//     type: 'component'
-//     id: EntityId
-//     meta: ConditionComponentMeta
-//     strategyIfHidden?: 'skip' | 'resolve' | 'reject'
-//     operatorKey: string
-// }
+type ConditionComponentNodeMeta = {
+    id: EntityId
+    template?: {
+        operator?: ConditionOperator
+    }
+}
 
 type GeneralConditionComponentNode = {
     type: 'component'
-    componentId: EntityId
+    meta: ConditionComponentNodeMeta
     strategyIfHidden?: 'skip' | 'resolve' | 'reject'
-    operatorKey: string
+    operator: { key: string }
 }
+
+// type GeneralConditionComponentNode = {
+//     type: 'component'
+//     componentId: EntityId
+//     strategyIfHidden?: 'skip' | 'resolve' | 'reject'
+//     operatorKey: string
+// }
 
 export type ConditionComponentNode =
     | GeneralConditionComponentNode

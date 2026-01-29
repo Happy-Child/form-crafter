@@ -2,7 +2,7 @@ import { ConditionNode, EntityId } from '@form-crafter/core'
 
 export const extractComponentConditionDeps = (condition: ConditionNode, deps: Set<EntityId> = new Set()) => {
     if (condition.type === 'component') {
-        deps.add(condition.componentId)
+        deps.add(condition.meta.id)
         return deps
     }
 

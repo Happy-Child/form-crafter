@@ -27,7 +27,7 @@ type Params = {
     themeService: Pick<ThemeService, '$pathsToMutationsRulesDeps'>
     viewsService: Pick<ViewsService, '$currentViewComponents' | '$additionalViewsConditions'>
     schemaService: Pick<SchemaService, '$groupValidationSchemas'>
-    componentsRegistryModel: Pick<ComponentsRegistryModel, 'componentsAddedOrRemoved' | '$componentsSchemas'>
+    componentsRegistryModel: Pick<ComponentsRegistryModel, 'componentsStoreModel'>
 }
 
 export type DepsOfRulesModel = ReturnType<typeof createDepsOfRulesModel>
@@ -61,8 +61,8 @@ export const createDepsOfRulesModel = ({ appErrorsService, themeService, viewsSe
         },
     )
     sample({
-        source: { componentsSchemas: componentsRegistryModel.$componentsSchemas },
-        clock: componentsRegistryModel.componentsAddedOrRemoved,
+        source: { componentsSchemas: componentsRegistryModel.componentsStoreModel.$componentsSchemas },
+        clock: componentsRegistryModel.componentsStoreModel.componentsAddedOrRemoved,
         fn: ({ componentsSchemas }) => extractComponentsValidationsConditionsDeps(componentsSchemas),
         target: setComponentsValidationsConditionsDeps,
     })
@@ -75,8 +75,11 @@ export const createDepsOfRulesModel = ({ appErrorsService, themeService, viewsSe
         componentIdToDependents: filterDepsGraph(depsGraphs.componentIdToDependents, viewComponents),
     }))
     sample({
-        source: { componentsSchemas: componentsRegistryModel.$componentsSchemas, pathsToMutationsRulesDeps: themeService.$pathsToMutationsRulesDeps },
-        clock: componentsRegistryModel.componentsAddedOrRemoved,
+        source: {
+            componentsSchemas: componentsRegistryModel.componentsStoreModel.$componentsSchemas,
+            pathsToMutationsRulesDeps: themeService.$pathsToMutationsRulesDeps,
+        },
+        clock: componentsRegistryModel.componentsStoreModel.componentsAddedOrRemoved,
         fn: ({ componentsSchemas, pathsToMutationsRulesDeps }) => extractComponentsMutationsDeps(componentsSchemas, pathsToMutationsRulesDeps),
         target: setComponentsMutationsDeps,
     })
@@ -89,8 +92,8 @@ export const createDepsOfRulesModel = ({ appErrorsService, themeService, viewsSe
         componentIdToDependents: filterDepsGraph(depsGraphs.componentIdToDependents, viewComponents),
     }))
     sample({
-        source: { componentsSchemas: componentsRegistryModel.$componentsSchemas },
-        clock: componentsRegistryModel.componentsAddedOrRemoved,
+        source: { componentsSchemas: componentsRegistryModel.componentsStoreModel.$componentsSchemas },
+        clock: componentsRegistryModel.componentsStoreModel.componentsAddedOrRemoved,
         fn: ({ componentsSchemas }) => extractVisabilityConditionsDeps(componentsSchemas),
         target: setVisabilityConditionsDeps,
     })
@@ -104,6 +107,7 @@ export const createDepsOfRulesModel = ({ appErrorsService, themeService, viewsSe
         },
     )
 
+    // TODO вынести в change views model. Тогда extractViewsConditionsDeps и тесты вынести в общее место.
     const $viewsConditionsDeps = combine(viewsService.$additionalViewsConditions, extractViewsConditionsDeps)
     const $viewsConditionsAllDeps = combine(
         $viewsConditionsDeps,

@@ -15,7 +15,7 @@ type Params = {
     themeService: Pick<ThemeService, '$mutationsRules' | '$mutationsRulesRollback'>
     schemaService: Pick<SchemaService, '$initialComponentsSchemas'>
     componentsGeneralModel: Pick<ComponentsGeneralModel, '$hiddenComponents'>
-    componentsRegistryModel: Pick<ComponentsRegistryModel, '$getExecutorContextBuilder' | '$getIsConditionSuccessfulChecker' | 'updateComponentsModelsFx'>
+    componentsRegistryModel: Pick<ComponentsRegistryModel, '$getExecutorContextBuilder' | '$getIsConditionSuccessfulChecker' | 'componentsStoreModel'>
 }
 
 export type MutationsModel = ReturnType<typeof createMutationsModel>
@@ -149,7 +149,7 @@ export const createMutationsModel = ({ themeService, schemaService, componentsGe
 
                     switch (finalStrategy) {
                         case 'once': {
-                            const canBeApply = isConditionSuccessfulChecker({ condition })
+                            const canBeApply = isConditionSuccessfulChecker({ condition, ownerComponentId: componentId })
 
                             if (!ruleWasActivated && canBeApply) {
                                 applyMutation()
@@ -163,7 +163,7 @@ export const createMutationsModel = ({ themeService, schemaService, componentsGe
                             break
                         }
                         case 'always': {
-                            const canBeApply = isConditionSuccessfulChecker({ condition })
+                            const canBeApply = isConditionSuccessfulChecker({ condition, ownerComponentId: componentId })
                             if (canBeApply) {
                                 applyMutation()
                             } else if (ruleWasActivated) {
@@ -198,7 +198,7 @@ export const createMutationsModel = ({ themeService, schemaService, componentsGe
                 }
 
                 // 3. Если статус видимости не изменился и если компонент не скрыт - вызываем runCalcMutations. Иначе выход
-                const shouldBeHidden = isConditionSuccessfulChecker({ condition: visabilityCondition })
+                const shouldBeHidden = isConditionSuccessfulChecker({ condition: visabilityCondition, ownerComponentId: depComponentId })
 
                 const componentIsHiddenNow = !!newComponentsSchemas[depComponentId].visability?.hidden
                 const isNewVisabilityStatus = componentIsHiddenNow !== shouldBeHidden
@@ -279,7 +279,7 @@ export const createMutationsModel = ({ themeService, schemaService, componentsGe
     })
 
     const componentsIsUpdatedAfterMutations = sample({
-        clock: combineEvents([resultOfCalcMutations, componentsRegistryModel.updateComponentsModelsFx.done]),
+        clock: combineEvents([resultOfCalcMutations, componentsRegistryModel.componentsStoreModel.updateComponentsModelsFx.done]),
         fn: ([{ componentsToUpdate }]) => ({ componentsToUpdate }),
     })
 

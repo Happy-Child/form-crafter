@@ -13,10 +13,10 @@ type UseRepeaterEvents = {
 export const useRepeaterEvents = (id: EntityId): UseRepeaterEvents => {
     const { services } = useGeneratorContext()
 
-    const addGroup = useUnit(services.componentsService.repeaterModel.addGroup)
+    const addGroup = useUnit(services.repeaterService.generateGroup)
     const onAddRow = useCallback(() => addGroup({ repeaterId: id }), [id, addGroup])
 
-    const removeGroup = useUnit(services.componentsService.repeaterModel.removeGroup)
+    const removeGroup = useUnit(services.repeaterService.removeGroup)
     const onRemoveRow = useCallback<RepeaterComponentProps['onRemoveRow']>(({ index }) => removeGroup({ rowIndex: index, repeaterId: id }), [id, removeGroup])
 
     return { onAddRow, onRemoveRow }

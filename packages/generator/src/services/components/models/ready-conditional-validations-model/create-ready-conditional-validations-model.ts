@@ -13,12 +13,13 @@ import { cloneDeep } from 'lodash-es'
 import { SchemaService } from '../../../schema'
 import { ComponentsRegistryModel } from '../components-registry-model'
 import { DepsOfRulesModel } from '../deps-of-rules-model'
+import { createComponentsValidationSchemasModel } from './models'
 import { removeReadyValidationRules, removeRulesByComponentsIds } from './utils'
 
 type Params = {
     schemaService: SchemaService
     depsOfRulesModel: DepsOfRulesModel
-    componentsRegistryModel: Pick<ComponentsRegistryModel, '$getExecutorContextBuilder' | '$getIsConditionSuccessfulChecker'>
+    componentsRegistryModel: Pick<ComponentsRegistryModel, '$getExecutorContextBuilder' | '$getIsConditionSuccessfulChecker' | 'componentsStoreModel'>
 }
 
 export const createReadyConditionalValidationsModel = ({
@@ -79,6 +80,8 @@ export const createReadyConditionalValidationsModel = ({
     $readyGroupsRules.on(removeReadyGroupRules, differenceSet)
     $readyGroupsByKey.on(removeReadyGroupRulesByKey, removeReadyValidationRules)
 
+    const componentsValidationSchemasModel = createComponentsValidationSchemasModel({ componentsRegistryModel })
+
     sample({
         clock: calcReadyRulesGuard,
         filter: ({ componentsToUpdate }) => componentsToUpdate.some(({ isNewValue }) => !!isNewValue),
@@ -88,7 +91,7 @@ export const createReadyConditionalValidationsModel = ({
 
     const resultOfCalcReadyValidations = sample({
         source: {
-            validationRuleSchemas: schemaService.$componentsValidationSchemas,
+            validationRuleSchemas: componentsValidationSchemasModel.$schemas,
             groupValidationSchemas: schemaService.$groupValidationSchemas,
             activeViewComponentsValidationsConditionsDeps: depsOfRulesModel.$activeViewComponentsValidationsConditionsDeps,
             groupsValidationsConditionsDeps: depsOfRulesModel.$groupsValidationsConditionsDeps,
@@ -160,9 +163,7 @@ export const createReadyConditionalValidationsModel = ({
             }
 
             const calcReadyRules = ({ componentId, isNewValue }: ComponentToUpdate) => {
-                const canBeContinue = canBeContinueValidation(isNewValue)
-
-                if (!canBeContinue) {
+                if (!canBeContinueValidation(isNewValue)) {
                     return
                 }
 
@@ -179,6 +180,7 @@ export const createReadyConditionalValidationsModel = ({
                     const { ownerComponentId, schema: validationRuleSchema } = validationRuleSchemas[validationSchemaId]
                     const ruleIsReady = isConditionSuccessfulChecker({
                         condition: validationRuleSchema.condition!,
+                        ownerComponentId,
                     })
 
                     const isReadyRuleNow = readyComponentsRulesIds.has(validationSchemaId)

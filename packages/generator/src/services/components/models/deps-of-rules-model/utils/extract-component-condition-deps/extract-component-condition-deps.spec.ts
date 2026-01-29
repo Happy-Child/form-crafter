@@ -8,14 +8,14 @@ describe('extractComponentConditionDeps', () => {
             type: 'operator',
             operator: 'and',
             operands: [
-                { type: 'component', componentId: 'a', operatorKey: 'isEmpty' },
-                { type: 'component', componentId: 'b', operatorKey: 'isEmpty' },
+                { type: 'component', meta: { id: 'a' }, operator: { key: 'isEmpty' } },
+                { type: 'component', meta: { id: 'b' }, operator: { key: 'isEmpty' } },
                 {
                     type: 'operator',
                     operator: 'and',
                     operands: [
-                        { type: 'component', componentId: 's', operatorKey: 'isEmpty' },
-                        { type: 'component', componentId: 't', operatorKey: 'isEmpty' },
+                        { type: 'component', meta: { id: 's' }, operator: { key: 'isEmpty' } },
+                        { type: 'component', meta: { id: 't' }, operator: { key: 'isEmpty' } },
                     ],
                 },
             ],
@@ -23,7 +23,7 @@ describe('extractComponentConditionDeps', () => {
         const result1 = extractComponentConditionDeps(conditionNode1)
         expect(result1).toEqual(new Set(['a', 'b', 's', 't']))
 
-        const conditionNode2: ConditionNode = { type: 'component', componentId: 'c', operatorKey: 'isEmpty' }
+        const conditionNode2: ConditionNode = { type: 'component', meta: { id: 'c' }, operator: { key: 'isEmpty' } }
         const result2 = extractComponentConditionDeps(conditionNode2)
         expect(result2).toEqual(new Set(['c']))
     })

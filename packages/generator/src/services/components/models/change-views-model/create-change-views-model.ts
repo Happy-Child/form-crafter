@@ -8,7 +8,7 @@ import { DepsOfRulesModel } from '../deps-of-rules-model'
 import { PrepareDispatcherPayload } from './types'
 
 type Params = {
-    viewsService: Pick<ViewsService, '$additionalViewsConditions' | '$currentViewId'>
+    viewsService: Pick<ViewsService, '$additionalViewsConditions' | '$currentViewId' | 'setCurrentViewId'>
     componentsRegistryModel: Pick<ComponentsRegistryModel, '$getIsConditionSuccessfulChecker'>
     depsOfRulesModel: Pick<DepsOfRulesModel, '$viewsConditionsDeps' | '$viewsConditionsAllDeps'>
     $firstMutationsIsDone: StoreWritable<boolean>
@@ -26,7 +26,7 @@ export const createChangeViewsModel = ({ viewsService, componentsRegistryModel, 
 
     const startViewChangeCheck = createEvent('startViewChangeCheck')
 
-    const calcMutationsAfterViewChanged = createEvent('calcMutationsAfterViewChanged')
+    const startCalcMutationsAfterChangedView = createEvent('startCalcMutationsAfterChangedView')
 
     $changeViewWasChecked.on(setChangeViewWasChecked, (_, value) => value)
     $changeViewWasChecked.on(startViewChangeCheck, () => true)
@@ -91,6 +91,12 @@ export const createChangeViewsModel = ({ viewsService, componentsRegistryModel, 
         fn: (params: FilteredParams) => params,
     })
 
+    sample({
+        clock: viewCanBeChanged,
+        fn: ({ viewId }) => viewId,
+        target: viewsService.setCurrentViewId,
+    })
+
     const splitDispatcher = sample({
         source: { firstMutationsIsDone: $firstMutationsIsDone },
         clock: resultOfViewChangeCheck,
@@ -105,7 +111,7 @@ export const createChangeViewsModel = ({ viewsService, componentsRegistryModel, 
         },
         cases: {
             reset: resetChangeViewWasChecked,
-            __: calcMutationsAfterViewChanged,
+            __: startCalcMutationsAfterChangedView,
         },
     })
 
@@ -113,7 +119,7 @@ export const createChangeViewsModel = ({ viewsService, componentsRegistryModel, 
         runViewChangeCheck,
         viewCanBeChanged,
         resultOfViewChangeCheck,
-        calcMutationsAfterViewChanged,
+        startCalcMutationsAfterChangedView,
         setChangeViewWasChecked,
         resetChangeViewWasChecked,
         startViewChangeCheck,

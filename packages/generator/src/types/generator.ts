@@ -11,6 +11,7 @@ export type RenderBottomProps = {
 
 export type GeneratorProps = {
     schema: Schema
+    initialValues?: AvailableObject
     onSubmit: (data: AvailableObject) => void
     renderBottom?: (props: RenderBottomProps) => ReactNode
     theme: FormCrafterTheme

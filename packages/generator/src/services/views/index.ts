@@ -1,14 +1,25 @@
-import { EntityId, ViewDefinition, ViewsElementsGraphs } from '@form-crafter/core'
+import {
+    buildViewElementsGraphs,
+    deepRemoveViewElement,
+    EntityId,
+    mergeViewElementsGraph,
+    selectViewByBreakpoint,
+    ViewDefinition,
+    Views,
+    ViewsElementsGraphs,
+} from '@form-crafter/core'
 import { isNotEmpty, isNotNull } from '@form-crafter/utils'
 import { combine, createEvent, createStore, sample, UnitValue } from 'effector'
 import { readonly } from 'patronum'
 
-import { ViewsServiceParams } from './types'
-import { buildViewElementsGraphs, deepRemoveViewElement, mergeViewElementsGraph, selectViewByBreakpoint } from './utils'
+import { GeneralService } from '../general'
 
 export * from './types'
 
-export { buildViewElementsGraphs }
+type ViewsServiceParams = {
+    initial: Views
+    generalService: GeneralService
+}
 
 export type ViewsService = ReturnType<typeof createViewsService>
 
@@ -22,7 +33,7 @@ export const createViewsService = ({ initial, generalService }: ViewsServicePara
     const $viewsElementsGraphs = createStore<ViewsElementsGraphs>(buildViewElementsGraphs(initial.default, initial.additionals || {}))
 
     const setViewsElementsGraphs = createEvent<UnitValue<typeof $viewsElementsGraphs>>('setViewsElementsGraphs')
-    const removeRowElementDeep = createEvent<{ componentId: EntityId; rowIndex: number }>('removeRowElementDeep')
+    const removeGroupViewsElements = createEvent<{ componentId: EntityId; rowIndex: number }>('removeGroupViewsElements')
     const mergeViewsElementsGraphs = createEvent<{ graphsToMerge: UnitValue<typeof setViewsElementsGraphs>; rootComponentId: EntityId }>(
         'mergeViewsElementsGraphs',
     )
@@ -72,9 +83,9 @@ export const createViewsService = ({ initial, generalService }: ViewsServicePara
         target: setViewsElementsGraphs,
     })
 
-    const resultOfCalcRemoveRowElementDeep = sample({
+    const groupViewsElementsRemoved = sample({
         source: { viewsElementsGraphs: $viewsElementsGraphs },
-        clock: removeRowElementDeep,
+        clock: removeGroupViewsElements,
         fn: ({ viewsElementsGraphs }, { componentId, rowIndex }) => {
             const componentsIdsToRemove: EntityId[] = []
 
@@ -109,7 +120,7 @@ export const createViewsService = ({ initial, generalService }: ViewsServicePara
     })
 
     sample({
-        clock: resultOfCalcRemoveRowElementDeep,
+        clock: groupViewsElementsRemoved,
         fn: ({ viewsElementsGraphs }) => viewsElementsGraphs,
         target: setViewsElementsGraphs,
     })
@@ -117,8 +128,9 @@ export const createViewsService = ({ initial, generalService }: ViewsServicePara
     return {
         setCurrentViewId,
         mergeViewsElementsGraphs,
-        removeRowElementDeep,
-        resultOfCalcRemoveRowElementDeep,
+        removeGroupViewsElements,
+        groupViewsElementsRemoved,
+        viewsElementsGraphsUpdated: $viewsElementsGraphs.updates,
         $currentViewId,
         $additionalViewsConditions,
         $currentViewElementsGraph,

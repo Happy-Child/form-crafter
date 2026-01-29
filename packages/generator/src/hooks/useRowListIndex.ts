@@ -14,7 +14,7 @@ export const useRowListIndex = ({ id: rowId, parentComponentId }: Pick<ViewEleme
         keys: [parentComponentId],
         fn: (responsiveGraph, [parentComponentId]) => {
             if (isNotEmpty(parentComponentId)) {
-                return responsiveGraph.components[parentComponentId].childrenRows
+                return responsiveGraph.components[parentComponentId].childrenRows || []
             }
             return responsiveGraph.rows.root
         },

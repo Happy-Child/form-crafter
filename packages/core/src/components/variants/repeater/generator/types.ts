@@ -8,7 +8,7 @@ import { ComponentValidationError, GeneratorComponentProps } from '../../../gene
 import { RepeaterComponentProperties } from '../schema'
 
 export type RepeaterComponentPropsAsObject<P extends AvailableObject = AvailableObject> = GeneratorComponentProps<'repeater', P> & {
-    childrenRows: EntityId[]
+    childrenRows?: EntityId[]
     onAddRow: () => void
     onRemoveRow: (props: { index: number }) => void
     errors: ComponentValidationError[] | null

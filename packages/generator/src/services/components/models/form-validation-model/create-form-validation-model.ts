@@ -44,7 +44,7 @@ export const createFormValidationModel = ({
 
     const baseRunComponentsValidationsFx = createEffect<
         {
-            componentsModels: UnitValue<typeof componentsRegistryModel.$componentsModels>
+            componentsModels: UnitValue<typeof componentsRegistryModel.componentsStoreModel.$models>
             componentsIdsCanBeValidate: UnitValue<typeof $componentsIdsCanBeValidate>
         },
         RunComponentValidationFxDone[],
@@ -67,7 +67,7 @@ export const createFormValidationModel = ({
         return Promise.resolve(resolved)
     })
     const runComponentsValidationsFx = attach({
-        source: { componentsModels: componentsRegistryModel.$componentsModels, componentsIdsCanBeValidate: $componentsIdsCanBeValidate },
+        source: { componentsModels: componentsRegistryModel.componentsStoreModel.$models, componentsIdsCanBeValidate: $componentsIdsCanBeValidate },
         effect: baseRunComponentsValidationsFx,
     })
 

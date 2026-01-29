@@ -6,11 +6,11 @@ import { ThemeService } from '../../../theme'
 import { ComponentsRegistryModel } from '../components-registry-model'
 
 export type ComponentModelParams = {
-    runMutations: EventCallable<RunMutationsOnUserActionPayload>
     schema: ComponentSchema
+    runMutations: EventCallable<RunMutationsOnUserActionPayload>
     themeService: ThemeService
     schemaService: SchemaService
     componentsRegistryModel: ComponentsRegistryModel
-    readyConditionalValidationsModel: ReadyConditionalValidationsModel
     componentsValidationErrorsModel: ComponentsValidationErrorsModel
+    readyConditionalValidationsModel: ReadyConditionalValidationsModel
 }

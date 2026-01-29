@@ -12,7 +12,7 @@ const getCtx = (): RuleExecutorContext => ({
     getRepeaterChildIds: () => {
         return []
     },
-    isTemplateComponentId: () => {
+    isTemplate: (componentId: EntityId) => {
         return false
     },
 })
@@ -27,8 +27,8 @@ describe('isConditionSuccessful', () => {
                     ctx,
                     condition: {
                         type: 'component',
-                        componentId: 'name',
-                        operatorKey: 'isEmpty',
+                        meta: { id: 'name' },
+                        operator: { key: 'isEmpty' },
                     },
                     operators: operatorsMock,
                 }),
@@ -43,13 +43,13 @@ describe('isConditionSuccessful', () => {
                         operands: [
                             {
                                 type: 'component',
-                                componentId: 'name',
-                                operatorKey: 'isNotEmpty',
+                                meta: { id: 'name' },
+                                operator: { key: 'isNotEmpty' },
                             },
                             {
                                 type: 'component',
-                                componentId: 'surname',
-                                operatorKey: 'isNotEmpty',
+                                meta: { id: 'surname' },
+                                operator: { key: 'isNotEmpty' },
                             },
                         ],
                     },
@@ -66,8 +66,8 @@ describe('isConditionSuccessful', () => {
                         operands: [
                             {
                                 type: 'component',
-                                componentId: 'surname',
-                                operatorKey: 'isEmpty',
+                                meta: { id: 'surname' },
+                                operator: { key: 'isEmpty' },
                             },
                             {
                                 type: 'operator',
@@ -75,13 +75,13 @@ describe('isConditionSuccessful', () => {
                                 operands: [
                                     {
                                         type: 'component',
-                                        componentId: 'name',
-                                        operatorKey: 'isEmpty',
+                                        meta: { id: 'name' },
+                                        operator: { key: 'isEmpty' },
                                     },
                                     {
                                         type: 'component',
-                                        componentId: 'patronymic',
-                                        operatorKey: 'isEmpty',
+                                        meta: { id: 'patronymic' },
+                                        operator: { key: 'isEmpty' },
                                     },
                                 ],
                             },
@@ -104,8 +104,8 @@ describe('isConditionSuccessful', () => {
                                 operands: [
                                     {
                                         type: 'component',
-                                        componentId: 'name',
-                                        operatorKey: 'isEmpty',
+                                        meta: { id: 'name' },
+                                        operator: { key: 'isEmpty' },
                                     },
                                 ],
                             },
@@ -115,8 +115,8 @@ describe('isConditionSuccessful', () => {
                                 operands: [
                                     {
                                         type: 'component',
-                                        componentId: 'surname',
-                                        operatorKey: 'isNotEmpty',
+                                        meta: { id: 'surname' },
+                                        operator: { key: 'isNotEmpty' },
                                     },
                                 ],
                             },
@@ -126,8 +126,8 @@ describe('isConditionSuccessful', () => {
                                 operands: [
                                     {
                                         type: 'component',
-                                        componentId: 'patronymic',
-                                        operatorKey: 'isEmpty',
+                                        meta: { id: 'patronymic' },
+                                        operator: { key: 'isEmpty' },
                                     },
                                 ],
                             },
@@ -146,8 +146,8 @@ describe('isConditionSuccessful', () => {
                     ctx,
                     condition: {
                         type: 'component',
-                        componentId: 'name',
-                        operatorKey: 'isNotEmpty',
+                        meta: { id: 'name' },
+                        operator: { key: 'isNotEmpty' },
                     },
                     operators: operatorsMock,
                 }),
@@ -168,13 +168,13 @@ describe('isConditionSuccessful', () => {
                         operands: [
                             {
                                 type: 'component',
-                                componentId: 'surname',
-                                operatorKey: 'isNotEmpty',
+                                meta: { id: 'surname' },
+                                operator: { key: 'isNotEmpty' },
                             },
                             {
                                 type: 'component',
-                                componentId: 'email',
-                                operatorKey: 'isNotEmpty',
+                                meta: { id: 'email' },
+                                operator: { key: 'isNotEmpty' },
                             },
                         ],
                     },
@@ -191,8 +191,8 @@ describe('isConditionSuccessful', () => {
                     ctx,
                     condition: {
                         type: 'component',
-                        componentId: 'email',
-                        operatorKey: 'isNotEmpty',
+                        meta: { id: 'email' },
+                        operator: { key: 'isNotEmpty' },
                         strategyIfHidden: 'resolve',
                     },
                     operators: operatorsMock,
@@ -208,8 +208,8 @@ describe('isConditionSuccessful', () => {
                     ctx,
                     condition: {
                         type: 'component',
-                        componentId: 'email',
-                        operatorKey: 'isNotEmpty',
+                        meta: { id: 'email' },
+                        operator: { key: 'isNotEmpty' },
                         strategyIfHidden: 'reject',
                     },
                     operators: operatorsMock,
@@ -238,8 +238,8 @@ describe('isConditionSuccessful', () => {
                 ctx,
                 condition: {
                     type: 'component',
-                    componentId: 'email',
-                    operatorKey: 'isEmpty',
+                    meta: { id: 'email' },
+                    operator: { key: 'isEmpty' },
                 },
                 operators: operatorsMock,
             }),
@@ -254,13 +254,13 @@ describe('isConditionSuccessful', () => {
                     operands: [
                         {
                             type: 'component',
-                            componentId: 'email',
-                            operatorKey: 'isNotEmpty',
+                            meta: { id: 'email' },
+                            operator: { key: 'isNotEmpty' },
                         },
                         {
                             type: 'component',
-                            componentId: 'phone',
-                            operatorKey: 'isEmpty',
+                            meta: { id: 'phone' },
+                            operator: { key: 'isEmpty' },
                         },
                     ],
                 },

@@ -8,7 +8,7 @@ export const useComponentModel = <T extends GeneratorComponentType = GeneratorCo
     const { services } = useGeneratorContext()
 
     const data = useStoreMap({
-        store: services.componentsService.componentsRegistryModel.$componentsModels,
+        store: services.componentsService.componentsRegistryModel.componentsStoreModel.$models,
         keys: [id],
         fn: (map, [id]) => map.get(id),
     })

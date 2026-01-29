@@ -18,8 +18,8 @@ export const employeeSchema: Schema = {
                     type: 'operator',
                     operator: 'and',
                     operands: [
-                        { type: 'component', componentId: 'email', operatorKey: 'isEmpty' },
-                        { type: 'component', componentId: 'input-position', operatorKey: 'isEmpty' },
+                        { type: 'component', meta: { id: 'email' }, operator: { key: 'isEmpty' } },
+                        { type: 'component', meta: { id: 'input-position' }, operator: { key: 'isEmpty' } },
                     ],
                 },
             },
@@ -33,61 +33,6 @@ export const employeeSchema: Schema = {
         default: {
             xxl: {
                 elements: [
-                    {
-                        id: genId(),
-                        type: 'row',
-                        children: [{ id: 'gender', type: 'component', layout: { col: 'auto' } }],
-                    },
-                    {
-                        id: genId(),
-                        type: 'row',
-                        children: [
-                            { id: 'input-first-name', type: 'component', layout: { col: 12 } },
-                            { id: 'input-last-name', type: 'component', layout: { col: 12 } },
-                        ],
-                    },
-                    {
-                        id: genId(),
-                        type: 'row',
-                        children: [
-                            { id: 'date-birth', type: 'component', layout: { col: 'auto' } },
-                            { id: 'email', type: 'component', layout: { col: 19 } },
-                        ],
-                    },
-                    {
-                        id: genId(),
-                        type: 'row',
-                        children: [
-                            { id: 'country', type: 'component', layout: { col: 12 } },
-                            { id: 'region', type: 'component', layout: { col: 12 } },
-                        ],
-                    },
-                    {
-                        id: genId(),
-                        type: 'row',
-                        children: [
-                            {
-                                id: 'group-work',
-                                type: 'component',
-                                layout: { col: 'auto' },
-                                children: [
-                                    {
-                                        id: genId(),
-                                        type: 'row',
-                                        children: [
-                                            { id: 'select-department', type: 'component', layout: { col: 12 } },
-                                            { id: 'date-start', type: 'component', layout: { col: 12 } },
-                                        ],
-                                    },
-                                    {
-                                        id: genId(),
-                                        type: 'row',
-                                        children: [{ id: 'input-position', type: 'component', layout: { col: 'auto' } }],
-                                    },
-                                ],
-                            },
-                        ],
-                    },
                     {
                         id: genId(),
                         type: 'row',
@@ -105,7 +50,7 @@ export const employeeSchema: Schema = {
         additionals: {
             someView: {
                 id: 'someView',
-                condition: { type: 'component', componentId: 'gender', operatorKey: 'equal', enteredComponentValue: 'female' },
+                condition: { type: 'component', meta: { id: 'gender' }, operator: { key: 'equal' }, enteredComponentValue: 'female' },
                 responsive: {
                     xxl: {
                         elements: [
@@ -127,17 +72,17 @@ export const employeeSchema: Schema = {
                                 type: 'row',
                                 children: [
                                     { id: 'date-birth', type: 'component', layout: { col: 'auto' } },
-                                    { id: 'email', type: 'component', layout: { col: 19 } },
+                                    // { id: 'email', type: 'component', layout: { col: 19 } },
                                 ],
                             },
-                            {
-                                id: genId(),
-                                type: 'row',
-                                children: [
-                                    { id: 'country', type: 'component', layout: { col: 12 } },
-                                    { id: 'region', type: 'component', layout: { col: 12 } },
-                                ],
-                            },
+                            // {
+                            //     id: genId(),
+                            //     type: 'row',
+                            //     children: [
+                            //         { id: 'country', type: 'component', layout: { col: 12 } },
+                            //         { id: 'region', type: 'component', layout: { col: 12 } },
+                            //     ],
+                            // },
                             {
                                 id: genId(),
                                 type: 'row',
@@ -164,17 +109,17 @@ export const employeeSchema: Schema = {
                                     },
                                 ],
                             },
-                            {
-                                id: genId(),
-                                type: 'row',
-                                children: [
-                                    {
-                                        id: 'contacts',
-                                        type: 'component',
-                                        layout: { col: 24 },
-                                    },
-                                ],
-                            },
+                            // {
+                            //     id: genId(),
+                            //     type: 'row',
+                            //     children: [
+                            //         {
+                            //             id: 'contacts',
+                            //             type: 'component',
+                            //             layout: { col: 24 },
+                            //         },
+                            //     ],
+                            // },
                         ],
                     },
                 },
@@ -220,7 +165,7 @@ export const employeeSchema: Schema = {
                     {
                         id: genId(),
                         key: 'disabled',
-                        condition: { type: 'component', componentId: 'some-date', operatorKey: 'isNotEmpty' },
+                        condition: { type: 'component', meta: { id: 'some-date' }, operator: { key: 'isNotEmpty' } },
                     },
                 ],
             },
@@ -230,7 +175,7 @@ export const employeeSchema: Schema = {
                         id: genId(),
                         key: 'isRequired',
                         options: { message: 'Обязательное поле' },
-                        condition: { type: 'component', componentId: 'date-birth', operatorKey: 'isNotEmpty' },
+                        condition: { type: 'component', meta: { id: 'date-birth' }, operator: { key: 'isNotEmpty' } },
                     },
                     {
                         id: genId(),
@@ -242,7 +187,7 @@ export const employeeSchema: Schema = {
         },
         'input-last-name': {
             meta: { id: 'input-last-name', type: 'text-input', name: 'text-input' },
-            visability: { condition: { type: 'component', componentId: 'input-salary', operatorKey: 'isNotEmpty' } },
+            visability: { condition: { type: 'component', meta: { id: 'input-salary' }, operator: { key: 'isNotEmpty' } } },
             properties: { label: 'Фамилия', value: '' },
             mutations: {
                 schemas: [
@@ -270,15 +215,15 @@ export const employeeSchema: Schema = {
         email: {
             meta: { id: 'email', type: 'text-input', name: 'text-input' },
             properties: { label: 'Email', value: '' },
-            visability: { condition: { type: 'component', componentId: 'date-birth', operatorKey: 'equal', enteredComponentValue: '25.10.1999' } },
-            // visability: { condition: { type: 'component', componentId: 'country', operatorKey: 'isNotEmpty' } },
+            visability: { condition: { type: 'component', meta: { id: 'date-birth' }, operator: { key: 'equal' }, enteredComponentValue: '25.10.1999' } },
+            // visability: { condition: { type: 'component', meta: { id: 'country'}, operator: {key: 'isNotEmpty'} } },
             mutations: {
                 schemas: [
                     {
                         id: genId(),
                         key: 'duplicateValue',
                         options: { duplicateValueComponentId: 'input-first-name' },
-                        condition: { type: 'component', componentId: 'date-birth', operatorKey: 'isNotEmpty' },
+                        condition: { type: 'component', meta: { id: 'date-birth' }, operator: { key: 'isNotEmpty' } },
                     },
                 ],
             },
@@ -291,14 +236,14 @@ export const employeeSchema: Schema = {
                         condition: {
                             type: 'operator',
                             operator: 'and',
-                            operands: [{ type: 'component', componentId: 'input-salary', operatorKey: 'isNotEmpty' }],
+                            operands: [{ type: 'component', meta: { id: 'input-salary' }, operator: { key: 'isNotEmpty' } }],
                         },
                     },
                     {
                         id: genId(),
                         key: 'isEmail',
                         options: { message: 'Неверный формат поты' },
-                        condition: { type: 'component', componentId: 'input-first-name', operatorKey: 'startsWith', options: { startsWith: 'egor' } },
+                        condition: { type: 'component', meta: { id: 'input-first-name' }, operator: { key: 'startsWith' }, options: { startsWith: 'egor' } },
                     },
                 ],
             },
@@ -309,7 +254,7 @@ export const employeeSchema: Schema = {
         },
         'input-position': {
             meta: { id: 'input-position', type: 'text-input', name: 'text-input' },
-            visability: { condition: { type: 'component', componentId: 'email', operatorKey: 'isNotEmpty' } },
+            visability: { condition: { type: 'component', meta: { id: 'email' }, operator: { key: 'isNotEmpty' } } },
             properties: { label: 'Должность', value: 'HR' },
         },
         'input-salary': {
@@ -318,7 +263,7 @@ export const employeeSchema: Schema = {
         },
         country: {
             meta: { id: 'country', type: 'select', name: 'select' },
-            visability: { condition: { type: 'component', componentId: 'select-department', operatorKey: 'equal', enteredComponentValue: 'dev' } },
+            visability: { condition: { type: 'component', meta: { id: 'select-department' }, operator: { key: 'equal' }, enteredComponentValue: 'dev' } },
             properties: {
                 value: '',
                 label: 'Страна',
@@ -333,14 +278,14 @@ export const employeeSchema: Schema = {
                     {
                         id: genId(),
                         key: 'disabled',
-                        condition: { type: 'component', componentId: 'select-department', operatorKey: 'equal', enteredComponentValue: 'dev' },
+                        condition: { type: 'component', meta: { id: 'select-department' }, operator: { key: 'equal' }, enteredComponentValue: 'dev' },
                     },
                 ],
             },
         },
         region: {
             meta: { id: 'region', type: 'select', name: 'select' },
-            visability: { condition: { type: 'component', componentId: 'date-start', operatorKey: 'isNotEmpty' } },
+            visability: { condition: { type: 'component', meta: { id: 'date-start' }, operator: { key: 'isNotEmpty' } } },
             properties: {
                 value: '',
                 label: 'Область',
@@ -364,7 +309,7 @@ export const employeeSchema: Schema = {
                         condition: {
                             type: 'operator',
                             operator: 'or',
-                            operands: [{ type: 'component', componentId: 'country', operatorKey: 'equal', enteredComponentValue: 'belarus' }],
+                            operands: [{ type: 'component', meta: { id: 'country' }, operator: { key: 'equal' }, enteredComponentValue: 'belarus' }],
                         },
                     },
                     {
@@ -387,7 +332,7 @@ export const employeeSchema: Schema = {
                         condition: {
                             type: 'operator',
                             operator: 'or',
-                            operands: [{ type: 'component', componentId: 'country', operatorKey: 'equal', enteredComponentValue: 'armeny' }],
+                            operands: [{ type: 'component', meta: { id: 'country' }, operator: { key: 'equal' }, enteredComponentValue: 'armeny' }],
                         },
                     },
                     {
@@ -415,7 +360,7 @@ export const employeeSchema: Schema = {
                         condition: {
                             type: 'operator',
                             operator: 'or',
-                            operands: [{ type: 'component', componentId: 'country', operatorKey: 'equal', enteredComponentValue: 'chili' }],
+                            operands: [{ type: 'component', meta: { id: 'country' }, operator: { key: 'equal' }, enteredComponentValue: 'chili' }],
                         },
                     },
                 ],
@@ -447,7 +392,7 @@ export const employeeSchema: Schema = {
                         condition: {
                             type: 'operator',
                             operator: 'or',
-                            operands: [{ type: 'component', componentId: 'input-position', operatorKey: 'startsWith', options: { startsWith: 'egor' } }],
+                            operands: [{ type: 'component', meta: { id: 'input-position' }, operator: { key: 'startsWith' }, options: { startsWith: 'egor' } }],
                         },
                     },
                 ],
@@ -558,6 +503,23 @@ export const employeeSchema: Schema = {
                                     id: genId(),
                                     key: 'isRequired',
                                     options: { message: 'Обязательное поле' },
+                                    condition: {
+                                        type: 'operator',
+                                        operator: 'and',
+                                        operands: [
+                                            {
+                                                type: 'component',
+                                                meta: { id: 'date-birth' },
+                                                operator: { key: 'equal' },
+                                                options: { startsWith: '01-12-2010' },
+                                            },
+                                            {
+                                                type: 'component',
+                                                meta: { id: 'date-start' },
+                                                operator: { key: 'isNotEmpty' },
+                                            },
+                                        ],
+                                    },
                                 },
                             ],
                         },
@@ -571,6 +533,12 @@ export const employeeSchema: Schema = {
                                     id: genId(),
                                     key: 'isRequired',
                                     options: { message: 'Обязательное поле' },
+                                    condition: {
+                                        type: 'component',
+                                        meta: { id: 'input-last-name' },
+                                        operator: { key: 'equal' },
+                                        options: { enterComponentValue: 'lazuka' },
+                                    },
                                 },
                             ],
                         },

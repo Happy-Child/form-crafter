@@ -11,7 +11,7 @@ export const useIsRepeater = (componentId: EntityId | null): boolean => {
     const { services } = useGeneratorContext()
 
     const data = useStoreMap({
-        store: services.componentsService.componentsRegistryModel.$componentsModels,
+        store: services.componentsService.componentsRegistryModel.componentsStoreModel.$models,
         keys: [componentId],
         fn: (map, [id]) => (isNotEmpty(id) ? map.get(id) : null),
     })

@@ -21,7 +21,9 @@ import { ComponentsValidationErrors } from './components-validation-errors-model
 
 export type GetExecutorContextBuilder = Store<(params?: { componentsSchemas?: ComponentsSchemas }) => RuleExecutorContext>
 
-export type GetIsConditionSuccessfulChecker = Store<(params?: { ctx?: RuleExecutorContext }) => (params: { condition: ConditionNode }) => boolean>
+export type GetIsConditionSuccessfulChecker = Store<
+    (params?: { ctx?: RuleExecutorContext }) => (params: { condition: ConditionNode; ownerComponentId?: EntityId }) => boolean
+>
 
 export type ComponentToUpdate = {
     componentId: EntityId

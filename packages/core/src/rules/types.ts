@@ -14,7 +14,7 @@ export type RuleExecutorContext = {
     getComponentSchemaById: (componentId: EntityId) => ComponentSchema | null
     getCurrentView: () => string | null
     getRepeaterChildIds: (componentId: EntityId) => EntityId[]
-    isTemplateComponentId: (componentId: EntityId) => boolean | null
+    isTemplate: (componentId: EntityId) => boolean | null
 }
 
 export type RuleExecuteParams<B extends OptionsBuilder<AvailableObject>> =

@@ -1,35 +1,38 @@
-import { ComponentsModels, ComponentToUpdate, EntityId, GetExecutorContextBuilder, GetIsConditionSuccessfulChecker } from '@form-crafter/core'
-import { isNotEmpty } from '@form-crafter/utils'
-import { attach, combine, createEffect, createEvent, createStore, sample } from 'effector'
-import { combineEvents, once, readonly } from 'patronum'
+import { ComponentsModels, EntityId, GetExecutorContextBuilder, GetIsConditionSuccessfulChecker } from '@form-crafter/core'
+import { AvailableObject } from '@form-crafter/utils'
+import { combine, createEvent, createStore, sample } from 'effector'
+import { readonly } from 'patronum'
 
 import { ThemeService } from '../../../theme'
 import { ViewsService } from '../../../views'
-import { buildExecutorContext, extractComponentsModels, isConditionSuccessful } from './utils'
+import { createComponentsStoreModel, createComponentsTemplatesModel } from './models'
+import { ChildrenOfComponents } from './types'
+import { buildChildrenComponentsGraph, buildExecutorContext, isConditionSuccessful } from './utils'
 
 type Params = {
     themeService: Pick<ThemeService, '$operators'>
-    viewsService: Pick<ViewsService, '$currentViewId' | '$currentViewComponents'>
+    viewsService: Pick<ViewsService, '$currentViewId' | '$currentViewComponents' | '$currentViewElementsGraph'>
+    initialValues?: AvailableObject
 }
 
 export type ComponentsRegistryModel = ReturnType<typeof createComponentsRegistryModel>
 
-export const createComponentsRegistryModel = ({ viewsService, themeService }: Params) => {
-    const $componentsModels = createStore<ComponentsModels>(new Map())
-
-    const $hiddenComponents = createStore<Set<EntityId>>(new Set())
-
-    const addComponentsModels = createEvent<ComponentsModels>('addComponentsModels')
-    const removeComponentsModels = createEvent<Set<EntityId>>('removeComponentsModels')
-    const setComponentsModels = createEvent<ComponentsModels>('setComponentsModels')
-
-    const setHiddenComponents = createEvent<Set<EntityId>>('setHiddenComponents')
+export const createComponentsRegistryModel = ({ viewsService, themeService, initialValues }: Params) => {
     const init = createEvent<ComponentsModels>('init')
 
-    const $componentsSchemas = combine($componentsModels, extractComponentsModels)
+    const setHiddenComponents = createEvent<Set<EntityId>>('setHiddenComponents')
+    const $hiddenComponents = createStore<Set<EntityId>>(new Set()).on(setHiddenComponents, (_, newComponentsToHidden) => newComponentsToHidden)
+
+    const runCalcChildrenOfComponents = createEvent('runCalcChildrenOfComponents')
+    const setChildrenOfComponents = createEvent<ChildrenOfComponents>('setChildrenOfComponents')
+    const $childrenOfComponents = createStore<ChildrenOfComponents>({}).on(setChildrenOfComponents, (_, newData) => newData)
+
+    const componentsStoreModel = createComponentsStoreModel({ init })
+
+    const componentsTemplatesModel = createComponentsTemplatesModel({ componentsStoreModel })
 
     const $currentViewVisibleComponentsSchemas = combine(
-        $componentsSchemas,
+        componentsStoreModel.$componentsSchemas,
         viewsService.$currentViewComponents,
         $hiddenComponents,
         (componentsSchemas, currentViewComponents, hiddenComponents) =>
@@ -39,7 +42,7 @@ export const createComponentsRegistryModel = ({ viewsService, themeService }: Pa
     )
 
     const $getExecutorContextBuilder: GetExecutorContextBuilder = combine(
-        $componentsSchemas,
+        componentsStoreModel.$componentsSchemas,
         viewsService.$currentViewId,
         (componentsSchemas, currentViewId) => {
             return (params) => buildExecutorContext({ componentsSchemas: params?.componentsSchemas || componentsSchemas, currentViewId })
@@ -51,97 +54,31 @@ export const createComponentsRegistryModel = ({ viewsService, themeService }: Pa
         themeService.$operators,
         (getExecutorContextBuilder, operators) => (params) => {
             const ctx = params?.ctx || getExecutorContextBuilder()
-            return ({ condition }) => isConditionSuccessful({ ctx, condition, operators })
+            return ({ condition, ownerComponentId }) => isConditionSuccessful({ ctx, condition, operators, ownerComponentId })
         },
     )
 
-    const baseUpdateModelsFx = createEffect<
-        {
-            componentsModels: ComponentsModels
-            componentsToUpdate: ComponentToUpdate[]
+    sample({
+        source: {
+            componentsSchemas: componentsStoreModel.$componentsSchemas,
+            componentsTemplates: componentsTemplatesModel.$templates,
+            currentViewElementsGraph: viewsService.$currentViewElementsGraph,
         },
-        ComponentsModels
-    >(({ componentsModels, componentsToUpdate }) => {
-        const newModel = componentsToUpdate.reduce((map, { componentId, schema, isNewValue }) => {
-            const model = map.get(componentId)
-            if (isNotEmpty(model)) {
-                model.setSchema({ schema, isNewValue })
-            }
-            return map
-        }, new Map(componentsModels))
-
-        return Promise.resolve(newModel)
-    })
-    const updateComponentsModelsFx = attach({
-        source: $componentsModels,
-        mapParams: (componentsToUpdate: ComponentToUpdate[], componentsModels: ComponentsModels) => ({
-            componentsModels,
-            componentsToUpdate,
-        }),
-        effect: baseUpdateModelsFx,
-    })
-
-    $componentsModels.on(setComponentsModels, (_, models) => models)
-    $hiddenComponents.on(setHiddenComponents, (_, newComponentsToHidden) => newComponentsToHidden)
-
-    sample({
-        clock: [updateComponentsModelsFx.doneData],
-        target: setComponentsModels,
-    })
-
-    sample({
-        clock: once(init),
-        target: setComponentsModels,
-    })
-
-    sample({
-        source: { componentsModels: $componentsModels },
-        clock: addComponentsModels,
-        fn: ({ componentsModels: currentModels }, newModels) =>
-            Array.from(newModels.entries()).reduce((result, [componentId, model]) => {
-                result.set(componentId, model)
-                return result
-            }, new Map(currentModels)),
-        target: setComponentsModels,
-    })
-
-    sample({
-        source: { componentsModels: $componentsModels },
-        clock: removeComponentsModels,
-        fn: ({ componentsModels }, idsToRemove) => {
-            const newModels = new Map(componentsModels)
-            idsToRemove.forEach((id) => {
-                newModels.delete(id)
-            })
-            return newModels
-        },
-        target: setComponentsModels,
-    })
-
-    const componentsAddedOrRemoved = sample({
-        clock: [
-            combineEvents([once(init), $componentsModels.updates]),
-            combineEvents([addComponentsModels, $componentsModels.updates]),
-            combineEvents([removeComponentsModels, $componentsModels.updates]),
-        ],
-    })
-
-    const componentsAdded = sample({
-        clock: [combineEvents([addComponentsModels, $componentsModels.updates])],
+        clock: runCalcChildrenOfComponents,
+        fn: ({ componentsSchemas, componentsTemplates, currentViewElementsGraph }) =>
+            buildChildrenComponentsGraph(componentsSchemas, currentViewElementsGraph, componentsTemplates.componentIdToTemplateId),
+        target: setChildrenOfComponents,
     })
 
     return {
         init,
-        updateComponentsModelsFx,
-        addComponentsModels,
-        removeComponentsModels,
-        componentsAddedOrRemoved,
-        componentsAdded,
-        $componentsModels: readonly($componentsModels),
-        $componentsSchemas: readonly($componentsSchemas),
+        runCalcChildrenOfComponents,
+        componentsStoreModel,
+        componentsTemplatesModel,
         $hiddenComponents: readonly($hiddenComponents),
         $getExecutorContextBuilder: readonly($getExecutorContextBuilder),
         $getIsConditionSuccessfulChecker: readonly($getIsConditionSuccessfulChecker),
         $currentViewVisibleComponentsSchemas: readonly($currentViewVisibleComponentsSchemas),
+        $childrenOfComponents: readonly($childrenOfComponents),
     }
 }

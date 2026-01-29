@@ -16,8 +16,8 @@ if (effectorDebuggerOn) {
     attachLogger()
 }
 
-export const GeneratorInit: FC<GeneratorProps> = memo(({ schema, theme, PlaceholderComponent, onSubmit, ...props }) => {
-    const [services] = useState(() => createRootServices({ schema, onSubmit, theme, PlaceholderComponent }))
+export const GeneratorInit: FC<GeneratorProps> = memo(({ schema, initialValues, theme, PlaceholderComponent, onSubmit, ...props }) => {
+    const [services] = useState(() => createRootServices({ schema, initialValues, onSubmit, theme, PlaceholderComponent }))
 
     const [appErrors] = useUnit([services.appErrorsService.$errors])
 

@@ -128,7 +128,7 @@ export const clientSchema: Schema = {
                 condition: {
                     type: 'operator',
                     operator: 'and',
-                    operands: [{ type: 'component', componentId: 'userType', operatorKey: 'equal', enteredComponentValue: 'ip' }],
+                    operands: [{ type: 'component', meta: { id: 'userType' }, operator: { key: 'equal' }, enteredComponentValue: 'ip' }],
                 },
                 responsive: {
                     xxl: {
@@ -197,7 +197,7 @@ export const clientSchema: Schema = {
                 condition: {
                     type: 'operator',
                     operator: 'and',
-                    operands: [{ type: 'component', componentId: 'userType', operatorKey: 'equal', enteredComponentValue: 'ul' }],
+                    operands: [{ type: 'component', meta: { id: 'userType' }, operator: { key: 'equal' }, enteredComponentValue: 'ul' }],
                 },
                 responsive: {
                     xxl: {
@@ -346,7 +346,7 @@ export const clientSchema: Schema = {
                         id: genId(),
                         key: 'isRequired',
                         options: { message: 'Обязательное поле' },
-                        condition: { type: 'component', componentId: 'userType', operatorKey: 'equal', enteredComponentValue: 'ul' },
+                        condition: { type: 'component', meta: { id: 'userType' }, operator: { key: 'equal' }, enteredComponentValue: 'ul' },
                     },
                 ],
             },
@@ -364,7 +364,7 @@ export const clientSchema: Schema = {
                         id: genId(),
                         key: 'isEmail',
                         options: { message: 'Неверный формат поты' },
-                        condition: { type: 'component', componentId: 'contactEmail', operatorKey: 'isNotEmpty' },
+                        condition: { type: 'component', meta: { id: 'contactEmail' }, operator: { key: 'isNotEmpty' } },
                     },
                 ],
             },
@@ -433,12 +433,12 @@ export const clientSchema: Schema = {
                     {
                         id: genId(),
                         key: 'disabled',
-                        condition: { type: 'component', componentId: 'inn', operatorKey: 'isEmpty' },
+                        condition: { type: 'component', meta: { id: 'inn' }, operator: { key: 'isEmpty' } },
                     },
                     {
                         id: genId(),
                         key: 'clearValue',
-                        condition: { type: 'component', componentId: 'inn', operatorKey: 'isEmpty' },
+                        condition: { type: 'component', meta: { id: 'inn' }, operator: { key: 'isEmpty' } },
                     },
                 ],
             },
@@ -472,7 +472,7 @@ export const clientSchema: Schema = {
                     {
                         id: genId(),
                         key: 'disabled',
-                        condition: { type: 'component', componentId: 'select-department', operatorKey: 'equal', enteredComponentValue: 'dev' },
+                        condition: { type: 'component', meta: { id: 'select-department' }, operator: { key: 'equal' }, enteredComponentValue: 'dev' },
                     },
                 ],
             },
@@ -502,7 +502,7 @@ export const clientSchema: Schema = {
                         condition: {
                             type: 'operator',
                             operator: 'or',
-                            operands: [{ type: 'component', componentId: 'country', operatorKey: 'equal', enteredComponentValue: 'belarus' }],
+                            operands: [{ type: 'component', meta: { id: 'country' }, operator: { key: 'equal' }, enteredComponentValue: 'belarus' }],
                         },
                     },
                     {
@@ -525,7 +525,7 @@ export const clientSchema: Schema = {
                         condition: {
                             type: 'operator',
                             operator: 'or',
-                            operands: [{ type: 'component', componentId: 'country', operatorKey: 'equal', enteredComponentValue: 'armeny' }],
+                            operands: [{ type: 'component', meta: { id: 'country' }, operator: { key: 'equal' }, enteredComponentValue: 'armeny' }],
                         },
                     },
                     {
@@ -553,7 +553,7 @@ export const clientSchema: Schema = {
                         condition: {
                             type: 'operator',
                             operator: 'or',
-                            operands: [{ type: 'component', componentId: 'country', operatorKey: 'equal', enteredComponentValue: 'chili' }],
+                            operands: [{ type: 'component', meta: { id: 'country' }, operator: { key: 'equal' }, enteredComponentValue: 'chili' }],
                         },
                     },
                 ],

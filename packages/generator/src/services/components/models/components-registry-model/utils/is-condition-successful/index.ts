@@ -1,7 +1,8 @@
-import { ComponentConditionOperator, ConditionComponentNode, ConditionNode, RuleExecutorContext } from '@form-crafter/core'
-import { isEmptyArray, isNotNull, isNull } from '@form-crafter/utils'
+import { ComponentConditionOperator, ConditionComponentNode, ConditionNode, EntityId, RuleExecutorContext } from '@form-crafter/core'
+import { isEmptyArray, isNotEmpty, isNotNull, isNull } from '@form-crafter/utils'
 
 import { conditionOperetorExecutor } from '../condition-operetor-executor'
+import { tempFn } from './temp.fn'
 
 const defaultValueOnSkip = false
 
@@ -24,14 +25,21 @@ type Params = {
     ctx: RuleExecutorContext
     condition: ConditionNode
     operators: Record<string, ComponentConditionOperator>
+    ownerComponentId?: EntityId
 }
 
-export const isConditionSuccessful = ({ ctx, condition, operators }: Params) => {
+export const isConditionSuccessful = ({ ctx, condition, operators, ownerComponentId }: Params) => {
     const executeCondition = (condition: ConditionNode): boolean | null => {
         if (isComponentConditionNode(condition)) {
-            const operator = operators[condition.operatorKey]
+            const operator = operators[condition.operator.key]
 
-            const componentSchema = ctx.getComponentSchemaById(condition.componentId)
+            if (isNotEmpty(condition.meta.template)) {
+                const templateId = condition.meta.id
+                const result = tempFn()
+                console.log('result')
+            }
+
+            const componentSchema = ctx.getComponentSchemaById(condition.meta.id)
             if (isNull(componentSchema)) {
                 return getResultIfHidden(condition.strategyIfHidden)
             }

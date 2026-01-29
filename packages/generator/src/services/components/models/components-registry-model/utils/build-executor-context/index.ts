@@ -1,4 +1,5 @@
 import { ComponentsSchemas, EntityId, RuleExecutorContext } from '@form-crafter/core'
+import { isNotEmpty } from '@form-crafter/utils'
 
 type Params = {
     componentsSchemas: ComponentsSchemas
@@ -15,8 +16,11 @@ export const buildExecutorContext = ({ componentsSchemas, currentViewId }: Param
         console.log(componentId)
         return []
     },
-    isTemplateComponentId: (componentId: EntityId) => {
-        console.log(componentId)
-        return false
+    isTemplate: (componentId: EntityId) => {
+        const schema = componentsSchemas[componentId]
+        if (isNotEmpty(schema)) {
+            return !!schema.meta.templateId
+        }
+        return null
     },
 })

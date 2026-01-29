@@ -1,4 +1,4 @@
 {
-    "include": ["src", "src/services/components/models/deps-of-rules-model/utils/extract-component-condition-deps/index.ts"],
+    "include": ["src", "src/services/components/models/deps-of-rules-model/utils/extract-component-condition-deps/index.ts", "../core/src/views/consts.ts", "../core/src/views/utils/build-views-elements-graphs", "../core/src/views/utils/build-view-elements-graph", "../core/src/views/utils/select-view-by-breakpoint", "../core/src/views/utils/merge-view-elements-graph", "../core/src/views/utils/deep-remove-view-element"],
     "extends": "../../tsconfig.json"
 }
