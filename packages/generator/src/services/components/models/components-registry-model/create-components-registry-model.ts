@@ -1,4 +1,4 @@
-import { ComponentsModels, EntityId, GetExecutorContextBuilder, GetIsConditionSuccessfulChecker } from '@form-crafter/core'
+import { ComponentsModels, EntityId, GetExecutorContextBuilder, GetInstancesByTemplateDepFn, GetIsConditionSuccessfulChecker } from '@form-crafter/core'
 import { AvailableObject } from '@form-crafter/utils'
 import { combine, createEvent, createStore, sample } from 'effector'
 import { readonly } from 'patronum'
@@ -7,7 +7,7 @@ import { ThemeService } from '../../../theme'
 import { ViewsService } from '../../../views'
 import { createComponentsStoreModel, createComponentsTemplatesModel } from './models'
 import { ChildrenOfComponents } from './types'
-import { buildChildrenComponentsGraph, buildExecutorContext, isConditionSuccessful } from './utils'
+import { buildChildrenComponentsGraph, buildExecutorContext, getInstancesByTemplateDep, isConditionSuccessful } from './utils'
 
 type Params = {
     themeService: Pick<ThemeService, '$operators'>
@@ -49,12 +49,24 @@ export const createComponentsRegistryModel = ({ viewsService, themeService, init
         },
     )
 
+    const $getInstancesByTemplateDep: GetInstancesByTemplateDepFn = combine(
+        $childrenOfComponents,
+        componentsTemplatesModel.$templates,
+        viewsService.$currentViewElementsGraph,
+        (childrenOfComponents, componentsTemplatesMap, currentViewElementsGraph) =>
+            ({ ownerComponentId }) =>
+            (depTemplateId) =>
+                getInstancesByTemplateDep({ childrenOfComponents, componentsTemplatesMap, ownerComponentId, depTemplateId, currentViewElementsGraph }),
+    )
+
     const $getIsConditionSuccessfulChecker: GetIsConditionSuccessfulChecker = combine(
         $getExecutorContextBuilder,
+        $getInstancesByTemplateDep,
         themeService.$operators,
-        (getExecutorContextBuilder, operators) => (params) => {
+        (getExecutorContextBuilder, getInstancesByTemplateDep, operators) => (params) => {
             const ctx = params?.ctx || getExecutorContextBuilder()
-            return ({ condition, ownerComponentId }) => isConditionSuccessful({ ctx, condition, operators, ownerComponentId })
+            return ({ condition, ownerComponentId }) =>
+                isConditionSuccessful({ ctx, condition, operators, getInstancesByTemplateDep: getInstancesByTemplateDep({ ownerComponentId }) })
         },
     )
 
@@ -69,6 +81,8 @@ export const createComponentsRegistryModel = ({ viewsService, themeService, init
             buildChildrenComponentsGraph(componentsSchemas, currentViewElementsGraph, componentsTemplates.componentIdToTemplateId),
         target: setChildrenOfComponents,
     })
+
+    $childrenOfComponents.watch((data) => console.log('data: ', data))
 
     return {
         init,

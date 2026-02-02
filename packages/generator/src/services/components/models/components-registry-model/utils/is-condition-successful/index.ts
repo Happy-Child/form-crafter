@@ -2,7 +2,6 @@ import { ComponentConditionOperator, ConditionComponentNode, ConditionNode, Enti
 import { isEmptyArray, isNotEmpty, isNotNull, isNull } from '@form-crafter/utils'
 
 import { conditionOperetorExecutor } from '../condition-operetor-executor'
-import { tempFn } from './temp.fn'
 
 const defaultValueOnSkip = false
 
@@ -25,18 +24,18 @@ type Params = {
     ctx: RuleExecutorContext
     condition: ConditionNode
     operators: Record<string, ComponentConditionOperator>
-    ownerComponentId?: EntityId
+    getInstancesByTemplateDep: (depTemplateId: EntityId) => EntityId[]
 }
 
-export const isConditionSuccessful = ({ ctx, condition, operators, ownerComponentId }: Params) => {
+export const isConditionSuccessful = ({ ctx, condition, operators, getInstancesByTemplateDep }: Params) => {
     const executeCondition = (condition: ConditionNode): boolean | null => {
         if (isComponentConditionNode(condition)) {
             const operator = operators[condition.operator.key]
 
             if (isNotEmpty(condition.meta.template)) {
-                const templateId = condition.meta.id
-                const result = tempFn()
-                console.log('result')
+                const result = getInstancesByTemplateDep(condition.meta.id)
+                console.log('result: ', result)
+                // Далее итерация по полученным экземплярам шаблона.
             }
 
             const componentSchema = ctx.getComponentSchemaById(condition.meta.id)

@@ -14,6 +14,7 @@ const getEmptyChildOfContainer = (): ChildrenOfContainer => ({
 const getEmptyChildOfRepeater = (): ChildrenOfRepeater => ({
     type: 'repeater',
     children: new Set(),
+    childrenByTemplateId: {},
 })
 
 export const buildChildrenComponentsGraph = (
@@ -49,11 +50,20 @@ export const buildChildrenComponentsGraph = (
                         childrenByTemplateId: { ...containerResult.childrenByTemplateId, ...childrenByTemplateId },
                     }
                 } else {
+                    const childrenByTemplateId = getChildrenByTemplateId(childrenComponents)
                     const repeaterResult = (childrenOfComponents[parentComponentId] as ChildrenOfRepeater) || getEmptyChildOfRepeater()
+
+                    const previousChildrenByTemplate = Object.values(repeaterResult.childrenByTemplateId)?.[0] || []
+                    const templateId = Object.keys(childrenByTemplateId)[0]
+
+                    const finalChildrenByTemplateId = {
+                        [templateId]: [...previousChildrenByTemplate, ...Object.values(childrenByTemplateId)],
+                    }
 
                     finalData = {
                         type: 'repeater',
                         children: new Set([...childrenComponents, ...repeaterResult.children]),
+                        childrenByTemplateId: finalChildrenByTemplateId,
                     }
                 }
 

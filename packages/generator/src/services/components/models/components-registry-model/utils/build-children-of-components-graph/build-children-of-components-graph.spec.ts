@@ -122,6 +122,7 @@ describe('buildChildrenComponentsGraph', () => {
             repeater: {
                 type: 'repeater',
                 children: new Set(['repeater_container_1', 'repeater_container_2']),
+                childrenByTemplateId: { container_template: ['repeater_container_1', 'repeater_container_2'] },
             },
             repeater_container_1: {
                 type: 'container',
@@ -312,6 +313,7 @@ describe('buildChildrenComponentsGraph', () => {
             repeater: {
                 type: 'repeater',
                 children: new Set(['repeater_container_1']),
+                childrenByTemplateId: { repeater_1_container_template: ['repeater_container_1'] },
             },
             repeater_container_1: {
                 type: 'container',
@@ -332,6 +334,9 @@ describe('buildChildrenComponentsGraph', () => {
             repeater_container_2_component_3: {
                 type: 'repeater',
                 children: new Set(['repeater_container_2_component_3_container_1', 'repeater_container_2_component_3_container_2']),
+                childrenByTemplateId: {
+                    repeater_2_container_template: ['repeater_container_2_component_3_container_1', 'repeater_container_2_component_3_container_2'],
+                },
             },
             repeater_container_2_component_3_container_1: {
                 type: 'container',

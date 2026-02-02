@@ -53,5 +53,7 @@ export const init = ({ viewsService, componentsService, repeaterService }: Param
     // RUN LIFE CYRCLE ТУТ?
     // --- INIT REPEATER END
 
+    // Здесь запускается первичный life cyrcle при init. Нужно учитывать это место, так как views должны быть готовы к этому момент (там используется is successful checker).
+    // Кажется его нужно запусткать тут после постройки views и заполнения components на initialValues, либо/и на "initialGroupCount" у каждого repeater компонента.
     componentsService.startInit()
 }

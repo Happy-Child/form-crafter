@@ -1,3 +1,5 @@
 export * from './build-children-of-components-graph'
 export * from './build-executor-context'
+export * from './get-instances-by-template-dep'
+export * from './get-instances-within-container'
 export * from './is-condition-successful'

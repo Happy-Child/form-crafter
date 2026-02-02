@@ -1,10 +1,9 @@
-import { EntityId } from '@form-crafter/core'
+import { ComponentsTemplates, EntityId } from '@form-crafter/core'
 import { isEmpty, isNotEmpty } from '@form-crafter/utils'
 import { createEvent, createStore, sample } from 'effector'
 import { readonly } from 'patronum'
 
 import { ComponentsStoreModel } from '../components-store-model'
-import { ComponentsTemplates } from './types'
 
 type Params = {
     componentsStoreModel: ComponentsStoreModel

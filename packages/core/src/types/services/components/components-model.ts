@@ -25,6 +25,13 @@ export type GetIsConditionSuccessfulChecker = Store<
     (params?: { ctx?: RuleExecutorContext }) => (params: { condition: ConditionNode; ownerComponentId?: EntityId }) => boolean
 >
 
+export type GetInstancesByTemplateDepFn = Store<(params: { ownerComponentId?: EntityId }) => (depTemplateId: EntityId) => EntityId[]>
+
+export type ComponentsTemplates = {
+    componentIdToTemplateId: Record<EntityId, EntityId>
+    templateIdToComponentsIds: Record<EntityId, Set<EntityId>>
+}
+
 export type ComponentToUpdate = {
     componentId: EntityId
     schema: ComponentSchema

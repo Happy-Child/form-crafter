@@ -1,41 +1,38 @@
-- Условие на container (componentId) имеет зависимость componentId.
+- Условие на container (componentId) имеет зависимость depId.
 
 isNeighbour(compA, compB) {
     parentCompA = getParent(compA)
     return isUnnestedChildren(parentCompA, compB)
 }
 
-if (isTemplate(depId)) {
-    parentComp = getParent(componentId)
+---- START IMPL
+parentComp = getParent(componentId)
 
-    if (isContainer(componentId)) {
-        if (isChildren(componentId, depId)) {
-            if (isUnnestedChildren(componentId, depId)) {
-                return один экземпляр depId
-            }
-            return все экземпляры depId в рамках componentId
-        }
-        return все экземпляры depId
-    } else if (isNeighbour(componentId, depId)) {
-        return один экземпляр depId
-    } else if (parentComp === depId) {
-        return один экземпляр depId (по сути это parentComp)
-    }
-
-    if (isEmpty(parentComp)) {
-        return все экземпляры depId
-    }
-
-    if (isChildren(parentComp, depId)) {
-        return все экземпляры depId в рамках parentComp
-    }
-
+if (isEmpty(parentComp)) {
     return все экземпляры depId
-} else {
-    return depId
 }
 
+if (isContainer(componentId)) {
+    if (isChildren(componentId, depId)) {
+        // TODO почему просто не вернуть все экземпляры в рамках componetnId и всё? Ведь будет массив с одним элементом, если один экземпляр был по итогу.
+        if (isUnnestedChildren(componentId, depId)) {
+            return один экземпляр depId
+        }
+        return все экземпляры depId в рамках componentId
+    }
+    return все экземпляры depId
+} else if (isNeighbour(componentId, depId)) {
+    return один экземпляр depId
+} else if (parentComp === depId) {
+    return один экземпляр depId (по сути это parentComp)
+}
 
+if (isChildren(parentComp, depId)) {
+    return все экземпляры depId в рамках parentComp
+}
+
+return все экземпляры depId
+---- END IMPL
 
 
 // TODO ограничение контекста  для соседей - container/repeater компоненты.
