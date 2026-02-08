@@ -497,32 +497,39 @@ export const employeeSchema: Schema = {
                     'contact-input-first-name': {
                         meta: { id: 'contact-input-first-name', type: 'text-input', name: 'text-input' },
                         properties: { label: 'Имя', value: '' },
-                        validations: {
+                        mutations: {
                             schemas: [
                                 {
                                     id: genId(),
-                                    key: 'isRequired',
-                                    options: { message: 'Обязательное поле' },
+                                    key: 'disabled',
                                     condition: {
-                                        type: 'operator',
-                                        operator: 'and',
-                                        operands: [
-                                            {
-                                                type: 'component',
-                                                meta: { id: 'date-birth' },
-                                                operator: { key: 'equal' },
-                                                options: { startsWith: '01-12-2010' },
-                                            },
-                                            {
-                                                type: 'component',
-                                                meta: { id: 'date-start' },
-                                                operator: { key: 'isNotEmpty' },
-                                            },
-                                        ],
+                                        type: 'component',
+                                        meta: { id: 'contact-input-last-name', template: { operator: 'and' } },
+                                        operator: { key: 'isNotEmpty' },
                                     },
                                 },
                             ],
                         },
+                        // validations: {
+                        //     schemas: [
+                        //         {
+                        //             id: genId(),
+                        //             key: 'isRequired',
+                        //             options: { message: 'Обязательное поле' },
+                        //             condition: {
+                        //                 type: 'operator',
+                        //                 operator: 'and',
+                        //                 operands: [
+                        //                     {
+                        //                         type: 'component',
+                        //                         meta: { id: 'contact-input-last-name', template: { operator: 'and' } },
+                        //                         operator: { key: 'isNotEmpty' },
+                        //                     },
+                        //                 ],
+                        //             },
+                        //         },
+                        //     ],
+                        // },
                     },
                     'contact-input-last-name': {
                         meta: { id: 'contact-input-last-name', type: 'text-input', name: 'text-input' },

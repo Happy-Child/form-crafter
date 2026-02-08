@@ -24,17 +24,20 @@ type Params = {
     ctx: RuleExecutorContext
     condition: ConditionNode
     operators: Record<string, ComponentConditionOperator>
-    getInstancesByTemplateDep: (depTemplateId: EntityId) => EntityId[]
+    getComponentsByTemplateDep: (depTemplateId: EntityId) => EntityId[]
 }
 
-export const isConditionSuccessful = ({ ctx, condition, operators, getInstancesByTemplateDep }: Params) => {
+export const isConditionSuccessful = ({ ctx, condition, operators, getComponentsByTemplateDep }: Params) => {
+    console.log('condition: ', condition)
+
     const executeCondition = (condition: ConditionNode): boolean | null => {
         if (isComponentConditionNode(condition)) {
             const operator = operators[condition.operator.key]
 
+            // TODO: Если выбран сосед оператор указывать не нужно, но тогда поле template пропадёт - как понять что это шаблон?
             if (isNotEmpty(condition.meta.template)) {
-                const result = getInstancesByTemplateDep(condition.meta.id)
-                console.log('result: ', result)
+                const result = getComponentsByTemplateDep(condition.meta.id)
+                console.log('getComponentsByTemplateDep result: ', result)
                 // Далее итерация по полученным экземплярам шаблона.
             }
 
